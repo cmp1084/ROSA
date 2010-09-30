@@ -1,0 +1,28 @@
+====================================
+ROSA
+Realtime Operating system for AVR32
+====================================
+
+Content:
+=========
+	License
+	Compiling
+	Directory structure
+	Help!
+
+
+License
+==========
+The License for ROSA is found in the file LICENSE.
+
+Compiling
+==========
+ROSA will compile by typing:
+	make
+in the rosa directory.
+
+Help!
+==========
+Send an e-mail to:
+mjansson256@yahoo.se
+Put ROSA in the subject field, and clearly state your questions.

@@ -1,0 +1,3 @@
+To compile ROSA simply type:
+	make
+in the rosa/ directory.
