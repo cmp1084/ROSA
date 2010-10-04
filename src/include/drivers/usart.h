@@ -26,31 +26,32 @@
 #ifndef _USART_H_
 #define _USART_H_
 
-#include <rosa_config.h>
+#include "kernel/rosa_int.h"
+#include "rosa_config.h"
 
 #define USART_NO_RX_CHAR 0
 
 //Return Values
-#define USART_SUCCESS		0 //Successful completion.
-#define USART_FAILURE		1 //Failure because of some unspecified reason.
-#define USART_INVALID_INPUT	1 //Input value out of range.
+#define USART_SUCCESS			0 //Successful completion.
+#define USART_FAILURE			1 //Failure because of some unspecified reason.
+#define USART_INVALID_INPUT		1 //Input value out of range.
 #define USART_INVALID_ARGUMENT	1 //Argument value out of range.
-#define USART_TX_BUSY		2 //Transmitter was busy.
-#define USART_RX_EMPTY		3 //Nothing was received.
-#define USART_RX_ERROR		4 //Transmission error occurred.
-#define USART_MODE_FAULT	5 //USART not in the appropriate mode.
+#define USART_TX_BUSY			2 //Transmitter was busy.
+#define USART_RX_EMPTY			3 //Nothing was received.
+#define USART_RX_ERROR			4 //Transmission error occurred.
+#define USART_MODE_FAULT		5 //USART not in the appropriate mode.
 
 //Parity Settings
-#define USART_EVEN_PARITY	AVR32_USART_MR_PAR_EVEN		//Use even parity on character transmission.
-#define USART_ODD_PARITY	AVR32_USART_MR_PAR_ODD		//Use odd parity on character transmission.
-#define USART_SPACE_PARITY	AVR32_USART_MR_PAR_SPACE	//Use a space as parity bit.
-#define USART_MARK_PARITY	AVR32_USART_MR_PAR_MARK		//Use a mark as parity bit.
-#define USART_NO_PARITY		AVR32_USART_MR_PAR_NONE		//Don't use a parity bit.
+#define USART_EVEN_PARITY		AVR32_USART_MR_PAR_EVEN		//Use even parity on character transmission.
+#define USART_ODD_PARITY		AVR32_USART_MR_PAR_ODD		//Use odd parity on character transmission.
+#define USART_SPACE_PARITY		AVR32_USART_MR_PAR_SPACE	//Use a space as parity bit.
+#define USART_MARK_PARITY		AVR32_USART_MR_PAR_MARK		//Use a mark as parity bit.
+#define USART_NO_PARITY			AVR32_USART_MR_PAR_NONE		//Don't use a parity bit.
 #define USART_MULTIDROP_PARITY	AVR32_USART_MR_PAR_MULTI	//Parity bit is used to flag address characters.
 
 //Stop Bits Settings
-#define USART_1_STOPBIT		AVR32_USART_MR_NBSTOP_1		//Use 1 stop bit.
-#define USART_2_STOPBITS	AVR32_USART_MR_NBSTOP_2		//Use 2 stop bits
+#define USART_1_STOPBIT			AVR32_USART_MR_NBSTOP_1		//Use 1 stop bit.
+#define USART_2_STOPBITS		AVR32_USART_MR_NBSTOP_2		//Use 2 stop bits
 
 //Channel Modes
 #define USART_NORMAL_CHMODE		AVR32_USART_MR_CHMODE_NORMAL	//Normal communication.
@@ -73,4 +74,5 @@ char usartGetChar(volatile avr32_usart_t * usart);
 void usartWriteLine(volatile avr32_usart_t * usart, char * string);
 void usartWriteChar(volatile avr32_usart_t * usart, char ch);
 void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb);
+
 #endif /* _USART_H_ */

@@ -45,164 +45,15 @@
 	.global ROSA_contextRestore
 	.global ROSA_contextSaveFromISR
 	.global ROSA_contextRestoreFromISR
-	.global ROSA_interruptDisable
-	.global ROSA_interruptEnable
-	.global ROSA_isInterruptEnabled
-	.global ROSA_interruptInit
 
 	//Other functions
 	.global _ROSA_readSR
-
-	//General constants
-	.equ TRUE,0x01
-	.equ FALSE,0x00
 
 	//Mask value for SR register
 	.equ SRMASK1,0xfe3e
 	.equ SRMASK2,0x001c
 
-	//Interrupt constants
-	.equ INTLEVEL0,0
-	.equ INTLEVEL_OFFSET,30
-	.equ GRP14,0x0e*0x04			//Grp 14 for TC
-	.equ LINE0,0x01					//Line 0 for TC0
-
-	//Interrupt vectors
-	.section  .exception, "ax", @progbits
-	.balign 0x200
-	.global _evba
-	.type _evba, @function
-_evba:
-	.org  0x28
-_handle_Privilege_Violation:
-	rjmp privilegedCalls
-
-	.org  0x100
-_handle_Supervisor_Call:
-	mov pc,lr
-
-/***********************************************************
- * ROSA_timer interrupt handling, lowlevel
- *
- * Comment:
- * 	Send the interrupt to the proper ISR handler,
- * 	ROSA_timerISR
- **********************************************************/
-_int0:
-	//TC0 interrupt
-	mov r12,lo(AVR32_INTC_ADDRESS)
-	orh r12,hi(AVR32_INTC_ADDRESS)
-	ld.w r12,r12[AVR32_INTC_IRR + GRP14]	//TC irq grp is at GRP14
-	andl r12,LINE0							//TC0 irq is at line 0 = 1
-	cp.w r12,LINE0
-	brne _int0_u
-	lda.w r12,ROSA_timerISR					//The pointer to the ISR routine
-	mov pc,r12
-_int0_u:
-	rete
-
-	.section .data
-.equ PRIV_STACKOFFSET,0x08					//Due to r11, r12 pushed to stack
-.equ USERSR,0x00+PRIV_STACKOFFSET
-.equ USERPC,0x04+PRIV_STACKOFFSET
-
-.section .text, "ax", @progbits
-
-/***********************************************************
- * Privileged Calls
- *
- * Comment:
- * 	Handle privileged function calls.
- *
- **********************************************************/
-privilegedCalls:
-//Stack frame:
-//-------------
-//SR
-//PC offender
-
-	//Check for legal disable/enable interrupt requests
-	pushm r11,r12
-	ld.w r11,sp[USERPC]
-	mov r12,r11
-	sub r12,-0x02							//Modify to get return address
-	st.w sp[USERPC],r12						//Put return address on the stack
-
-	//Look for interruptDisable
-priv_interruptdisable:
-	lda.w r12,(ROSA_interruptDisable)
-	cp.w r11,r12
-	brne priv_interruptenable
-	ld.w r12,sp[USERSR]
-	sbr r12,AVR32_SR_GM
-	st.w sp[USERSR],r12
-	popm r11,r12
-	rete
-
-	//Look for interruptEnable
-priv_interruptenable:
-	lda.w r12,(ROSA_interruptEnable)
-	cp.w r11,r12
-	brne priv_readSR
-	ld.w r12,sp[USERSR]
-	cbr r12,AVR32_SR_GM
-	st.w sp[USERSR],r12
-	popm r11,r12
-	rete
-
-	//Look for readSR
-priv_readSR:
-	lda.w r12,(_ROSA_readSR)
-	cp.w r11,r12
-	brne privexception
-	mfsr r12,0x0
-	st.w sp[0x0],r12						//Return result on stack
-	popm r11,r12
-	rete
-
-privexception:
-	rjmp $
-
-
-/***********************************************************
- * ROSA_interruptInit
- *
- * Comment:
- * 	Interrupt setup routines
- *
- * C prototypes:
- * 	extern void ROSA_interruptInit(void);
- **********************************************************/
-ROSA_interruptInit:
-	pushm r11,r12,lr
-	//Get offset to _int0
-	lda.w r11,_int0
-	lda.w r12,_evba
-	sub r11,r12
-	//Calculate int level
-	andl r11,0xfffe
-	mov r12,INTLEVEL0
-	or r11,r11,r12 << INTLEVEL_OFFSET
-
-	//Store the _int0 level and autovector offset to INTC IPR
-	mov r12,lo(AVR32_INTC_ADDRESS)
-	orh r12,hi(AVR32_INTC_ADDRESS)
-	mov r10,AVR32_INTC_IPR
-	add r12,r10
-	mov r10,AVR32_INTC_NUM_INT_GRPS
-ROSA_initint_1:
-	st.w r12++,r11
-
-	sub r10,0x01
-	cp.w r10,0x00
-	brpl ROSA_initint_1
-	popm r11,r12,lr
-	mov pc,lr
-
-_unhandled_interrupt:
-	rjmp $
-
-
+	.section .text, "ax", @progbits
 /***********************************************************
  * _ROSA_INIT
  *
@@ -212,7 +63,6 @@ _unhandled_interrupt:
  * C prototype:
  * extern void _ROSA_init(void);
  **********************************************************/
-	.section .text, "ax", @progbits
 _ROSA_init_lowlevel:
 	/*
 	 * Additional low level initializations
@@ -235,7 +85,6 @@ _ROSA_init_lowlevel:
  *                       int *task_stack,
  *                       int task_stack_size);
  **********************************************************/
-	.section .text, "ax", @progbits
 _ROSA_tcbCreate_lowlevel:
 	/*
 	 * Additional low level TCB creation
@@ -260,7 +109,6 @@ _ROSA_tcbCreate_lowlevel:
  * extern void _ROSA_tcbInstall_lowlevel(tcb * task);
  *
  **********************************************************/
-	.section .text, "ax", @progbits
 _ROSA_tcbInstall_lowlevel:
 	/*
 	 * Additional low level tcb installation
@@ -277,7 +125,6 @@ _ROSA_tcbInstall_lowlevel:
  * C prototype:
  * None
  ********************************************************/
-	.section .text, "ax", @progbits
 _ROSA_kernel:
 	mov pc,lr
 
@@ -289,10 +136,10 @@ _ROSA_kernel:
 * Start the kernel.
 *
 *********************************************************/
-	.section .data
+	//. sc  e c t i o n .data
 .equ STACKFRAMESTART_SR,0x00
 
-	.section .text, "ax", @progbits
+	//.section .text, "ax", @progbits
 _ROSA_scall_start:
 	pushm r12
 	//Fetch the executing task
@@ -333,7 +180,6 @@ _ROSA_scall_start:
  * C prototype:
  * None
  ********************************************************/
-	.section .text, "ax", @progbits
 _ROSA_scall_contextInit:
 	//Initialize working regs
 	mov r0,0x0
@@ -347,7 +193,7 @@ _ROSA_scall_contextInit:
 	//Initialize lr in the savereg area
 	ld.w r0,r12[TCB.STADDR]
 	st.w r12[TCB.SAVEREG.LR],r0
-	//~ st.w r12[TCB.SAVEREG.R12],r0
+	//~ st.w r12[TCB.SAVEREG.R12],r0	//TODO:
 
 	rets
 
@@ -365,14 +211,7 @@ _ROSA_scall_contextInit:
 * 	ROSA_Yield() or ROSA_yieldFromISR().
 *
 *********************************************************/
-	.section .data
-//SF = Stack Frame
-.equ SF_OFFSET,0x00
-.equ SF_SR,0x00 + SF_OFFSET
-.equ SF_PC,0x04 + SF_OFFSET
-.equ SF_LR_RS,0x00 + SF_OFFSET
-.equ SF_LR_TASK,0x04 + SF_OFFSET
-.equ SF_R7_TASK,0x08 + SF_OFFSET
+	//~ .section .data TODO:
 
 //Stack frame, supervisor stack:
 //------------------------------
@@ -385,7 +224,15 @@ _ROSA_scall_contextInit:
 //LR_task from ROSA_yield
 //R7_task from ROSA_yield
 
-	.section .text, "ax", @progbits
+//SF = Stack Frame
+.equ SF_OFFSET,0x00
+.equ SF_SR,0x00 + SF_OFFSET
+.equ SF_PC,0x04 + SF_OFFSET
+.equ SF_LR_RS,0x00 + SF_OFFSET
+.equ SF_LR_TASK,0x04 + SF_OFFSET
+.equ SF_R7_TASK,0x08 + SF_OFFSET
+
+	//~ .section .text, "ax", @progbits TODO:
 /*********************************************************
 * _ROSA_scall_contextSave
 *
@@ -397,7 +244,7 @@ _ROSA_scall_contextInit:
 _ROSA_scall_contextSave:
 	pushm r12,lr
 	call ROSA_interruptDisable		//Disable interrupts
-	call ROSA_timerStop				//Stop timer
+	//~ call ROSA_timerStop				//Stop timer		//TODO:
 	popm r12,lr
 
 	//We want to save R12 on the stack for a while
@@ -444,6 +291,16 @@ _ROSA_scall_contextSave:
 
 	//Save USP
 	st.w r12[TCB.SAVEUSP],r1
+
+	//Set USP to SSP until _contextRestore	//TODO:
+	mov r0,sp
+	st.w --sp,r0
+	stmts sp,sp
+	ld.w r0,sp++
+
+	//Restore work regs (unnecessary at this point) //TODO:
+	//~ ld.w r0,r12[TCB.SAVER0]
+	//~ ld.w r0,r12[TCB.SAVER1]
 
 	rets
 
@@ -504,7 +361,6 @@ _ROSA_scall_contextRestore:
 	rets
 
 
-	.section .text, "ax", @progbits
 /*********************************************************
 * ROSA_contextSaveFromISR
 *
@@ -636,16 +492,14 @@ ROSA_contextRestoreFromISR:
 	mov pc,lr
 
 
-//TODO: Put the code (declarations) below in a separate (header) file
-	.section .text, "ax", @progbits
 /*********************************************************
 * _ROSA_ the users interface to the kernel
 *
 * Comment:
 * Below are the user callable functions that perform
 * kernel function calls.
-* These functions are called from the kernel API from user
-* mode and transfer control to supervisor mode.
+* These functions are called from the kernel API from
+* user mode and transfer control to supervisor mode.
 *
 *********************************************************/
 
@@ -700,73 +554,3 @@ ROSA_contextInit:
 	lda.w lr,_ROSA_scall_contextInit
 	scall
 	ld.w pc,sp++
-
-/**********************************************************
- * _ROSA_readSR
- *
- * Comment:
- * 	Read the status register.
- *
- * Returns:
- * 	The value of the status register in r12
- *
- * C prototype:
- * 	int _ROSA_readSR(void);
- *
- *********************************************************/
-_ROSA_readSR:
-	mfsr r12,0
-	mov pc,lr
-
-
-/**********************************************************
- * ROSA_interruptDisable
- *
- * Comment:
- * 	Disable global interrupts
- *
- * C prototype:
- * 	void ROSA_interruptDisable(void);
- *
- *********************************************************/
-ROSA_interruptDisable:
-	ssrf AVR32_SR_GM
-	mov pc,lr
-
-
-/**********************************************************
- * ROSA_interruptEnable
- *
- * Comment:
- * 	Enable global interrupts
- *
- * C prototype:
- * 	void ROSA_interruptEnable(void);
- *
- *********************************************************/
-ROSA_interruptEnable:
-	csrf AVR32_SR_GM
-	mov pc,lr
-
-
-/**********************************************************
- * ROSA_isInterruptEnabled
- *
- * Comment:
- * 	Check if global interrupts are enabled
- *
- * Returns:
- * TRUE or FALSE
- *
- * C prototype:
- * 	int ROSA_isInterruptEnabled(void);
- *
- *********************************************************/
-ROSA_isInterruptEnabled:
-	pushm lr
-	call _ROSA_readSR
-	lsr r12,AVR32_SR_GM
-	andl r12,TRUE
-	eorl r12,TRUE
-	popm lr
-	mov pc,lr

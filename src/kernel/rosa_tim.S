@@ -23,7 +23,7 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
-#include "kernel/rosa_tim.h"
+//~ #include "kernel/rosa_tim.h"
 #include "rosa_config.h"
 
 	//Timer functions
@@ -59,7 +59,8 @@ ROSA_timerPrescale:
  **********************************************************/
 //CMR0
 .equ WAVE,(1 << AVR32_TC_WAVE_OFFSET)
-.equ WAVSEL,(2 << AVR32_TC_WAVSEL_OFFSET) //UP mode with automatic trigger on RC Compare
+//Up mode with automatic trigger on RC Compare
+.equ WAVSEL,(2 << AVR32_TC_WAVSEL_OFFSET)
 .equ CPCSTOP,(1 << AVR32_TC_CPCSTOP_OFFSET)
 
 //SR
@@ -69,7 +70,7 @@ ROSA_timerPrescale:
  * ROSA_timerInit
  *
  * Comment:
- * 	Setup the TC0 timer
+ * 	Setup the TC0 timer.
  *	Actually _starting_ the timer is done by ROSA_timerStart();
  *
  * C prototypes:
@@ -152,7 +153,9 @@ ROSA_timerStop:
  *
  * Comment:
  * 	Set the RC value of the timer
- * 	No checking for sane limits is done
+ * 	No checking for sane limits is done.
+ *	The current value of the RC can be read through
+ *	the variable 'ROSA_timerRC'.
  *
  * C prototypes:
  *  extern void ROSA_timerRCSet(void);
@@ -173,7 +176,9 @@ ROSA_timerRCSet:
  *
  * Comment:
  * 	Set the prescale value of the timer
- * 	No checking for sane limits is done
+ * 	No checking for sane limits is done.
+ *	The current value for the prescale can be read through
+ * 	the variable 'ROSA_timerPrescale'.
  *
  * C prototypes:
  *  extern void ROSA_timerPrescaleSet(void);

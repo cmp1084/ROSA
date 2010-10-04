@@ -23,27 +23,27 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+#ifndef _ROSA_INT_H_
+#define _ROSA_INT_H_
 
 #include <avr32/io.h>
 
-//~ #define TC_CLOCK_SOURCE_TC2 1
-//~ #define TC_CLOCK_SOURCE_TC3 2
-//~ #define TC_CLOCK_SOURCE_TC4 3
-//~ #define TC_CLOCK_SOURCE_TC5 4
-
 /***********************************************************
- * Kernel timer lowlevel functions
+ * Kernel interrupt handling functions
  ***********************************************************/
-extern void ROSA_timerInit(void);
-extern void ROSA_timerStart(void);
-extern void ROSA_timerReset(void);
-extern void ROSA_timerStop(void);
+//Interrupt initialization must be done before enabling interrupts
+extern void ROSA_interruptInit(void);
 
-//Read the TC0 timers status register
-extern void ROSA_timerClearInterrupt(void);
-extern void ROSA_timerPrescaleSet(int);
-extern void ROSA_timerRCSet(int);
+//Disable interrupts
+extern void ROSA_interruptDisable(void);
 
-#endif /* _ROSA_TIMER_H_ */
+//Enable interrupts
+extern void ROSA_interruptEnable(void);
+
+//Check if interrupts are enabled.
+extern int  ROSA_isInterruptEnabled(void);
+
+//Read the status register
+extern int _ROSA_readSR(void);
+
+#endif /* _ROSA_INT_H_ */

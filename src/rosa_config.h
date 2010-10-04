@@ -27,7 +27,7 @@
 #define _ROSA_CONFIG_H_
 
 #include <avr32/io.h>
-#include "kernel/rosa_tim.h"
+//~ #include "kernel/rosa_tim.h"
 #include "drivers/debug.h"
 
 //Maximum number of chars in the task id (the task name)
@@ -71,9 +71,9 @@
  *	To get 0.5 s: 12000000 / 128 * 0.5 = 46875 = timerRC
  *
  **********************************************************/
-#define FOSC0 12000000									//CPU clock frequencey
-#define TIMERPRESCALE_CONFIG TC_CLOCK_SOURCE_TC5
-#define TIMERRC_CONFIG	46875							//Corresponding to 0.5 s period, with prescale _TC5
+#define FOSC0 12000000											//CPU clock frequencey
+#define TIMERPRESCALE_CONFIG AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5 	//equals TC_CLOCK_SOURCE_TC5
+#define TIMERRC_CONFIG	46875									//Corresponding to 0.5 s period, with prescale _TC5
 
 //USART configures
 #define USART				(&AVR32_USART0)

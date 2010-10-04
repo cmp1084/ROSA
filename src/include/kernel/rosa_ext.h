@@ -46,43 +46,6 @@ extern void ROSA_contextRestoreFromISR(void);
 
 
 /***********************************************************
- * Kernel interrupt handling functions
- ***********************************************************/
-//Interrupt initialization must be done before enabling interrupts
-extern void ROSA_interruptInit(void);
-
-//Disable interrupts
-extern void ROSA_interruptDisable(void);
-
-//Enable interrupts
-extern void ROSA_interruptEnable(void);
-
-//Check if interrupts are enabled.
-extern int  ROSA_isInterruptEnabled(void);
-
-
-/***********************************************************
- * Kernel timer lowlevel functions
- ***********************************************************/
-extern void ROSA_timerInit(void);
-extern void ROSA_timerStart(void);
-extern void ROSA_timerReset(void);
-extern void ROSA_timerStop(void);
-
-//Read the TC0 timers status register
-extern void ROSA_timerClearInterrupt(void);
-extern void ROSA_timerPrescaleSet(int);
-extern void ROSA_timerRCSet(int);
-
-
-/***********************************************************
- * Potentiometer lowlevel functions
- ***********************************************************/
-extern void potInit(void);
-extern int potGetValue(void);
-
-
-/***********************************************************
  * Other kernel functions
  ***********************************************************/
 //Kernel lowlevel initialization
@@ -91,8 +54,5 @@ extern void ROSA_init_lowlevel(void);
 //This is the lowlevel call to start the first task.
 //EXECTASK should have been preloaded with the first task to run.
 extern void ROSA_start_lowlevel(void);
-
-//Read the status register
-extern int _ROSA_readSR(void);
 
 #endif /* rosa_EXT_H_ */

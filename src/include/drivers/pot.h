@@ -23,27 +23,16 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+#ifndef _ROSA_POT_H_
+#define _ROSA_POT_H_
 
 #include <avr32/io.h>
 
-//~ #define TC_CLOCK_SOURCE_TC2 1
-//~ #define TC_CLOCK_SOURCE_TC3 2
-//~ #define TC_CLOCK_SOURCE_TC4 3
-//~ #define TC_CLOCK_SOURCE_TC5 4
-
 /***********************************************************
- * Kernel timer lowlevel functions
+ * Potentiometer lowlevel functions
  ***********************************************************/
-extern void ROSA_timerInit(void);
-extern void ROSA_timerStart(void);
-extern void ROSA_timerReset(void);
-extern void ROSA_timerStop(void);
+extern void potInit(void);
+extern int potGetValue(void);
 
-//Read the TC0 timers status register
-extern void ROSA_timerClearInterrupt(void);
-extern void ROSA_timerPrescaleSet(int);
-extern void ROSA_timerRCSet(int);
 
-#endif /* _ROSA_TIMER_H_ */
+#endif /* _ROSA_POT_H_ */

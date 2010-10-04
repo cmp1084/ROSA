@@ -2,8 +2,8 @@
 #
 #                 ,//////,   ,////    ,///' /////,
 #                ///' ./// ///'///  ///,    ,, //
-#               ///////,  ///,///   '/// //;''//,
-#             ,///' '///,'/////',/////'  /////'/;,
+#               ///////,  ///,///   '/// ///''//,
+#             ,///' '///,'/////',/////'  /////'//,
 #
 #    Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
 #
@@ -27,32 +27,35 @@ PROGRAM = rosa
 BOARD = EVK1100
 PART = uc3a0512
 
+SOURCEDIR= src
+BINDIR = bin
+STARTUPDIR = $(SOURCEDIR)/cpu
+KERNELDIR = $(SOURCEDIR)/kernel
+DRIVERSDIR = $(SOURCEDIR)/drivers
+INCDIRS = -Isrc -Isrc/include
+
 CC = avr32-gcc
 LD = avr32-ld
 AS = avr32-as
 OBJCOPY = avr32-objcopy
+
 DEBUG = -ggdb
-
-INCDIRS = -Isrc -Isrc/include
-SOURCEDIR= src
-BINDIR = bin
-STARTUPDIR = $(SOURCEDIR)/cpu
-
-OPT = 0
+OPT = -O0
 AFLAGS = -x assembler-with-cpp
-CFLAGS = $(DEBUG) -O$(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
+CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
 LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 
 OBJ=$(STARTUPDIR)/startup/crt0.o \
-	$(SOURCEDIR)/kernel/rosa_tim.o \
-	$(SOURCEDIR)/kernel/rosa_ker.o \
-	$(SOURCEDIR)/kernel/rosa_asm.o \
-	$(SOURCEDIR)/drivers/pot.o \
-	$(SOURCEDIR)/drivers/gpio.o \
-	$(SOURCEDIR)/drivers/led.o \
-	$(SOURCEDIR)/drivers/button.o \
-	$(SOURCEDIR)/drivers/usart.o \
+	$(KERNELDIR)/rosa_int.o \
+	$(KERNELDIR)/rosa_tim.o \
+	$(KERNELDIR)/rosa_ker.o \
+	$(KERNELDIR)/rosa_asm.o \
+	$(DRIVERSDIR)/pot.o \
+	$(DRIVERSDIR)/gpio.o \
+	$(DRIVERSDIR)/led.o \
+	$(DRIVERSDIR)/button.o \
+	$(DRIVERSDIR)/usart.o \
 	$(SOURCEDIR)/main.o
 
 all: clean $(OBJ) elf $(PROGRAM)
@@ -60,13 +63,16 @@ all: clean $(OBJ) elf $(PROGRAM)
 $(STARTUPDIR)/startup/crt0.o: $(STARTUPDIR)/startup/crt0.S
 	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
 
-$(SOURCEDIR)/kernel/rosa_asm.o: $(SOURCEDIR)/kernel/rosa_asm.S
+$(KERNELDIR)/rosa_int.o: $(KERNELDIR)/rosa_int.S
 	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
 
-$(SOURCEDIR)/kernel/rosa_tim.o: $(SOURCEDIR)/kernel/rosa_tim.S
+$(KERNELDIR)/rosa_asm.o: $(KERNELDIR)/rosa_asm.S
 	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
 
-$(SOURCEDIR)/drivers/pot.o: $(SOURCEDIR)/drivers/pot.S
+$(DRIVERSDIR)/pot.o: $(DRIVERSDIR)/pot.S
+	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
+
+$(KERNELDIR)/rosa_tim.o: $(KERNELDIR)/rosa_tim.S
 	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
 
 $(PROGRAM):

@@ -84,6 +84,25 @@ __attribute__((__interrupt__)) void ROSA_timerISR(void)
 
 
 /***********************************************************
+ * ROSA_timerPeriodSet
+ *
+ * Comment:
+ * 	Set the timer period to 'ms' milliseconds.
+ *
+ **********************************************************/
+int ROSA_timerPeriodSet(int ms)
+{
+	int prescale, rc;
+	//FOSC0 / timerPrescale * time[s];
+	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4;	//
+	rc = FOSC0 / prescale * ms;
+	ROSA_timerPrescaleSet(prescale);
+	ROSA_timerRCSet(rc);
+	return rc * prescale / FOSC0;
+	//~ return ROSA_timerRC * ROSA_timerPrescale / FOSC;
+}
+
+/***********************************************************
  * ROSA_init
  *
  * Comment:
