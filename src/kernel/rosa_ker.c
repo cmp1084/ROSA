@@ -28,8 +28,10 @@
 #include "kernel/rosa_ext.h"
 #include "kernel/rosa_ker.h"
 #include "kernel/rosa_tim.h"
+#include "kernel/rosa_scheduler.h"
 #include "drivers/button.h"
 #include "drivers/led.h"
+#include "drivers/pot.h"
 #include "drivers/usart.h"
 
 /***********************************************************
@@ -39,7 +41,7 @@
  * 	Global variables that contain the list of TCB's that
  * 	have been installed into the kernel with ROSA_tcbInstall()
  **********************************************************/
-tcb * TCBLIST;
+tcb * TCBLIST = NULL;
 
 /***********************************************************
  * EXECTASK
@@ -47,60 +49,7 @@ tcb * TCBLIST;
  * Comment:
  * 	Global variables that contain the current running TCB.
  **********************************************************/
-tcb * EXECTASK;
-
-
-/***********************************************************
- * ROSA_scheduler
- *
- * Comment:
- * 	Minimalistic scheduler for round robin task switch.
- * 	This scheduler choose the next task to execute by looking
- * 	at the nexttcb of the current running task.
- **********************************************************/
-void ROSA_scheduler(void)
-{
-	EXECTASK = EXECTASK->nexttcb;
-}
-
-
-/***********************************************************
- * timerInterruptHandler
- *
- * Comment:
- * 	This is the basic timer interrupt service routine.
- **********************************************************/
-__attribute__((__interrupt__)) void ROSA_timerISR(void)
-{
-	int sr;
-	volatile avr32_tc_t * tc = &AVR32_TC;
-
-	//Read the timer status register to determine if this is a valid interrupt
-	sr = tc->channel[0].sr;
-	if(sr & AVR32_TC_CPCS_MASK) {
-		ROSA_yieldFromISR();
-	}
-}
-
-
-/***********************************************************
- * ROSA_timerPeriodSet
- *
- * Comment:
- * 	Set the timer period to 'ms' milliseconds.
- *
- **********************************************************/
-int ROSA_timerPeriodSet(int ms)
-{
-	int prescale, rc;
-	//FOSC0 / timerPrescale * time[s];
-	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4;	//
-	rc = FOSC0 / prescale * ms;
-	ROSA_timerPrescaleSet(prescale);
-	ROSA_timerRCSet(rc);
-	return rc * prescale / FOSC0;
-	//~ return ROSA_timerRC * ROSA_timerPrescale / FOSC;
-}
+tcb * EXECTASK = NULL;
 
 /***********************************************************
  * ROSA_init
@@ -111,7 +60,7 @@ int ROSA_timerPeriodSet(int ms)
  **********************************************************/
 void ROSA_init(void)
 {
-	// USART options.
+	//USART options.
 	static const usart_options_t usart_options =
 	{
 		.baudrate    = 57600,
@@ -120,9 +69,6 @@ void ROSA_init(void)
 		.stopbits    = USART_1_STOPBIT,
 		.channelmode = USART_NORMAL_CHMODE
 	};
-
-	TCBLIST = NULL;
-	EXECTASK = NULL;
 
 	//Do I/O driver initializations
 	ledInit();									//LEDs
@@ -134,16 +80,14 @@ void ROSA_init(void)
 	//Set up interrupts
 	ROSA_interruptDisable();
 	ROSA_interruptInit();
+	ROSA_timerClearInterrupt();
 	ROSA_interruptEnable();
-
+ 
 	//Set up the timer, but do not start it yet.
 	//We are not ready to take care of timer interrupt.
 	ROSA_timerInit();
-
-	//Additional low level initialization
-	ROSA_init_lowlevel();
+	ROSA_timerStart();
 }
-
 
 /***********************************************************
  * ROSA_tcbCreate
@@ -158,13 +102,14 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, in
 
 	//Initialize the tcb with the correct values
 	for(i = 0; i < NAMESIZE; i++) {
-		tcbTask->id[i] = tcbName[i];		//Copy the id/name
+		//Copy the id/name
+		tcbTask->id[i] = tcbName[i];		
 	}
 
 	//Dont link this TCB anywhere yet
 	tcbTask->nexttcb = NULL;
 
-	//Set the task function
+	//Set the task function start and return address
 	tcbTask->staddr = tcbFunction;
 	tcbTask->retaddr = (int)tcbFunction;
 
@@ -206,56 +151,4 @@ void ROSA_tcbInstall(tcb * tcbTask)
 		tcbTmp->nexttcb = tcbTask;			//Install tcb last in the list
 		tcbTask->nexttcb = TCBLIST;			//Make the list circular
 	}
-}
-
-
-/***********************************************************
- * ROSA_start
- *
- * Comment:
- * 	Start up the kernel.
- * 	Last in this function a call to ROSA_start_lowlevel is done.
- * 	This does the initial context switch to the first task in
- * 	the TCBLIST.
- *
- **********************************************************/
-void ROSA_start(void)
-{
-	//EXECTASK is the first task to start.
-	EXECTASK = TCBLIST;
-	ROSA_start_lowlevel();
-	//Execution will NOT proceed here!
-}
-
-
-/***********************************************************
- * ROSA_yield
- *
- * Comment:
- * 	Perform a voluntary yield from a task.
- *
- **********************************************************/
-void ROSA_yield(void)
-{
-	//Context save need to be done first!
-	ROSA_contextSave();			//Save context for current task
-	ROSA_scheduler();			//Find next task to execute
-	ROSA_contextRestore();		//Restore context for next task, switches interrupt back on, and start the timer again
-	//Execution will NOT proceed here!
-}
-
-
-/***********************************************************
- * ROSA_yieldFromISR
- *
- * Comment:
- * 	Perform a yield from an ISR
- *
- **********************************************************/
-void ROSA_yieldFromISR(void)
-{
-	ROSA_contextSaveFromISR();	//Switch the task context
-	ROSA_scheduler();			//Find next task to execute
-	//The contextRestoreFromInterrupt is preferably done last.
-	ROSA_contextRestoreFromISR();
 }

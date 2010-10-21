@@ -2,8 +2,8 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
-             ,///' '///,'/////',/////'  /////'\\,
+               ///////,  ///,///   '/// ///''//,
+             ,///' '///,'/////',/////'  /////'//,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
 
@@ -23,29 +23,12 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
-#ifndef _ROSA_INT_H_
-#define _ROSA_INT_H_
+#ifndef __ROSA_DELAY_H_
+#define __ROSA_DELAY_H_
 
-#include <avr32/io.h>
+#include "kernel/rosa_tim.h"
+#include "rosa_config.h"
 
-/***********************************************************
- * Kernel interrupt handling functions
- ***********************************************************/
-//Interrupt initialization must be done before enabling interrupts
-extern void ROSA_interruptInit(void);
+void delay_ms(unsigned int ms);
 
-//Disable interrupts
-extern void ROSA_interruptDisable(void);
-
-//Enable interrupts
-extern void ROSA_interruptEnable(void);
-
-//Check if interrupts are enabled.
-extern int  ROSA_isInterruptEnabled(void);
-
-//Read the status register
-extern int _ROSA_readSR(void);
-
-void ROSA_contextSwitchFromISR(void);
-
-#endif /* _ROSA_INT_H_ */
+#endif /* __ROSA_DELAY_H_ */

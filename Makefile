@@ -46,46 +46,66 @@ CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PAR
 LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
 LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 
-OBJ=$(STARTUPDIR)/startup/crt0.o \
-	$(KERNELDIR)/rosa_int.o \
-	$(KERNELDIR)/rosa_tim.o \
-	$(KERNELDIR)/rosa_ker.o \
-	$(KERNELDIR)/rosa_asm.o \
-	$(DRIVERSDIR)/pot.o \
-	$(DRIVERSDIR)/gpio.o \
-	$(DRIVERSDIR)/led.o \
-	$(DRIVERSDIR)/button.o \
-	$(DRIVERSDIR)/usart.o \
-	$(SOURCEDIR)/main.o
+ASMSOURCE= \
+	$(STARTUPDIR)/startup/crt0.S \
+	$(KERNELDIR)/rosa_int_asm.S \
+	$(KERNELDIR)/rosa_tim_asm.S \
+	$(KERNELDIR)/rosa_ker_asm.S \
+	$(DRIVERSDIR)/pot.S \
 
-all: clean $(OBJ) elf $(PROGRAM)
+SOURCE= \
+	$(KERNELDIR)/rosa_int.c \
+	$(KERNELDIR)/rosa_tim.c \
+	$(KERNELDIR)/rosa_ker.c \
+	$(KERNELDIR)/rosa_scheduler.c \
+	$(DRIVERSDIR)/gpio.c \
+	$(DRIVERSDIR)/led.c \
+	$(DRIVERSDIR)/button.c \
+	$(DRIVERSDIR)/usart.c \
+	$(DRIVERSDIR)/delay.c \
+	$(SOURCEDIR)/main.c
 
-$(STARTUPDIR)/startup/crt0.o: $(STARTUPDIR)/startup/crt0.S
+OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o)
+
+all: print clean $(OBJ) elf $(PROGRAM)
+
+print:
+	@echo $(OBJ)
+	@echo
+
+%.o: %.S
 	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
+	@echo
 
-$(KERNELDIR)/rosa_int.o: $(KERNELDIR)/rosa_int.S
-	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
-
-$(KERNELDIR)/rosa_asm.o: $(KERNELDIR)/rosa_asm.S
-	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
-
-$(DRIVERSDIR)/pot.o: $(DRIVERSDIR)/pot.S
-	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
-
-$(KERNELDIR)/rosa_tim.o: $(KERNELDIR)/rosa_tim.S
-	$(CC) $(CFLAGS) $(AFLAGS) $< -o$@
+%.o: %.c
+	$(CC) $(CFLAGS) $< -o$@
+	@echo
 
 $(PROGRAM):
 	$(OBJCOPY) -O binary $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
 
 elf:
+	@test -d $(BINDIR) || mkdir $(BINDIR)
 	$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(PROGRAM).elf
+
+dump:
+	avr32-objdump -S -x bin/rosa.elf |less
 
 program: $(BINDIR)/$(PROGRAM).bin
 	@avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(PROGRAM).bin
 
+run: 
+	avr32program run
+	
+reset:
+	avr32program reset
+
 gdb:
 	avr32gdbproxy -t localhost:4712 -a localhost:4711 -cUSB -eavrdragon
 
+kill:
+	killall avr32gdbproxy
+
 clean:
 	rm -f $(OBJ) $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
+	@echo

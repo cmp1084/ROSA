@@ -73,7 +73,7 @@
  **********************************************************/
 #define FOSC0 12000000											//CPU clock frequencey
 #define TIMERPRESCALE_CONFIG AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5 	//equals TC_CLOCK_SOURCE_TC5
-#define TIMERRC_CONFIG	46875									//Corresponding to 0.5 s period, with prescale _TC5
+#define TIMERRC_CONFIG	400 //46875 / 2									//Corresponding to 0.25 s period, with prescale _TC5
 
 //USART configures
 #define USART				(&AVR32_USART0)

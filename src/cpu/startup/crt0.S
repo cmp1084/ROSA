@@ -29,15 +29,13 @@
 	.equ MCCTRL_1,0x04
 	.equ MCCTRL_2,0x05
 	.equ OSCCTRL0,0x107
-	.equ ROSAHCS1,0x616e
-	.equ ROSAHCS2,0x6d6a
-	.section  .reset, "ax", @progbits
 
+	.section  .reset, "x", @progbits
 	.type _start, @function
 _start:
 	lda.w pc,_stext
 
-	.section  .text._stext, "ax", @progbits
+	.section  .text._stext, "x", @progbits
 	.type _stext, @function
 _stext:
 
@@ -52,13 +50,6 @@ _stext:
 	lda.w r0,_evba
 	mtsr AVR32_EVBA,r0
 	csrf 0x15
-	csrf 0x16
-	ld.w r11,r12[AVR32_PM_RCAUSE]
-	cp.w r11,0x01
-	brne idata_
-	mov r11,lo(ROSAHCS1)
-	orh r11,hi(ROSAHCS2)
-	st.w r12[AVR32_PM_GPLP],r11
 
 	mov r12,lo(AVR32_PM_ADDRESS)
 	orh r12,hi(AVR32_PM_ADDRESS)

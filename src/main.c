@@ -34,6 +34,8 @@
 #include "drivers/led.h"
 #include "drivers/button.h"
 #include "drivers/usart.h"
+#include "drivers/delay.h"
+#include "drivers/pot.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -52,10 +54,13 @@ static tcb t2_tcb;
 //LED6 lights up
 void task1(void)
 {
+	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
-		ledOn(LED1_GPIO);
-		ledOff(LED2_GPIO);
-		ROSA_yield();
+		ledOn(LED0_GPIO);
+		ledOff(LED1_GPIO);
+		//delay_ms(potGetValue());
+		ROSA_timerPeriodSet(potGetValue());
+		//ROSA_contextSwitch();
 	}
 }
 
@@ -64,10 +69,13 @@ void task1(void)
 //LED6 goes dark
 void task2(void)
 {
+	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
-		ledOff(LED1_GPIO);
-		ledOn(LED2_GPIO);
-		ROSA_yield();
+		ledOff(LED0_GPIO);
+		ledOn(LED1_GPIO);
+		delay_ms(500);
+		//waitUntil(&now, 10);
+		ROSA_contextSwitch();
 	}
 }
 

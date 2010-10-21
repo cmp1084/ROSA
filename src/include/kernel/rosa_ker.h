@@ -39,10 +39,7 @@ extern tcb * EXECTASK;
  * Kernel low level context switch functions
  ***********************************************************/
 extern void ROSA_contextInit(tcb * tcbTask);
-extern void ROSA_contextRestore(void);
-extern void ROSA_contextSave(void);
-extern void ROSA_contextSaveFromISR(void);
-extern void ROSA_contextRestoreFromISR(void);
+extern void ROSA_contextSwitch(void);
 
 
 /***********************************************************
@@ -50,6 +47,7 @@ extern void ROSA_contextRestoreFromISR(void);
  ***********************************************************/
 //Kernel lowlevel initialization
 extern void ROSA_init_lowlevel(void);
+
 
 //This is the lowlevel call to start the first task.
 //EXECTASK should have been preloaded with the first task to run.
@@ -67,10 +65,6 @@ extern void ROSA_start_lowlevel(void);
 
 //Timer interrupt service routine
 __attribute__((__interrupt__)) extern void ROSA_timerISR(void);
-
-//Kernel YIELD functions
-extern void ROSA_yield(void);
-extern void ROSA_yieldFromISR(void);
 
 //Initialize the kernel
 void ROSA_init(void);

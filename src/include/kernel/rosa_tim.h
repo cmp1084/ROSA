@@ -27,23 +27,34 @@
 #define _ROSA_TIMER_H_
 
 #include <avr32/io.h>
-
-//~ #define TC_CLOCK_SOURCE_TC2 1
-//~ #define TC_CLOCK_SOURCE_TC3 2
-//~ #define TC_CLOCK_SOURCE_TC4 3
-//~ #define TC_CLOCK_SOURCE_TC5 4
+#include "rosa_config.h"
+#include "kernel/rosa_ker.h"
 
 /***********************************************************
  * Kernel timer lowlevel functions
  ***********************************************************/
 extern void ROSA_timerInit(void);
-extern void ROSA_timerStart(void);
 extern void ROSA_timerReset(void);
+extern void ROSA_timerStart(void);
 extern void ROSA_timerStop(void);
 
 //Read the TC0 timers status register
 extern void ROSA_timerClearInterrupt(void);
 extern void ROSA_timerPrescaleSet(int);
 extern void ROSA_timerRCSet(int);
+int ROSA_timerPeriodSet(unsigned int ms);
+
+//The timer interrupt service routine
+void ROSA_timerISR(void);
+
+//Timer variables
+extern int ROSA_timerPrescale;
+extern int ROSA_timerRC;
+
+
+//TODO: TO BE REMOVED IN STUDENT VERSION
+void waitUntil(int * now, int ticks);
+void wait(int ticks);
+int ROSA_timerGetSysTick(void);
 
 #endif /* _ROSA_TIMER_H_ */
