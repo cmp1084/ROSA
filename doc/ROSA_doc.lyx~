@@ -730,9 +730,13 @@ ROSA_contextRestore()
 \begin_layout Standard
 The 
 \emph on
-ROSA_contextSwitch() 
+ROSA_contextSave() 
 \emph default
-utilize the supervisor mode which is entered by the '
+and 
+\emph on
+ROSA_contextRestore()
+\emph default
+ utilize the supervisor mode which is entered by the '
 \emph on
 scall
 \emph default
@@ -741,7 +745,8 @@ scall
 \emph on
 _handle_Supervisor_Call
 \emph default
- vector and effectively run the context switch routines in supervisor mode.
+ vector and effectively jump to the contextSave/Restore routines in supervisor
+ mode.
 \end_layout
 
 \begin_layout Subsubsection
@@ -751,17 +756,17 @@ Context save
 \begin_layout Standard
 
 \emph on
-_ROSA_contextSave()
+ROSA_contextSave()
 \emph default
  does the following operations:
 \end_layout
 
 \begin_layout Itemize
-Fetch the TCB of the current executing task.
+Enter supervisor mode.
 \end_layout
 
 \begin_layout Itemize
-Save temporary work registers.
+Disable interrupts.
 \end_layout
 
 \begin_layout Itemize
@@ -773,15 +778,15 @@ Save the CPU registers.
 \end_layout
 
 \begin_layout Itemize
-Save the user stack pointer, USP.
-\end_layout
-
-\begin_layout Itemize
 Save the return address.
 \end_layout
 
 \begin_layout Itemize
-Correct the USP in order to be able to return to the task.
+Save the user stack pointer, USP.
+\end_layout
+
+\begin_layout Itemize
+Return back to user mode.
 \end_layout
 
 \begin_layout Subsubsection
@@ -805,7 +810,7 @@ Context restore
 \begin_layout Standard
 
 \emph on
-_ROSA_contextRestore()
+ROSA_contextRestore()
 \emph default
  practically does the reverse of the context save:
 \end_layout

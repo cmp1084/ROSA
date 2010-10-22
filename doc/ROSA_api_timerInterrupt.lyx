@@ -1,0 +1,148 @@
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Appendix
+\end_layout
+
+\begin_layout Section*
+ROSA API Timer/Interrupt
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+ROSA API
+\end_layout
+
+\begin_layout Subsection
+Brief API list
+\end_layout
+
+\begin_layout Subsubsection
+Timer API
+\end_layout
+
+\begin_layout LyX-Code
+//sysTick real time period 
+\end_layout
+
+\begin_layout LyX-Code
+void timerPrescalerSet(int prescale); 
+\end_layout
+
+\begin_layout LyX-Code
+void timerRCSet(int);
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+//Timer control 
+\end_layout
+
+\begin_layout LyX-Code
+void timerStart(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void timerStop(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_timerReadSR(void);
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+//The interrupt handler
+\end_layout
+
+\begin_layout LyX-Code
+void timerISR(void);
+\end_layout
+
+\begin_layout Subsubsection
+sysTick API
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void sysTickIncrease(void); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ int sysTickGet(void); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void sysTickWait(int ticks); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void sysTickWaitUntil(int ticks);
+\end_layout
+
+\end_body
+\end_document

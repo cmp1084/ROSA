@@ -1,0 +1,220 @@
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Appendix
+\end_layout
+
+\begin_layout Section*
+ROSA API Dynamic tasks
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+ROSA API
+\end_layout
+
+\begin_layout Subsection
+Brief API list
+\end_layout
+
+\begin_layout Standard
+This is a list of the API for ROSA.
+ Some of these functions are not implemented yet.
+ The unimplemented functions are noted with a dot (.) in front of the function.
+\end_layout
+
+\begin_layout Subsubsection
+Kernel API
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_init(void);             
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_init_lowlevel(void);    
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_start(void);            
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_start_lowlevel(void);      
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_yield(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_yieldFromISR(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_contextRestore(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_contextSave(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_contextSaveFromISR(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_contextRestoreFromInterrupt(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_interruptInit(void);
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_interruptDisable(void); 
+\end_layout
+
+\begin_layout LyX-Code
+void ROSA_interruptEnable(void); 
+\end_layout
+
+\begin_layout LyX-Code
+int ROSA_isInterruptEnabled(void); 
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout Subsubsection
+TCB API 
+\end_layout
+
+\begin_layout LyX-Code
+struct tcb_t;    //TCB struct containing task data 
+\end_layout
+
+\begin_layout LyX-Code
+tcb * tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack, int
+ stackSize);
+\end_layout
+
+\begin_layout LyX-Code
+void tcbInstall(tcb * TCB); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void tcbDestroy(tcb * TCB);
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+//Functions for inheritance protocol 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ int tcbPrioGet(void); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void tcbPrioSet(int prio); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ int tcbPrioBaseGet(void); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void tcbPrioBaseSet(int prio);
+\end_layout
+
+\begin_layout Subsubsection
+Semaphore API
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void semCreate(sem  * semaphore); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void semDestroy(sem * semaphore);
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void semTake(sem * semaphore); 
+\end_layout
+
+\begin_layout LyX-Code
+.
+ void semGive(sem * semaphore);
+\end_layout
+
+\end_body
+\end_document

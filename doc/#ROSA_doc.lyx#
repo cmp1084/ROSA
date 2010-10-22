@@ -856,7 +856,7 @@ The ROSA kernel consist of C and assembler code.
 \end_layout
 
 \begin_layout Subsection
-Source code walk through
+Simple source code walk through
 \end_layout
 
 \begin_layout Subsubsection
@@ -1307,6 +1307,14 @@ make program
 \begin_layout Standard
 When the programming is done the two tasks should start to execute on the
  EVK1100.
+\end_layout
+
+\begin_layout Section
+Kernel source code walk through
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \begin_layout Section
