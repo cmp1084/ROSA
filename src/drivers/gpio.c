@@ -117,7 +117,7 @@ void gpioToggle(int pinnr)
 	gpioport->ovrt = pin;
 }
 
-int gpioPVR(int pinnr)
+int gpioGet(int pinnr)
 {
 	volatile avr32_gpio_port_t * gpioport;
 	int portnr, pin, pinpos;

@@ -22,6 +22,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
+# Tab size: 4
 
 PROGRAM = rosa
 BOARD = EVK1100
@@ -94,9 +95,9 @@ dump:
 program: $(BINDIR)/$(PROGRAM).bin
 	@avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(PROGRAM).bin
 
-run: 
+run:
 	avr32program run
-	
+
 reset:
 	avr32program reset
 

@@ -25,7 +25,7 @@
 /* Tab size: 4 */
 
 /*
- * rosa_asm.S
+ * rosa_ker_asm.S
  *
  *  Created on: Sep 6, 2010
  *      Author: marcus
@@ -36,16 +36,12 @@
 #include "rosa_config.h"
 
 	//Put the code and data in the executable .text section
-	.section .text, "x", @progbits
+	.section .text, "ax", @progbits
 
 	//Global Kernel functions
 	.global ROSA_start
 	.global ROSA_contextInit
 	.global ROSA_contextSwitch
-
-	//Mask value for SR register	TODO: See the copy in rosa_int.S
-	//~ .equ SRMASK1,0xfe3e				//TODO: Keep or remove?
-	//~ .equ SRMASK2,0x001c
 
 /*********************************************************
 * ROSA_start kernel code
@@ -56,9 +52,8 @@
 * the TCBLIST.
 *
 *********************************************************/
-.equ STACKFRAMESTART_SR,0x00
 ROSA_start:
-	//Put the first task from TCBLIST into EXECTASK (into r12)
+	//Put the first task from TCBLIST into EXECTASK
 	lda.w r12,TCBLIST
 	lda.w r11,EXECTASK
 	ld.w r12,r12[0x0]
@@ -100,14 +95,14 @@ ROSA_start:
  *
  * Comment:
  * The initial save of a tasks context to the tcb
- * from supervisor mode. 
+ * from supervisor mode.
  *
  ********************************************************/
 ROSA_contextInit:
 	//Initialize lr in the savereg area
 	ld.w r0,r12[TCB.STADDR]
 	st.w r12[TCB.SAVEREG.LR],r0
-	
+
 	//Initialize regs to zero
 	mov r0,0x0
 	st.w r12[TCB.SAVEREG.R0],r0
@@ -139,22 +134,21 @@ ROSA_contextInit:
 * 	ROSA_contextSwitch() or ROSA_contextSwitchFromISR().
 *
 *********************************************************/
+//This is the current state of the supervisor and user stack frame:
 //
-//The two top elements of both the supervisor and user stack 
-//is of interest to us.
+//This show only the top elements of the supervisor and user stack
+//we are interest in.
 //
 //Stack frame, supervisor stack:
 //------------------------------
 // * SR, The saved SR is at the top of the supervisor stack.
 //
-// * PC, The PC of the next user instruction comes next. The 'rets' 
+// * PC, The PC of the next user instruction comes next. The 'rets'
 //       instruction will continue execution at this address.
 
 //Stack frame, user stack:
 //------------------------
 // * LR_TASK, The PC of the next user instruction.
-//
-// * R7_TASK, The r7 of user task comes next.
 //
 
 //SF = Stack Frame
@@ -165,7 +159,6 @@ ROSA_contextInit:
 
 //User stack frame
 .equ SF_LR_TASK, 0x00 //The link back to the next user task instruction.
-//.equ SF_R7_TASK, 0x04 //The r7 of user task comes next.
 
 /*********************************************************
 * _ROSA_scall_contextSave
@@ -176,9 +169,7 @@ ROSA_contextInit:
 *
 *********************************************************/
 _ROSA_contextSave:
-	pushm r12,lr
-	call ROSA_interruptDisable		//Disable interrupts
-	popm lr
+	pushm r12
 
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
@@ -210,29 +201,15 @@ _ROSA_contextSave:
 	st.w r12[TCB.RETADDR],r0		//Correction of stack is done later
 
 	//Save LR_task
-	st.w r12[TCB.SAVEREG.LR],r0		//TODO: Keep or throw
+	st.w r12[TCB.SAVEREG.LR],r0		//This is done in order to allow ctxSwitchFromISR to read back LR. (?) TODO: Keep or throw
 
 	//Correct the USP for the ROSA_contextSwitch() call.
-	//This is done since we do not want to return to ROSA_contextSwitch(), 
+	//This is done since we do not want to return to ROSA_contextSwitch(), where the stack frame is currently at,
 	//but to the executing task.
 	sub r1,-0x04
 
 	//Save USP
 	st.w r12[TCB.SAVEUSP],r1
-
-	//~ 
-	//~ //Save USP
-	//~ st.w r12[TCB.SAVEUSP],r1
-
-	//Set USP to SSP until _contextRestore	//TODO:
-	//~ mov r0,sp
-	//~ st.w --sp,r0
-	//~ stmts sp,sp
-	//~ ld.w r0,sp++
-
-	//Restore work regs (unnecessary at this point) //TODO:
-	//~ ld.w r0,r12[TCB.SAVER0]
-	//~ ld.w r0,r12[TCB.SAVER1]
 
 	mov pc,lr
 
@@ -256,7 +233,7 @@ _ROSA_contextRestore:
 	ld.w r1,sp++
 
 	//Restore LR = retaddr
-	ld.w lr,r12[TCB.SAVEREG.LR]	//TODO: keep or throw and use RETADDR instead
+	ld.w lr,r12[TCB.SAVEREG.LR]
 
 	//Restore RETADDR
 	ld.w r0,r12[TCB.RETADDR]
@@ -272,23 +249,12 @@ _ROSA_contextRestore:
 
 	//Restore SR
 	ld.w r0,r12[TCB.SAVESR]
-	//~ andh r0,SRMASK1			//TODO: Keep or remove?
-	//~ orh r0,SRMASK2
 	st.w sp[SF_SR],r0			//Put SR on the stack for later fetch
 
 	//Restore work registers
 	ld.w r0,r12[TCB.SAVER0]
 	ld.w r1,r12[TCB.SAVER1]
 	ld.w r12,r12[TCB.SAVEREG.R12]
-
-	//Clear any timer interrupt that have occured and
-	//reset the timer counter
-	//pushm lr
-	//call ROSA_timerClearInterrupt
-	//call ROSA_timerReset
-	//Enable interrupts
-	//call ROSA_interruptEnable No need to, savesr fix our interrupt enable
-	//popm lr
 
 	//We are done, exit from supervisor mode
 	rets

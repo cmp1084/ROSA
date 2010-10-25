@@ -22,13 +22,14 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #ifndef _ROSA_LED_H_
 #define _ROSA_LED_H_
 
 #include <avr32/io.h>
 
-#ifndef LED0
+#ifndef LED0_GPIO
 #define LED0_GPIO	AVR32_PIN_PB27
 #define LED1_GPIO	AVR32_PIN_PB28
 #define LED2_GPIO	AVR32_PIN_PB29

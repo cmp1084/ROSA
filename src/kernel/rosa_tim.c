@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #include "drivers/delay.h"
 #include "kernel/rosa_int.h"
@@ -35,7 +36,7 @@ static int sysTick = 0;
  * Comment:
  * 	This is the basic timer interrupt service routine.
  **********************************************************/
-__attribute__((__interrupt__)) 
+__attribute__((__interrupt__))
 void ROSA_timerISR(void)
 {
 	int sr;
@@ -65,27 +66,4 @@ int ROSA_timerPeriodSet(unsigned int ms)
 	ROSA_timerPrescaleSet(prescale);
 	ROSA_timerRCSet(rc);
 	return rc * prescale / FOSC0;
-	//~ return ROSA_timerRC * ROSA_timerPrescale / FOSC;
-}
-
-void waitUntil(int * now, int ticks)
-{
-	int waituntil = ticks + sysTick;
-	while(sysTick <= waituntil) {
-		ROSA_contextSwitch();
-	}
-	*now = sysTick;
-}
-
-void wait(int ticks)
-{
-	int waituntil = ticks + sysTick;
-	while(sysTick <= waituntil) {
-		ROSA_contextSwitch();
-	}
-}
-
-int ROSA_timerGetSysTick(void)
-{
-	return sysTick;
 }

@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_scheduler.h"
@@ -38,7 +39,7 @@ void ROSA_contextRestoreFromISR(void);
  **********************************************************/
 void ROSA_contextSwitchFromISR(void)
 {
-	ROSA_contextSaveFromISR();	 //Save the task context
-	ROSA_scheduler();			 //Find next task to execute
+	ROSA_contextSaveFromISR();	  //Save the task context
+	ROSA_scheduler();			  //Find next task to execute
 	ROSA_contextRestoreFromISR(); //...and switch over to it.
 }

@@ -23,9 +23,11 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 /* Tab size: 4 */
+
 #ifndef _USART_H_
 #define _USART_H_
 
+#include <avr32/io.h>
 #include "kernel/rosa_int.h"
 #include "rosa_config.h"
 
@@ -65,6 +67,15 @@ typedef struct
 	unsigned short stopbits;
 	unsigned char channelmode;
 } usart_options_t;
+
+//USART options.
+static const usart_options_t usart_options = {
+	.baudrate    = USART_BAUDRATE,
+	.charlength  = USART_CHARLEN,
+	.paritytype  = USART_NO_PARITY,
+	.stopbits    = USART_1_STOPBIT,
+	.channelmode = USART_NORMAL_CHMODE
+};
 
 void usartReset(volatile avr32_usart_t *usart);
 int usartSetBaudrate(volatile avr32_usart_t *usart, unsigned int baudrate, unsigned long pba_hz);

@@ -22,13 +22,13 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #ifndef _ROSA_TIMER_H_
 #define _ROSA_TIMER_H_
 
 #include <avr32/io.h>
 #include "rosa_config.h"
-#include "kernel/rosa_ker.h"
 
 /***********************************************************
  * Kernel timer lowlevel functions
@@ -50,7 +50,6 @@ void ROSA_timerISR(void);
 //Timer variables
 extern int ROSA_timerPrescale;
 extern int ROSA_timerRC;
-
 
 //TODO: TO BE REMOVED IN STUDENT VERSION
 void waitUntil(int * now, int ticks);

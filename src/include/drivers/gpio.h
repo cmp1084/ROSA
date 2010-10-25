@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #ifndef __GPIO_H_
 #define __GPIO_H_
@@ -43,6 +44,6 @@ void gpioInit(int pinnr, int type);
 void gpioSet(int pinnr);
 void gpioClear(int pinnr);
 void gpioToggle(int pinnr);
-int gpioPVR(int pinnr);
+int gpioGet(int pinnr);
 
 #endif /* __GPIO_H_ */

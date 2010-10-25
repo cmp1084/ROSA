@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #include <avr32/io.h>
 	.global _start
@@ -30,12 +31,14 @@
 	.equ MCCTRL_2,0x05
 	.equ OSCCTRL0,0x107
 
-	.section  .reset, "x", @progbits
+	//Put the code at the .reset section, make it executable
+	.section  .reset, "ax", @progbits
 	.type _start, @function
 _start:
 	lda.w pc,_stext
 
-	.section  .text._stext, "x", @progbits
+	//Put the code at the .reset section, make it executable
+	.section  .text._stext, "ax", @progbits
 	.type _stext, @function
 _stext:
 

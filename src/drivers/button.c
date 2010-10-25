@@ -47,7 +47,7 @@ void buttonInit(void)
 //Return TRUE or FALSE
 int isButton(int nr)
 {
-	return !gpioPVR(nr);
+	return !gpioGet(nr);
 }
 
 /**********************************************************

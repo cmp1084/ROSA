@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #include "rosa_config.h"
 
@@ -34,13 +35,12 @@
 	.global ROSA_timerPrescaleSet
 	.global ROSA_timerClearInterrupt
 
+	//Timer variables
 	.global ROSA_timerPrescale
 	.global ROSA_timerRC
 
 	//Timer variables
 ROSA_timerRC:
-	//FOSC0 / timerPrescale * time[s] = timerRC;
-	//To get 1 ms: 12000000 / 2 * 0.001 = 6000 = timerRC
 	.word TIMERRC_CONFIG
 ROSA_timerPrescale:
 	.word TIMERPRESCALE_CONFIG
@@ -59,13 +59,12 @@ ROSA_timerPrescale:
  *  extern void ROSA_timerClearInterrupt(void);
  *  extern void ROSA_timerRCSet(void);
  **********************************************************/
-//CMR0
+//Timer CMR0
 .equ WAVE,(1 << AVR32_TC_WAVE_OFFSET)
 //Up mode with automatic trigger on RC Compare
 .equ WAVSEL,(2 << AVR32_TC_WAVSEL_OFFSET)
-.equ CPCSTOP,(1 << AVR32_TC_CPCSTOP_OFFSET)
 
-//SR
+//Timer SR
 .equ CPCS,0x01
 
 /***********************************************************
@@ -84,8 +83,8 @@ ROSA_timerInit:
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
 	call ROSA_timerClearInterrupt
-	mov r11,lo(WAVE | WAVSEL | CPCSTOP)
-	orh r11,hi(WAVE | WAVSEL | CPCSTOP)
+	mov r11,lo(WAVE | WAVSEL)
+	orh r11,hi(WAVE | WAVSEL)
 	st.w r12[AVR32_TC_CMR0],r11
 
 	//Enable TC interrupt
@@ -94,7 +93,6 @@ ROSA_timerInit:
 	lsl r11,AVR32_TC_CPCS_OFFSET
 	st.w r12[AVR32_TC_IER0],r11
 	call ROSA_timerClearInterrupt
-	//~ call ROSA_interruptEnable;		//TODO: Not the timers decision to turn irq on
 
 	//Init RC and prescale
 	call ROSA_timerRCSet

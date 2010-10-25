@@ -32,10 +32,7 @@
 
 //Driver includes
 #include "drivers/led.h"
-#include "drivers/button.h"
-#include "drivers/usart.h"
 #include "drivers/delay.h"
-#include "drivers/pot.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -49,36 +46,41 @@ static tcb t1_tcb;
 static int t2_stack[T2_STACK_SIZE];
 static tcb t2_tcb;
 
-//TASK1
-//LED4 goes dark
-//LED6 lights up
+/*************************************************************
+ * Task1
+ * LED0 lights up
+ * LED1 goes dark
+ ************************************************************/
 void task1(void)
 {
 	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
 		ledOn(LED0_GPIO);
 		ledOff(LED1_GPIO);
-		//delay_ms(potGetValue());
-		ROSA_timerPeriodSet(potGetValue());
-		//ROSA_contextSwitch();
+		delay_ms(250);
+		ROSA_contextSwitch();
 	}
 }
 
-//TASK2
-//LED4 lights up
-//LED6 goes dark
+/*************************************************************
+ * Task2
+ * LED0 goes dark
+ * LED1 lights up
+ ************************************************************/
 void task2(void)
 {
 	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
 		ledOff(LED0_GPIO);
 		ledOn(LED1_GPIO);
-		delay_ms(500);
-		//waitUntil(&now, 10);
+		delay_ms(250);
 		ROSA_contextSwitch();
 	}
 }
 
+/*************************************************************
+ * Main function
+ ************************************************************/
 int main(void)
 {
 	//Initialize the ROSA kernel

@@ -24,11 +24,14 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
+//Kernel includes
 #include "kernel/rosa_def.h"
 #include "kernel/rosa_ext.h"
 #include "kernel/rosa_ker.h"
 #include "kernel/rosa_tim.h"
 #include "kernel/rosa_scheduler.h"
+
+//Driver includes
 #include "drivers/button.h"
 #include "drivers/led.h"
 #include "drivers/pot.h"
@@ -41,7 +44,7 @@
  * 	Global variables that contain the list of TCB's that
  * 	have been installed into the kernel with ROSA_tcbInstall()
  **********************************************************/
-tcb * TCBLIST = NULL;
+tcb * TCBLIST;
 
 /***********************************************************
  * EXECTASK
@@ -49,7 +52,7 @@ tcb * TCBLIST = NULL;
  * Comment:
  * 	Global variables that contain the current running TCB.
  **********************************************************/
-tcb * EXECTASK = NULL;
+tcb * EXECTASK;
 
 /***********************************************************
  * ROSA_init
@@ -60,33 +63,16 @@ tcb * EXECTASK = NULL;
  **********************************************************/
 void ROSA_init(void)
 {
-	//USART options.
-	static const usart_options_t usart_options =
-	{
-		.baudrate    = 57600,
-		.charlength  = 8,
-		.paritytype  = USART_NO_PARITY,
-		.stopbits    = USART_1_STOPBIT,
-		.channelmode = USART_NORMAL_CHMODE
-	};
-
-	//Do I/O driver initializations
+	//Do initialization of I/O drivers
 	ledInit();									//LEDs
 	buttonInit();								//Buttons
 	joystickInit();								//Joystick
 	potInit();									//Potentiometer
 	usartInit(USART, &usart_options, FOSC0);	//Serial communication
 
-	//Set up interrupts
-	ROSA_interruptDisable();
-	ROSA_interruptInit();
-	ROSA_timerClearInterrupt();
-	ROSA_interruptEnable();
- 
-	//Set up the timer, but do not start it yet.
-	//We are not ready to take care of timer interrupt.
-	ROSA_timerInit();
-	ROSA_timerStart();
+	//Start with empty TCBLIST and no EXECTASK.
+	TCBLIST = NULL;
+	EXECTASK = NULL;
 }
 
 /***********************************************************
@@ -103,25 +89,25 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, in
 	//Initialize the tcb with the correct values
 	for(i = 0; i < NAMESIZE; i++) {
 		//Copy the id/name
-		tcbTask->id[i] = tcbName[i];		
+		tcbTask->id[i] = tcbName[i];
 	}
 
-	//Dont link this TCB anywhere yet
+	//Dont link this TCB anywhere yet.
 	tcbTask->nexttcb = NULL;
 
-	//Set the task function start and return address
+	//Set the task function start and return address.
 	tcbTask->staddr = tcbFunction;
 	tcbTask->retaddr = (int)tcbFunction;
 
-	//Set up the stack
+	//Set up the stack.
 	tcbTask->datasize = tcbStackSize;
 	tcbTask->dataarea = tcbStack + tcbStackSize;
 	tcbTask->saveusp = tcbTask->dataarea;
 
-	//Set the initial SR
+	//Set the initial SR.
 	tcbTask->savesr = ROSA_INITIALSR;
 
-	//Initialize context
+	//Initialize context.
 	ROSA_contextInit(tcbTask);
 }
 

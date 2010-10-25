@@ -22,19 +22,22 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
-	.section .data
 	.global potInit
 	.global potGetValue
 
+	//Register addresses
 	.equ GPIO,0xffff1000
 	.equ ADC,0xffff3c00
 
+	//Register offsets
 	.equ GPIOGPERC,0x08
 	.equ GPIOPMR0C,0x18
 	.equ GPIOPMR1C,0x28
 	.equ PA22,0x16
 
+	//Register offsets
 	.equ ADCCR,0x00
 	.equ ADCCH,0x02
 	.equ ADCMR,0x04
@@ -44,6 +47,9 @@
 	.equ ADCSR,0x1c
 	.equ ADCLCDR,0x20
 	.equ ADCCDR1,0x34
+	.equ ADCSWRST,0x01
+	.equ ADCSHTIM,0x0f<<0x08
+	.equ ADCSTARTUP,0x1f<<0x00
 
 	.section .text, "ax", @progbits
 
@@ -66,12 +72,14 @@ potInit:
 	st.w r12[GPIOPMR0C],r11
 	st.w r12[GPIOPMR0C],r11
 
-	//Set mode
+	//Reset ADC
 	mov r12,lo(ADC)
 	orh r12,hi(ADC)
-	mov r11,0x01
+	mov r11,ADCSWRST
 	st.w r12[ADCCR],r11
-	mov r11,0x0f1f
+
+	//Set mode
+	mov r11,(ADCSHTIM|ADCSTARTUP)
 	lsl r11,0x10
 	st.w r12[ADCMR],r11
 

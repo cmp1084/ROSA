@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #include "drivers/delay.h"
 
@@ -37,13 +38,4 @@ void delay_ms(unsigned int milliseconds)
 	while(cycles != 0) {
 		cycles--;
 	}
-
-// The inner loop compile to this assembler if no optimization is used:
-//~ 80002026:       ee f8 ff fc     ld.w    r8,r7[-4]       //1+1 cycles (stall)
-//~ 8000202a:       20 18           sub     r8,1            //1   cycle
-//~ 8000202c:       ef 48 ff fc     st.w    r7[-4],r8       //1+1 cycles (stall)
-//~ 80002030:       ee f8 ff fc     ld.w    r8,r7[-4]       //1+1 cycles (stall)
-//~ 80002034:       58 08           cp.w    r8,0            //1   cycle
-//~ 80002036:       cf 81           brne    80002026        //1+2 cycle (stall)
-
 }
