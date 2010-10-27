@@ -51,9 +51,4 @@ void ROSA_timerISR(void);
 extern int ROSA_timerPrescale;
 extern int ROSA_timerRC;
 
-//TODO: TO BE REMOVED IN STUDENT VERSION
-void waitUntil(int * now, int ticks);
-void wait(int ticks);
-int ROSA_timerGetSysTick(void);
-
 #endif /* _ROSA_TIMER_H_ */

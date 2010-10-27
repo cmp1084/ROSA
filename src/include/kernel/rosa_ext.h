@@ -22,6 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
 #ifndef rosa_EXT_H_
 #define rosa_EXT_H_

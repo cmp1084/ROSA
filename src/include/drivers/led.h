@@ -30,9 +30,9 @@
 #include <avr32/io.h>
 
 #ifndef LED0_GPIO
-#define LED0_GPIO	AVR32_PIN_PB27
-#define LED1_GPIO	AVR32_PIN_PB28
-#define LED2_GPIO	AVR32_PIN_PB29
+#define LED0_GPIO	AVR32_PIN_PB27	//LED1 on the EVK1100
+#define LED1_GPIO	AVR32_PIN_PB28	//LED2
+#define LED2_GPIO	AVR32_PIN_PB29	//...and so on
 #define LED3_GPIO	AVR32_PIN_PB30
 #define LED4_GPIO	AVR32_PIN_PB19
 #define LED5_GPIO	AVR32_PIN_PB20
@@ -59,8 +59,14 @@
  **********************************************************/
 //Initialize all LEDs, LEDx_GPIO
 void ledInit(void);
+
+//Turn a LED on
 void ledOn(int lednr);
+
+//Turn a LED off
 void ledOff(int lednr);
+
+//Toggle a LED
 void ledToggle(int lednr);
 
 #endif /* _ROSA_LED_H_ */

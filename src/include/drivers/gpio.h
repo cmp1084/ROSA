@@ -30,8 +30,8 @@
 //The maxiumim nr of pins on a GPIO port
 #define GPIO_PIN_MAX 0x20
 
-#define OUTPUT 0
-#define INPUT 1
+#define OUTPUT 0	//GPIO pin is output
+#define INPUT 1		//GPIO pin is input
 /***********************************************************
  * GPIO API
  *
@@ -41,9 +41,17 @@
  **********************************************************/
 //Initialize a specific GPIO pin
 void gpioInit(int pinnr, int type);
+
+//Set the value of a GPIO pin
 void gpioSet(int pinnr);
+
+//Clear the value of a GPIO pin
 void gpioClear(int pinnr);
+
+//Toggle the value of a GPIO pin
 void gpioToggle(int pinnr);
+
+//Get the value from a GPIO pin
 int gpioGet(int pinnr);
 
 #endif /* __GPIO_H_ */

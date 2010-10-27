@@ -27,9 +27,6 @@
 #include "drivers/delay.h"
 #include "kernel/rosa_int.h"
 
-static int sysTick = 0;
-
-
 /***********************************************************
  * timerInterruptHandler
  *
@@ -44,10 +41,8 @@ void ROSA_timerISR(void)
 
 	//Read the timer status register to determine if this is a valid interrupt
 	sr = tc->channel[0].sr;
-	if(sr & AVR32_TC_CPCS_MASK) {
-		++sysTick;
+	if(sr & AVR32_TC_CPCS_MASK)
 		ROSA_contextSwitchFromISR();
-	}
 }
 
 /***********************************************************

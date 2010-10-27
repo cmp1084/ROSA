@@ -604,16 +604,32 @@ AVR32 Studio can also be used for programming the MCU flash by the normal
 ROSA kernel functionality
 \end_layout
 
+\begin_layout Subsection
+Kernel
+\end_layout
+
 \begin_layout Standard
-As a user of ROSA you define tasks and their corresponding Task Control
+The ROSA kernel is the controller and supervisor of the running tasks.
+ As a user of ROSA you define tasks and their corresponding Task Control
  Blocks (TCB).
- When the ROSA kernel is started it picks one of the tasks and turn execution
- over to this task.
+ When the ROSA kernel is started one of the tasks is picked up and execution
+ is turn over to this task.
  
 \end_layout
 
 \begin_layout Standard
-A task consist of:
+The kernel utilizes offsets found in the file rosa/src/include/kernel/rosa_off.i.
+ These offsets are used by assembler routines to access the elements in
+ the TCB block.
+\end_layout
+
+\begin_layout Subsection
+Task
+\end_layout
+
+\begin_layout Standard
+The tasks are the programs running under the kernels supervision.
+ A task consist of:
 \end_layout
 
 \begin_layout Itemize
@@ -621,15 +637,19 @@ A TCB.
 \end_layout
 
 \begin_layout Itemize
-Program code.
-\end_layout
-
-\begin_layout Itemize
 A stack.
 \end_layout
 
+\begin_layout Itemize
+Program code.
+\end_layout
+
+\begin_layout Subsubsection
+TCB
+\end_layout
+
 \begin_layout Standard
-Each task have a TCB which contain information and/or space for:
+The TCB contain information and/or space for:
 \end_layout
 
 \begin_layout Itemize
@@ -659,14 +679,30 @@ All necessary CPU registers.
 
 \begin_layout Standard
 The exact definition of the TCB is found in the file rosa/src/include/kernel/ros
-a_def.h
+a_def.h.
+\end_layout
+
+\begin_layout Subsubsection
+Stack
 \end_layout
 
 \begin_layout Standard
-The kernel also utilizes offsets found in the file rosa/src/include/kernel/rosa_
-off.i.
- These offsets are used by assembler routines to access the elements in
- the TCB block.
+The stack contain temporary data etc.
+ for the task.
+ The stack size must be suitable to hold all temporary data.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Program code
+\end_layout
+
+\begin_layout Standard
+One of the most important parts in a task is the program code.
+ At a context switch the program code start to run.
+ The program code is executed in a never ending loop.
+ The program code call the context switch function from time to time in
+ order to allow other tasks to run.
 \end_layout
 
 \begin_layout Section

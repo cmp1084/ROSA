@@ -24,36 +24,26 @@
 #*****************************************************************************
 # Tab size: 4
 
+##############################################################
+# The name of the program
+##############################################################
 PROGRAM = rosa
-BOARD = EVK1100
-PART = uc3a0512
 
-SOURCEDIR= src
-BINDIR = bin
+##############################################################
+#Sources are located in this dir
+##############################################################
+SOURCEDIR = src
+
+##############################################################
+#Various source directories
+##############################################################
 STARTUPDIR = $(SOURCEDIR)/cpu
 KERNELDIR = $(SOURCEDIR)/kernel
 DRIVERSDIR = $(SOURCEDIR)/drivers
-INCDIRS = -Isrc -Isrc/include
 
-CC = avr32-gcc
-LD = avr32-ld
-AS = avr32-as
-OBJCOPY = avr32-objcopy
-
-DEBUG = -ggdb
-OPT = -O0
-AFLAGS = -x assembler-with-cpp
-CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
-LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
-LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
-
-ASMSOURCE= \
-	$(STARTUPDIR)/startup/crt0.S \
-	$(KERNELDIR)/rosa_int_asm.S \
-	$(KERNELDIR)/rosa_tim_asm.S \
-	$(KERNELDIR)/rosa_ker_asm.S \
-	$(DRIVERSDIR)/pot.S \
-
+##############################################################
+#The sources of ROSA
+##############################################################
 SOURCE= \
 	$(KERNELDIR)/rosa_int.c \
 	$(KERNELDIR)/rosa_tim.c \
@@ -66,47 +56,77 @@ SOURCE= \
 	$(DRIVERSDIR)/delay.c \
 	$(SOURCEDIR)/main.c
 
+##############################################################
+#The assembler sources of ROSA
+##############################################################
+ASMSOURCE= \
+	$(STARTUPDIR)/startup/crt0.S \
+	$(KERNELDIR)/rosa_int_asm.S \
+	$(KERNELDIR)/rosa_tim_asm.S \
+	$(KERNELDIR)/rosa_ker_asm.S \
+	$(DRIVERSDIR)/pot.S \
+
+##############################################################
+#Header files are located in these files
+##############################################################
+INCDIRS = -Isrc -Isrc/include
+
+##############################################################
+#binaries are located in this dir
+##############################################################
+BINDIR = bin
+
+##############################################################
+# The target board and MCU
+##############################################################
+BOARD = EVK1100
+PART = uc3a0512
+
+##############################################################
+#Various build programs
+##############################################################
+CC = avr32-gcc
+LD = avr32-ld
+AS = avr32-as
+OBJCOPY = avr32-objcopy
+TEST = test
+MKDIR = mkdir
+
+##############################################################
+#Various compile flags etc
+##############################################################
+DEBUG = -ggdb
+OPT = -O0
+AFLAGS = -x assembler-with-cpp
+CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
+LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
+LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o)
 
-all: print clean $(OBJ) elf $(PROGRAM)
-
-print:
-	@echo $(OBJ)
-	@echo
+##############################################################
+#Makefile rules
+##############################################################
+all: $(OBJ) elf $(PROGRAM)
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
-	@echo
 
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o$@
-	@echo
 
 $(PROGRAM):
 	$(OBJCOPY) -O binary $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
 
 elf:
-	@test -d $(BINDIR) || mkdir $(BINDIR)
+	@$(TEST) -d $(BINDIR) || $(MKDIR) $(BINDIR)
 	$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(PROGRAM).elf
 
-dump:
-	avr32-objdump -S -x bin/rosa.elf |less
-
 program: $(BINDIR)/$(PROGRAM).bin
-	@avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(PROGRAM).bin
-
-run:
-	avr32program run
-
-reset:
-	avr32program reset
+	avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(PROGRAM).bin
 
 gdb:
 	avr32gdbproxy -t localhost:4712 -a localhost:4711 -cUSB -eavrdragon
 
-kill:
-	killall avr32gdbproxy
-
 clean:
 	rm -f $(OBJ) $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
-	@echo
+

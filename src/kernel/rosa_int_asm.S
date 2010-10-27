@@ -53,8 +53,8 @@
 	//Interrupt constants
 	.equ INTLEVEL0,0
 	.equ INTLEVEL_OFFSET,30
-	.equ GRP14,0x0e*0x04			//Grp 14 for TC
-	.equ LINE0,0x01					//Line 0 for TC0
+	.equ GRP14,0x0e*0x04					//Grp 14 for TC
+	.equ LINE0,0x01							//Line 0 for TC0
 
 	//Interrupt vectors
 	//Put function code at an aligned address in the .exception section, make it executable.
@@ -65,11 +65,11 @@
 _evba:
 	.org  0x28
 _handle_Privilege_Violation:
-	rjmp privilegedCalls			//Check for legal priviledged calls.
+	rjmp privilegedCalls					//Check for legal priviledged calls.
 
 	.org  0x100
 _handle_Supervisor_Call:
-	mov pc,lr						//ROSA Kernel function calls pass through here.
+	mov pc,lr								//ROSA Kernel function calls pass through here.
 
 /***********************************************************
  * ROSA_timer interrupt handling, lowlevel

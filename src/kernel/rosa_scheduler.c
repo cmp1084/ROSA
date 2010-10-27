@@ -36,5 +36,6 @@
  **********************************************************/
 void ROSA_scheduler(void)
 {
+	//Find the next task to execute
 	EXECTASK = EXECTASK->nexttcb;
 }

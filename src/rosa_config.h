@@ -43,8 +43,8 @@
 #define USART_RX_FUNCTION	AVR32_USART0_RXD_0_0_FUNCTION
 #define USART_TX_PIN		AVR32_USART0_TXD_0_0_PIN
 #define USART_TX_FUNCTION	AVR32_USART0_TXD_0_0_FUNCTION
-#define USART_BAUDRATE 57600
-#define USART_CHARLEN 8
+#define USART_BAUDRATE 		57600
+#define USART_CHARLEN		 8
 
 /***********************************************************
  * Timer configure
@@ -62,10 +62,10 @@
  * 	Prescale
  * 	---------
  *	Prescale values can be:
- * 	TC_CLOCK_SOURCE_TC2,	//fPBA / 2 //TODO: _CLOCKSx
- * 	TC_CLOCK_SOURCE_TC3,	//fPBA / 8
- * 	TC_CLOCK_SOURCE_TC4,	//fPBA / 32
- * 	TC_CLOCK_SOURCE_TC5,	//fPBA / 128
+ * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK2,	//fPBA / 2
+ * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK3,	//fPBA / 8
+ * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4,	//fPBA / 32
+ * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5,	//fPBA / 128
  *	This correspond to a PBA clock (= CPU clock) divisor of
  * 	{2, 8, 32, 128} respectively.
  *

@@ -53,7 +53,6 @@ static tcb t2_tcb;
  ************************************************************/
 void task1(void)
 {
-	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
 		ledOn(LED0_GPIO);
 		ledOff(LED1_GPIO);
@@ -69,7 +68,6 @@ void task1(void)
  ************************************************************/
 void task2(void)
 {
-	//~ int now = ROSA_timerGetSysTick();
 	while(1) {
 		ledOff(LED0_GPIO);
 		ledOn(LED1_GPIO);

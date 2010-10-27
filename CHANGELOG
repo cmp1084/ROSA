@@ -1,15 +1,18 @@
-
+ROSA Changelog
+----------------
 
 Version 0.3
-2010101x
-Rearranged and removed alot of code in the kernel.
+20101015
+Marcus Jansson <mjansson256@yahoo.se>
+Rearranged and removed code from the kernel.
 
 Version 0.2
-201010xx
-Minor changes, bugfix due to dual line.
+20101004
+Marcus Jansson <mjansson256@yahoo.se>
+Minor changes, bugfix.
 
 
 Version 0.1
 20100918
-Marcus Jansson
+Marcus Jansson <mjansson256@yahoo.se>
 First version of ROSA.

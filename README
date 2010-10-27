@@ -7,9 +7,7 @@ Content:
 =========
 	License
 	Compiling
-	Programming
-	Directory structure
-	Help!
+	Programming EVK1100
 
 
 License
@@ -22,24 +20,11 @@ ROSA will compile by typing:
 	make
 in the rosa directory.
 
-Programming
-===========
-Typing 
+Programming EVK1100
+====================
+Typing
 	make program
 in the rosa/ directory will give you what you need.
 
-Directory structure
-====================
-include/
-	drivers/
-	kernel/
-src/
-	drivers/
-	kernel/
 
 
-Help!
-==========
-Send an e-mail to:
-cmp1084 snabelA gmail.com
-Put ROSA in the subject field, and clearly state your questions.

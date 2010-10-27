@@ -36,6 +36,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -173,7 +174,7 @@ void gpioToggle(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
-int gpioPVR(int pinnr);
+int gpioGet(int pinnr);
 \begin_inset Newline newline
 \end_inset
 
@@ -2778,7 +2779,7 @@ Nothing.
 \end_layout
 
 \begin_layout Subsubsection
-gpioPVR
+gpioGet
 \end_layout
 
 \begin_layout Standard
@@ -2802,7 +2803,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-int gpioPVR(int pinnr)
+int gpioGet(int pinnr)
 \end_layout
 
 \end_inset

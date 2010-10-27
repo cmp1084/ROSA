@@ -155,10 +155,10 @@ ROSA_contextInit:
 
 //Supervisor stack frame
 .equ SF_SR, 0x00	//The SR is at the top of the supervisor stack.
-.equ SF_PC, 0x04	//The PC of the next user instruction comes next.
+.equ SF_PC, 0x04	//The PC of the next user instruction is located here.
 
 //User stack frame
-.equ SF_LR_TASK, 0x00 //The link back to the next user task instruction.
+.equ SF_LR_TASK, 0x00 //The link back to the next user task instruction is located here.
 
 /*********************************************************
 * _ROSA_scall_contextSave
@@ -201,7 +201,7 @@ _ROSA_contextSave:
 	st.w r12[TCB.RETADDR],r0		//Correction of stack is done later
 
 	//Save LR_task
-	st.w r12[TCB.SAVEREG.LR],r0		//This is done in order to allow ctxSwitchFromISR to read back LR. (?) TODO: Keep or throw
+	st.w r12[TCB.SAVEREG.LR],r0
 
 	//Correct the USP for the ROSA_contextSwitch() call.
 	//This is done since we do not want to return to ROSA_contextSwitch(), where the stack frame is currently at,
@@ -282,7 +282,8 @@ _ROSA_contextRestore:
 ROSA_contextSwitch:
 	pushm lr
 	lda.w lr,_ROSA_contextSwitch
-	scall							//Enter supervisor mode
+	//Enter supervisor mode
+	scall
 _ROSA_contextSwitch:
 	call _ROSA_contextSave
 	call ROSA_scheduler

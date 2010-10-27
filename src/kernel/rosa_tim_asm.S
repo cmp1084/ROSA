@@ -61,8 +61,7 @@ ROSA_timerPrescale:
  **********************************************************/
 //Timer CMR0
 .equ WAVE,(1 << AVR32_TC_WAVE_OFFSET)
-//Up mode with automatic trigger on RC Compare
-.equ WAVSEL,(2 << AVR32_TC_WAVSEL_OFFSET)
+.equ WAVSEL,(2 << AVR32_TC_WAVSEL_OFFSET) //Up mode with automatic trigger on RC Compare
 
 //Timer SR
 .equ CPCS,0x01
@@ -79,20 +78,21 @@ ROSA_timerPrescale:
  **********************************************************/
 ROSA_timerInit:
 	pushm r11,r12,lr
+	//Remove any remaining timer interrupts
+	call ROSA_interruptDisable;
+	call ROSA_timerClearInterrupt
+
 	//Setup timer waveform
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
-	call ROSA_timerClearInterrupt
 	mov r11,lo(WAVE | WAVSEL)
 	orh r11,hi(WAVE | WAVSEL)
 	st.w r12[AVR32_TC_CMR0],r11
 
 	//Enable TC interrupt
-	call ROSA_interruptDisable;
 	mov r11,CPCS
 	lsl r11,AVR32_TC_CPCS_OFFSET
 	st.w r12[AVR32_TC_IER0],r11
-	call ROSA_timerClearInterrupt
 
 	//Init RC and prescale
 	call ROSA_timerRCSet
@@ -120,7 +120,7 @@ ROSA_timerReset:
 	mov r11,((1 << AVR32_TC_CCR0_CLKEN) | (1 << AVR32_TC_CCR0_SWTRG))
 	st.w r12[AVR32_TC_CCR0],r11
 
-	//Init RC
+	//Init RC counter value
 	mov r11,lo(ROSA_timerRC)
 	orh r11,hi(ROSA_timerRC)
 	ld.w r11,r11[0x0]
@@ -216,4 +216,3 @@ ROSA_timerClearInterrupt:
 	ld.w r12,r12[AVR32_TC_SR0]
 	popm r12
 	mov pc,lr
-

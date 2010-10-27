@@ -23,6 +23,7 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 /* Tab size: 4 */
+
 #include <avr32/io.h>
 #include "kernel/rosa_ext.h"
 #include "drivers/usart.h"
@@ -35,9 +36,9 @@ void usartReset(volatile avr32_usart_t *usart)
 	if((interruptEnabled = ROSA_isInterruptEnabled())) {
 			ROSA_interruptDisable();
 	}
-		usart->idr = 0xFFFFFFFF;
-		usart->csr;
-		if(interruptEnabled) {
+	usart->idr = 0xFFFFFFFF;
+	usart->csr;
+	if(interruptEnabled) {
 		ROSA_interruptEnable();
 	}
 
@@ -72,7 +73,7 @@ int usartSetBaudrate(volatile avr32_usart_t *usart, unsigned int baudrate, unsig
 	unsigned int fp = cd_fp & ((1 << AVR32_USART_BRGR_FP_SIZE) - 1);
 
 	if (cd < 1 || cd > (1 << AVR32_USART_BRGR_CD_SIZE) - 1)
-	return USART_INVALID_INPUT;
+		return USART_INVALID_INPUT;
 
 	usart->mr = (usart->mr & ~(AVR32_USART_MR_USCLKS_MASK |
 				 AVR32_USART_MR_SYNC_MASK |
@@ -97,25 +98,25 @@ int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pb
 
 	usartSetBaudrate(usart, opt->baudrate, pba_hz);
 	if(opt->charlength == 9) {
-	//Character length set to 9 bits. MODE9 dominates CHRL.
-	usart->mr |= AVR32_USART_MR_MODE9_MASK;
+		//Character length set to 9 bits. MODE9 dominates CHRL.
+		usart->mr |= AVR32_USART_MR_MODE9_MASK;
 	}
 	else {
-	//CHRL gives the character length (- 5) when MODE9 = 0.
-	usart->mr |= (opt->charlength - 5) << AVR32_USART_MR_CHRL_OFFSET;
+		//CHRL gives the character length (- 5) when MODE9 = 0.
+		usart->mr |= (opt->charlength - 5) << AVR32_USART_MR_CHRL_OFFSET;
 	}
 
 	usart->mr |= opt->paritytype << AVR32_USART_MR_PAR_OFFSET |
 	opt->channelmode << AVR32_USART_MR_CHMODE_OFFSET;
 
 	if (opt->stopbits > USART_2_STOPBITS) {
-	//Set two stop bits and a timeguard period gives the rest.
-	usart->mr |= AVR32_USART_MR_NBSTOP_2 << AVR32_USART_MR_NBSTOP_OFFSET;
-	usart->ttgr = opt->stopbits - USART_2_STOPBITS;
+		//Set two stop bits and a timeguard period gives the rest.
+		usart->mr |= AVR32_USART_MR_NBSTOP_2 << AVR32_USART_MR_NBSTOP_OFFSET;
+		usart->ttgr = opt->stopbits - USART_2_STOPBITS;
 	}
 	else
-	//Insert 1, 1.5 or 2 stop bits.
-	usart->mr |= opt->stopbits << AVR32_USART_MR_NBSTOP_OFFSET;
+		//Insert 1, 1.5 or 2 stop bits.
+		usart->mr |= opt->stopbits << AVR32_USART_MR_NBSTOP_OFFSET;
 
 	//Set normal mode.
 	usart->mr = (usart->mr & ~AVR32_USART_MR_MODE_MASK) |
@@ -177,6 +178,7 @@ void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb)
 	 	case DEBUGLEVEL0:	//No debug output
 			break;
 		default:
+			//Write the TCB id
 			if(dbgLevel >= DEBUGLEVEL1) {
 				usartWriteLine(usart, "\nId:     ");
 				for(i = 0; i < 4; i++) {
@@ -184,6 +186,7 @@ void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb)
 				}
 				usartWriteLine(usart, "\n");
 			}
+			//Write all TCB addresses etc. at DEBUGLEVEL2 and DEBUGLEVEL3
 			if(dbgLevel >= DEBUGLEVEL2) {
 				usartWriteLine(usart, "tcb:       ");
 				usartWriteValue(usart, (int)dbgtcb);
@@ -203,6 +206,7 @@ void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb)
 				usartWriteValue(usart, (int)dbgtcb->retaddr);
 				usartWriteLine(usart, "\n");
 			}
+			//Write all registers at DEBUGLEVEL3
 			if(dbgLevel >= DEBUGLEVEL3) {
 				usartWriteLine(usart, "\nLR:   ");
 				usartWriteValue(usart, (int)dbgtcb->savereg[14]);

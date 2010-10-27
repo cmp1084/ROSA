@@ -49,7 +49,7 @@ _stext:
 	ldmts sp,sp
 	ld.w r0,sp++
 
-	//Set EVBA, exception processing in application mode
+	//Set EVBA and exception processing
 	lda.w r0,_evba
 	mtsr AVR32_EVBA,r0
 	csrf 0x15
