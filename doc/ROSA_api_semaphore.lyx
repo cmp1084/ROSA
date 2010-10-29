@@ -36,6 +36,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -73,9 +74,8 @@ Brief API list
 \end_layout
 
 \begin_layout Standard
-This is a list of the API for ROSA.
- Some of these functions are not implemented yet.
- The unimplemented functions are noted with a dot (.) in front of the function.
+This is a list of the semaphore API for ROSA.
+ 
 \end_layout
 
 \begin_layout Subsubsection
@@ -83,23 +83,19 @@ Semaphore API
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semCreate(sem  * semaphore); 
+void semCreate(sem  * semaphore); 
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semDestroy(sem * semaphore);
+void semDestroy(sem * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semTake(sem * semaphore); 
+void semTake(sem * semaphore); 
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semGive(sem * semaphore);
+void semGive(sem * semaphore);
 \end_layout
 
 \end_body

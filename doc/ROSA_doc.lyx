@@ -523,6 +523,10 @@ Makefile
 \end_inset
 
 - Script for the 'make' program.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
 \end_layout
 
 \end_deeper
@@ -623,19 +627,30 @@ tasks
 \end_inset
 
  into the ROSA kernel.
- When ROSA is started one of the tasks is picked up and execution is turn
+ When ROSA is started one of the tasks is picked up and execution is turned
  over to this task.
 \end_layout
 
 \begin_layout Standard
-From time to time the task need to give up its execution and let other tasks
- run.
- The kernel perform a context switch, thus allowing the next waiting task
- to run.
+From time to time the task needs to give up its execution and let other
+ tasks run.
+ The kernel perform a task context switch, thus allowing the next waiting
+ task to run.
 \end_layout
 
 \begin_layout Subsubsection
-Assembler and C
+Kernel functions
+\end_layout
+
+\begin_layout Standard
+All kernel functions that the user can call are prefixed 
+\emph on
+ROSA_
+\emph default
+, e.g.
+ 
+\emph on
+ROSA_scheduler().
 \end_layout
 
 \begin_layout Standard
@@ -645,6 +660,19 @@ Part of the ROSA kernel is written in assembler.
 a_off.i.
  These offsets are used by assembler routines to access the elements in
  the TCB block.
+\end_layout
+
+\begin_layout Subsubsection
+Kernel configuration
+\end_layout
+
+\begin_layout Standard
+A few user configurations can be done through the 
+\emph on
+rosa_config.h
+\emph default
+ file.
+ For example the USART baudrate is defined here.
 \end_layout
 
 \begin_layout Subsection
@@ -661,7 +689,7 @@ A TCB.
 \end_layout
 
 \begin_layout Itemize
-A stack.
+A data area.
 \end_layout
 
 \begin_layout Itemize
@@ -689,7 +717,7 @@ The start address of the task.
 \end_layout
 
 \begin_layout Itemize
-Where the dataarea is located and its size.
+Where the data area is located and its size.
 \end_layout
 
 \begin_layout Itemize
@@ -707,11 +735,12 @@ a_def.h.
 \end_layout
 
 \begin_layout Subsubsection
-Stack
+Data area
 \end_layout
 
 \begin_layout Standard
-The stack contain temporary data etc.
+The data area is the private stack for the task.
+ The data area contain temporary data etc.
  for the task.
  The stack size must be suitable to hold all temporary data.
  
@@ -722,12 +751,82 @@ Program code
 \end_layout
 
 \begin_layout Standard
-One of the most important parts in a task is the program code.
- When the kernel does a context switch to a task the task program code start
- to run.
+One of the important parts in a task is the program code.
+ When the kernel does a context switch the task program code starts to run.
  The program code is executed in a never ending loop.
  From time to time the program code call the kernel context switch function
  in order to allow other tasks to run.
+\end_layout
+
+\begin_layout Subsection
+TCBLIST
+\end_layout
+
+\begin_layout Standard
+The ROSA kernel utilize a variable TCBLIST which contain a link to the TCBs
+ in the kernel.
+ See Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Figure1tcblist"
+
+\end_inset
+
+.
+ Another variable EXECTASK contain the TCB of the current executing task.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+TCBLIST is a circular linked list.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Index
+status open
+
+\begin_layout Plain Layout
+Figure1tcblist
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Figure1tcblist"
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename pic/tcblist.png
+	lyxscale 35
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -820,7 +919,7 @@ ROSA_start()
  In order to activate the first task we must load the correct value for
  the user stack pointer (USP), and set the correct value of the status register
  (SR).
- This need to be done from assembler.
+ This needs to be done from assembler.
 \end_layout
 
 \begin_layout Standard
@@ -897,7 +996,7 @@ Context save
 \emph on
 _ROSA_contextSave()
 \emph default
- does the following operations:
+ do the following operations:
 \end_layout
 
 \begin_layout Itemize
@@ -1015,6 +1114,19 @@ We start in the main.c by including the necessary header files.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -1068,12 +1180,17 @@ status open
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Tasks
 \end_layout
 
 \begin_layout Standard
-Now we define our tasks, task1 and task2.
+Now we define our tasks; task1 and task2.
  Note that the tasks consist of a 
 \emph on
 while(1)
@@ -1104,6 +1221,19 @@ while(1)
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -1238,6 +1368,11 @@ void task2(void)
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 TCB and stack declaration
 \end_layout
@@ -1251,6 +1386,19 @@ We declare our TCB and stack for the two tasks we are going to create.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -1300,6 +1448,11 @@ static tcb t2_tcb;
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 More TCB and TCBLIST
 \end_layout
@@ -1326,7 +1479,7 @@ ROSA_start()
 \end_layout
 
 \begin_layout Standard
-Here an example of how it is done from the 
+Below is an example of how it is done from the 
 \emph on
 main()
 \emph default
@@ -1334,8 +1487,21 @@ main()
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=3"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1426,6 +1592,11 @@ int main(void)
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Compiling
 \end_layout
@@ -1501,8 +1672,21 @@ This function set the TCBLIST and EXECTASK to NULL.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,tabsize=4"
 inline false
 status open
 
@@ -1581,6 +1765,11 @@ void ROSA_init(void)
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1592,7 +1781,21 @@ ROSA_tcbCreate()
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},tabsize=4"
 inline false
 status open
 
@@ -1617,6 +1820,11 @@ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1626,8 +1834,21 @@ These calls fill in the necessary information into the TCB as shown below.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,extendedchars=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1637,7 +1858,7 @@ status open
 
 \begin_layout Plain Layout
 
-void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction,
+void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE],    void *tcbFunction,
  int * tcbStack, int tcbStackSize) 
 \end_layout
 
@@ -1696,6 +1917,11 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction,
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1704,7 +1930,21 @@ The link to the next TCB is set to NULL as this TCB block have not been
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1730,6 +1970,11 @@ status open
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1742,7 +1987,21 @@ The start and return addresses are set up to point to the beginning of the
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1811,6 +2070,11 @@ status open
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1824,7 +2088,21 @@ ROSA_contextInit()
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1850,6 +2128,11 @@ status open
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1859,7 +2142,21 @@ The assembler routine initialize the lr register (task activation record)
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1939,6 +2236,11 @@ ROSA_contextInit:
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -1951,8 +2253,21 @@ Now the TCB have been properly created and it is time to install the TCB
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1983,6 +2298,11 @@ status open
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2002,8 +2322,21 @@ The TCBLIST is circular, which mean the last element will always point to
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2147,6 +2480,11 @@ void ROSA_tcbInstall(tcb * tcbTask)
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2155,8 +2493,21 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Standard
 Finally the ROSA kernel can be started:
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2177,6 +2528,11 @@ ROSA_start();
 \begin_layout Plain Layout
 
 /* Execution will never return to here */
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2203,8 +2559,21 @@ Loading lr with STADDR mean that we are going to continue execution at the
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2346,6 +2715,11 @@ ROSA_start:
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2358,8 +2732,21 @@ Now task1 start to execute.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2414,6 +2801,11 @@ void task1(void)
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2430,8 +2822,21 @@ _ROSA_contextRestore()
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2496,6 +2901,11 @@ _ROSA_contextSwitch:
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2503,19 +2913,44 @@ _ROSA_contextSwitch:
 \end_layout
 
 \begin_layout Standard
-The _ROSA_contextSave() routine save the context from the processor into
- the TCB of EXECTASK.
+The 
+\emph on
+_ROSA_contextSave()
+\emph default
+ routine save the context from the processor into the TCB of EXECTASK.
  Note that at this point the USP is one element off, caused by the call
- to the ROSA_contextSwitch() since we need to save the lr to the stack before
+ to the 
+\emph on
+ROSA_contextSwitch()
+\emph default
+.
+ This is due to the fact that we need to push the lr to the stack before
  entering supervisor mode.
- This must be corrected to allow the task to start execute in the task program
- code next time it is activated.
+ A stack correction is made at the end of 
+\emph on
+_ROSA_contextSave()
+\emph default
+ to allow the task to continue its execution in the task program code next
+ time it is activated.
  
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2752,6 +3187,11 @@ _ROSA_contextSave:
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -2762,11 +3202,26 @@ _ROSA_contextRestore()
 \emph default
  will do the final part of the context switch, i.e.
  turning execution over to the next task.
+ Register values are fetched from the TCB and written directly to the processor
+ or on the stack for retrieval when exiting supervisor mode.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -2958,13 +3413,103 @@ _ROSA_contextRestore:
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
-.
+
 \end_layout
 
 \begin_layout Standard
+Now execution is at task2, which will run until the 
+\emph on
+ROSA_contextSwitch()
+\emph default
+ turn over execution to the next task, which in this case is task1.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void task2(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOff(LED0_GPIO);	//EVK1100 LED1!
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOn(LED1_GPIO);
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_contextSwitch();
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
 .
 \end_layout
 
@@ -3013,8 +3558,21 @@ Example:
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -3073,6 +3631,11 @@ void task(void)
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset VSpace defskip
 \end_inset
@@ -3103,6 +3666,19 @@ Example:
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -3167,6 +3743,11 @@ __attribute__((__interrupt__)) void ROSA_timerISR(void)
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
 \begin_inset VSpace defskip
 \end_inset
 
@@ -3183,8 +3764,21 @@ Imagine we had a way to make a delay in a task.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\scriptsize\ttfamily},language=C,tabsize=4"
+lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -3231,6 +3825,11 @@ void task(void)
 \begin_layout Plain Layout
 
 }
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset

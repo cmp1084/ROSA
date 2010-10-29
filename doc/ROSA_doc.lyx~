@@ -112,13 +112,21 @@ Description
 \begin_layout Standard
 ROSA is a small cooperative/preemptive real time kernel for AVR32 UC3A processor
 s.
- It is aimed to be used on the EVK1100 platform.
+ It is aimed to be used on the Atmel EVK1100 platform.
 \end_layout
 
 \begin_layout Standard
 This document is a description of ROSA's support for pseudo parallel execution
  of user programs.
- By 'pseudo parallel' we mean it 
+ By 
+\begin_inset Quotes eld
+\end_inset
+
+pseudo parallel
+\begin_inset Quotes erd
+\end_inset
+
+ we mean it 
 \begin_inset Quotes eld
 \end_inset
 
@@ -140,8 +148,8 @@ A small operating system like ROSA can be used to enhance the structure
 \end_layout
 
 \begin_layout Standard
-There are so called light weight kernels.
- Compared to these, ROSA is a very tiny kernel with limited functionality.
+Compared to other light weight kernels, ROSA is a tiny kernel with very
+ limited functionality.
  
 \end_layout
 
@@ -151,8 +159,9 @@ Hardware
 
 \begin_layout Standard
 ROSA runs on the EVK1100 platform.
- Among other things it features 512 kB flash memory, 64 kB internal RAM
- memory, a 12 Mhz external crystal, LEDs, buttons etc.
+ Among other things the hardware features 512 kB flash memory, 64 kB internal
+ RAM memory, a 12 Mhz external crystal, user LEDs, user buttons, serial
+ communication etc.
 \end_layout
 
 \begin_layout Subsubsection
@@ -164,11 +173,11 @@ ROSAs I/O drivers support the following hardware functions on EVK1100:
 \end_layout
 
 \begin_layout Itemize
-LEDs, LED1-LED6.
+LEDs.
 \end_layout
 
 \begin_layout Itemize
-Buttons, PB0, PB1 and PB2.
+Buttons.
 \end_layout
 
 \begin_layout Itemize
@@ -176,11 +185,11 @@ Mini-joystick.
 \end_layout
 
 \begin_layout Itemize
-Potentiometer, POT.
+Potentiometer.
 \end_layout
 
 \begin_layout Itemize
-Serial ports, USART_0 and USART_1
+Serial ports.
 \end_layout
 
 \begin_layout Subsection
@@ -192,17 +201,17 @@ ROSA source code
 \end_layout
 
 \begin_layout Standard
-All the ROSA source code is available in the rosa/src directory which makes
+The ROSA source code is available in the rosa/src directory which makes
  it possible to expand ROSA with more services.
  Examples of expansions that can be done:
 \end_layout
 
 \begin_layout Itemize
-Support for time sharing
+Support for time sharing.
 \end_layout
 
 \begin_layout Itemize
-Support for priority driven scheduling 
+Support for priority driven scheduling.
 \end_layout
 
 \begin_layout Itemize
@@ -236,7 +245,7 @@ bin/
 \begin_inset space \hfill{}
 \end_inset
 
-- Destination for the binary file.
+- Destination for the binary files.
 \end_layout
 
 \begin_layout Itemize
@@ -360,7 +369,7 @@ rosa_ker.c
 \end_layout
 
 \begin_layout Itemize
-rosa_asm.S 
+rosa_ker_asm.S 
 \begin_inset space \qquad{}
 \end_inset
 
@@ -372,7 +381,7 @@ rosa_asm.S
 \end_layout
 
 \begin_layout Itemize
-rosa_tim.S 
+rosa_scheduler.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -380,7 +389,56 @@ rosa_tim.S
 \begin_inset space \hfill{}
 \end_inset
 
-- Timer specific source.
+- Scheduler specific source.
+ 
+\end_layout
+
+\begin_layout Itemize
+rosa_int.c
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+- Interrupt specific source.
+\end_layout
+
+\begin_layout Itemize
+rosa_int_asm.S
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+- Interrupt assembler source.
+\end_layout
+
+\begin_layout Itemize
+rosa_tim.c
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+- Timer specific soruce.
+\end_layout
+
+\begin_layout Itemize
+rosa_tim_asm.S 
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+- Timer assembler source.
 \end_layout
 
 \end_deeper
@@ -399,6 +457,18 @@ button.c
 \end_inset
 
 - Push button driver.
+\end_layout
+
+\begin_layout Itemize
+delay.c
+\begin_inset space \qquad{}
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+- Delay functions.
 \end_layout
 
 \begin_layout Itemize
@@ -453,6 +523,10 @@ Makefile
 \end_inset
 
 - Script for the 'make' program.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
 \end_layout
 
 \end_deeper
@@ -535,15 +609,78 @@ ROSA kernel functionality
 \end_layout
 
 \begin_layout Standard
-As a user of ROSA you define tasks and their corresponding Task Control
- Blocks (TCB).
- When the ROSA kernel is started it picks one of the tasks and turn execution
- over to this task.
- 
+This is a brief description of the kernel functionality.
+\end_layout
+
+\begin_layout Subsection
+Kernel
 \end_layout
 
 \begin_layout Standard
-A task consist of:
+The ROSA kernel is the controller software and supervisor of the system.
+ As a user of ROSA you create and install 
+\begin_inset Quotes eld
+\end_inset
+
+tasks
+\begin_inset Quotes erd
+\end_inset
+
+ into the ROSA kernel.
+ When ROSA is started one of the tasks is picked up and execution is turn
+ over to this task.
+\end_layout
+
+\begin_layout Standard
+From time to time the task needs to give up its execution and let other
+ tasks run.
+ The kernel perform a context switch, thus allowing the next waiting task
+ to run.
+\end_layout
+
+\begin_layout Subsubsection
+Kernel functions
+\end_layout
+
+\begin_layout Standard
+All kernel functions that the user can call are prefixed 
+\emph on
+ROSA_
+\emph default
+, e.g.
+ 
+\emph on
+ROSA_scheduler().
+\end_layout
+
+\begin_layout Standard
+Part of the ROSA kernel is written in assembler.
+ In order to be able to share the same TCB structure from both assmebler
+ and C the kernel utilizes offsets found in the file rosa/src/include/kernel/ros
+a_off.i.
+ These offsets are used by assembler routines to access the elements in
+ the TCB block.
+\end_layout
+
+\begin_layout Subsubsection
+Kernel configuration
+\end_layout
+
+\begin_layout Standard
+Some user configurations can be done through the 
+\emph on
+rosa_config.h
+\emph default
+ file.
+\end_layout
+
+\begin_layout Subsection
+Task
+\end_layout
+
+\begin_layout Standard
+A task is a program running under the kernels supervision.
+ A task consist of:
 \end_layout
 
 \begin_layout Itemize
@@ -551,19 +688,23 @@ A TCB.
 \end_layout
 
 \begin_layout Itemize
-Program code.
-\end_layout
-
-\begin_layout Itemize
 A stack.
 \end_layout
 
+\begin_layout Itemize
+Program code.
+\end_layout
+
+\begin_layout Subsubsection
+TCB
+\end_layout
+
 \begin_layout Standard
-Each task have a TCB which contain information and/or space for:
+The TCB contain information and/or space for:
 \end_layout
 
 \begin_layout Itemize
-Task identification (name).
+Task identification (id/name).
 \end_layout
 
 \begin_layout Itemize
@@ -589,27 +730,123 @@ All necessary CPU registers.
 
 \begin_layout Standard
 The exact definition of the TCB is found in the file rosa/src/include/kernel/ros
-a_def.h
+a_def.h.
+\end_layout
+
+\begin_layout Subsubsection
+Stack
 \end_layout
 
 \begin_layout Standard
-The kernel also utilizes offsets found in the file rosa/src/include/kernel/rosa_
-off.i.
- These offsets are used by assembler routines to access the elements in
- the TCB block.
+The stack contain temporary data etc.
+ for the task.
+ The stack size must be suitable to hold all temporary data.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Program code
+\end_layout
+
+\begin_layout Standard
+One of the important parts in a task is the program code.
+ When the kernel does a context switch the task program code starts to run.
+ The program code is executed in a never ending loop.
+ From time to time the program code call the kernel context switch function
+ in order to allow other tasks to run.
+\end_layout
+
+\begin_layout Subsection
+TCBLIST
+\end_layout
+
+\begin_layout Standard
+The ROSA kernel utilize a variable TCBLIST which contain a link to the TCBs
+ in the kernel.
+ See Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Figure1tcblist"
+
+\end_inset
+
+.
+ Another variable EXECTASK contain the TCB of the current executing task.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+TCBLIST is a circular linked list.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Index
+status open
+
+\begin_layout Plain Layout
+Figure1tcblist
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Figure1tcblist"
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename pic/tcblist.png
+	lyxscale 50
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
 The internal structure of ROSA
 \end_layout
 
-\begin_layout Subsection
-Creating and installing tasks
+\begin_layout Standard
+This is a more detailed description of the internal structure of ROSA.
 \end_layout
 
 \begin_layout Standard
-The first thing to note is that ROSA kernel routines execute in supervisor
- mode and the tasks execute in user mode.
+The first thing to note about ROSA is that kernel functions execute in superviso
+r mode and the tasks execute in user mode.
+ Mode switching is done by ROSA.
+\end_layout
+
+\begin_layout Subsection
+Creating and installing tasks
 \end_layout
 
 \begin_layout Standard
@@ -631,10 +868,6 @@ When more tasks are created and installed, each TCB is linked into the TCBLIST
 \end_layout
 
 \begin_layout Standard
-TODO: REALLY?! Cut the stuff below.
-\end_layout
-
-\begin_layout Standard
 These are the necessary informations that need to be initialized in the
  TCB:
 \end_layout
@@ -652,8 +885,12 @@ The status register (SR) is set to work in user mode.
 \end_layout
 
 \begin_layout Itemize
-All CPU registers are saved into the TCB, so that they are not destroyed
- by a context switch.
+The user stack pointer (USP), which the task will use.
+\end_layout
+
+\begin_layout Itemize
+All CPU registers are saved into the TCB in order to not be destroyed by
+ a context switch.
 \end_layout
 
 \begin_layout Standard
@@ -664,7 +901,11 @@ Part of this need to be done in assembler, due to the low level nature of
 \emph on
 ROSA_contextInit()
 \emph default
- call in supervisor mode.
+ call last in 
+\emph on
+ROSA_tcbCreate()
+\emph default
+.
 \end_layout
 
 \begin_layout Subsection
@@ -680,9 +921,13 @@ ROSA_start()
  In order to activate the first task we must load the correct value for
  the user stack pointer (USP), and set the correct value of the status register
  (SR).
- To start task execution the task start address, STADDR, is loaded from
- the TCB and a jump is done to that address.
- This need to be done from assembler in supervisor mode.
+ This needs to be done from assembler.
+\end_layout
+
+\begin_layout Standard
+To start task execution the task start address, STADDR, is loaded from the
+ TCB and a jump is done to STADDR.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -730,13 +975,9 @@ ROSA_contextRestore()
 \begin_layout Standard
 The 
 \emph on
-ROSA_contextSave() 
+ROSA_contextSwitch() 
 \emph default
-and 
-\emph on
-ROSA_contextRestore()
-\emph default
- utilize the supervisor mode which is entered by the '
+utilize the supervisor mode which is entered by the '
 \emph on
 scall
 \emph default
@@ -745,8 +986,7 @@ scall
 \emph on
 _handle_Supervisor_Call
 \emph default
- vector and effectively jump to the contextSave/Restore routines in supervisor
- mode.
+ vector and effectively run the context switch routines in supervisor mode.
 \end_layout
 
 \begin_layout Subsubsection
@@ -756,17 +996,17 @@ Context save
 \begin_layout Standard
 
 \emph on
-ROSA_contextSave()
+_ROSA_contextSave()
 \emph default
- does the following operations:
+ do the following operations:
 \end_layout
 
 \begin_layout Itemize
-Enter supervisor mode.
+Fetch the TCB of the current executing task.
 \end_layout
 
 \begin_layout Itemize
-Disable interrupts.
+Save temporary work registers.
 \end_layout
 
 \begin_layout Itemize
@@ -782,11 +1022,7 @@ Save the return address.
 \end_layout
 
 \begin_layout Itemize
-Save the user stack pointer, USP.
-\end_layout
-
-\begin_layout Itemize
-Return back to user mode.
+Save the correct user stack pointer, USP.
 \end_layout
 
 \begin_layout Subsubsection
@@ -798,8 +1034,8 @@ The
 \emph on
 ROSA_scheduler()
 \emph default
- function get the next TCB to execute and put a reference to that TCB in
- the EXECTASK variable.
+ function fetch the next task to execute.
+ A reference to the task TCB is put in the EXECTASK variable.
  
 \end_layout
 
@@ -810,13 +1046,13 @@ Context restore
 \begin_layout Standard
 
 \emph on
-ROSA_contextRestore()
+_ROSA_contextRestore()
 \emph default
  practically does the reverse of the context save:
 \end_layout
 
 \begin_layout Itemize
-Enter supervisor mode.
+Fetch the TCB from the EXECTASK.
 \end_layout
 
 \begin_layout Itemize
@@ -836,16 +1072,11 @@ Restore SR.
 \end_layout
 
 \begin_layout Itemize
-Enables interrupt.
-\end_layout
-
-\begin_layout Itemize
-Enter user mode.
+Restore work registers.
 \end_layout
 
 \begin_layout Standard
-This sequence makes the CPU start executing another task than the previous
- one.
+This sequence makes the CPU start executing the new task.
 \end_layout
 
 \begin_layout Section
@@ -853,15 +1084,26 @@ How to use ROSA from C
 \end_layout
 
 \begin_layout Standard
-The ROSA kernel consist of C and assembler code.
- We will look at how ROSA can be used from C, since user application code
- is usually written in C.
- The following code contain two tasks and initialization of ROSA.
- Each task will control LED2 and LED3 on the EVK1100.
+We will look at how ROSA can be used.
+ The following code contain two simple tasks and initialization of ROSA.
+ Each task will control LED1 and LED2 on the EVK1100.
 \end_layout
 
 \begin_layout Subsection
-Source code walk through
+Simple source code walk through
+\end_layout
+
+\begin_layout Standard
+This is a description on how to set up the main.c file and start running
+ the ROSA kernel.
+ A more detailed walk through of the kernel is found in section 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "sec:Kernel-source-code"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -869,11 +1111,24 @@ Headers
 \end_layout
 
 \begin_layout Standard
-We start by including the necessary header files.
+We start in the main.c by including the necessary header files.
  
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -891,16 +1146,6 @@ status open
 
 \begin_layout Plain Layout
 
-#include "kernel/rosa_def.h"
-\end_layout
-
-\begin_layout Plain Layout
-
-#include "kernel/rosa_ext.h"
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -911,6 +1156,11 @@ status open
 \begin_layout Plain Layout
 
 #include "drivers/led.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "drivers/delay.h"
 \end_layout
 
 \begin_layout Plain Layout
@@ -932,21 +1182,29 @@ status open
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Tasks
 \end_layout
 
 \begin_layout Standard
-Now we define our tasks, task1 and task2.
- Note that the tasks consist of a while(1)-loop, which basically will make
- the task run forever.
+Now we define our tasks; task1 and task2.
+ Note that the tasks consist of a 
+\emph on
+while(1)
+\emph default
+-loop, which basically will make the task run forever.
  
 \end_layout
 
 \begin_layout Standard
-The next thing to note is the ledOn/Off scheme, task1 will light up LED2
+The next thing to note is the ledOn/Off scheme, task1 will light up LED1
  of the EVK1100.
- Task2 will light up LED3.
+ Task2 will light up LED2.
  Pay attention to the inconsistency between the labeling of the LEDs on
  EVK1100 and the defined LEDx_GPIO numbers.
 \end_layout
@@ -954,13 +1212,30 @@ The next thing to note is the ledOn/Off scheme, task1 will light up LED2
 \begin_layout Standard
 
 \emph on
-ROSA_yield()
+ROSA_contextSwitch()
 \emph default
  is the function which perform a context switch, allowing both tasks to
- run in pseudo parallel, despite the forever while(1)-loop.
+ run in pseudo parallel, despite the forever 
+\emph on
+while(1)
+\emph default
+-loop.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -973,12 +1248,17 @@ status open
 
 \begin_layout Plain Layout
 
-//LED2 lights up
+//--------------
 \end_layout
 
 \begin_layout Plain Layout
 
-//LED3 goes dark
+//LED1 lights up
+\end_layout
+
+\begin_layout Plain Layout
+
+//LED2 goes dark
 \end_layout
 
 \begin_layout Plain Layout
@@ -998,17 +1278,17 @@ void task1(void)
 
 \begin_layout Plain Layout
 
-		ledOn(LED1_GPIO);	//EVK1100 LED2!
+		ledOn(LED0_GPIO);	//EVK1100 LED1!
 \end_layout
 
 \begin_layout Plain Layout
 
-		ledOff(LED2_GPIO);
+		ledOff(LED1_GPIO);
 \end_layout
 
 \begin_layout Plain Layout
 
-		ROSA_yield();
+		ROSA_contextSwitch();
 \end_layout
 
 \begin_layout Plain Layout
@@ -1032,12 +1312,17 @@ void task1(void)
 
 \begin_layout Plain Layout
 
-//LED3 lights up
+//--------------
 \end_layout
 
 \begin_layout Plain Layout
 
-//LED2 goes dark
+//LED2 lights up
+\end_layout
+
+\begin_layout Plain Layout
+
+//LED1 goes dark
 \end_layout
 
 \begin_layout Plain Layout
@@ -1057,22 +1342,17 @@ void task2(void)
 
 \begin_layout Plain Layout
 
-		t2_tick++;
+		ledOff(LED0_GPIO);
 \end_layout
 
 \begin_layout Plain Layout
 
-		ledOff(LED1_GPIO);
+		ledOn(LED1_GPIO);
 \end_layout
 
 \begin_layout Plain Layout
 
-		ledOn(LED2_GPIO);
-\end_layout
-
-\begin_layout Plain Layout
-
-		ROSA_yield();
+		ROSA_contextSwitch();
 \end_layout
 
 \begin_layout Plain Layout
@@ -1090,19 +1370,37 @@ void task2(void)
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 TCB and stack declaration
 \end_layout
 
 \begin_layout Standard
 We declare our TCB and stack for the two tasks we are going to create.
- The first thing we do is reserving stack space by defining a global array
+ The first thing we do is to reserve stack space by defining a global array
  with appropriate size.
- Space for the TCB is also reserved by a tcb struct.
- The tcb type is defined in rosa/src/include/kernel/rosa_def.h.
+ Space for the TCB is also reserved by the tcb struct.
+ 
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -1152,6 +1450,11 @@ static tcb t2_tcb;
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 More TCB and TCBLIST
 \end_layout
@@ -1165,18 +1468,42 @@ ROSA_tcbCreate()
 \emph default
  and 
 \emph on
-ROSA_tcbInstall()
+ROSA_tcbInstall().
+
 \emph default
- and must be done before starting ROSA.
+ This must be done before starting ROSA with the 
+\emph on
+ROSA_start()
+\emph default
+ call.
+ Execution control is now in the hands of ROSA and will not return to this
+ point.
 \end_layout
 
 \begin_layout Standard
-Here we do it from the main()-function:
+Below is an example of how it is done from the 
+\emph on
+main()
+\emph default
+-function:
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1188,20 +1515,6 @@ int main(void)
 \begin_layout Plain Layout
 
 {
-\end_layout
-
-\begin_layout Plain Layout
-
-	//Do I/O driver initializations
-\end_layout
-
-\begin_layout Plain Layout
-
-	ledInit();
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -1239,7 +1552,7 @@ int main(void)
 
 \begin_layout Plain Layout
 
-	//Install the TCBs into the TCBLIST which ROSA uses.
+	//Install the TCBs into the TCBLIST.
 \end_layout
 
 \begin_layout Plain Layout
@@ -1281,12 +1594,17 @@ int main(void)
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Compiling
 \end_layout
 
 \begin_layout Standard
-To compile the simple ROSA system, enter the rosa directory and type:
+To compile the ROSA system, enter the rosa/ directory and type:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1315,6 +1633,1889 @@ When the programming is done the two tasks should start to execute on the
 \end_layout
 
 \begin_layout Section
+Kernel source code walk through
+\begin_inset Index
+status open
+
+\begin_layout Plain Layout
+Kernel source code walk through
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Kernel-source-code"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is a closer look at the ROSA kernel.
+\end_layout
+
+\begin_layout Standard
+In the 
+\emph on
+main()
+\emph default
+ function, as shown previously, the first kernel function to be called is
+ 
+\emph on
+ROSA_init().
+ 
+\emph default
+This function set the TCBLIST and EXECTASK to NULL.
+ This is done since no task have been added yet.
+ Also I/O is initialized by this function call.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void ROSA_init(void) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//No tasks yet.
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCBLIST = NULL; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	EXECTASK = NULL; 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Do initialization of I/O drivers 
+\end_layout
+
+\begin_layout Plain Layout
+
+	ledInit();                         //LEDs 
+\end_layout
+
+\begin_layout Plain Layout
+
+	buttonInit();                      //Buttons 
+\end_layout
+
+\begin_layout Plain Layout
+
+	joystickInit();                    //Joystick 
+\end_layout
+
+\begin_layout Plain Layout
+
+	potInit();                         //Potentiometer 
+\end_layout
+
+\begin_layout Plain Layout
+
+    usartInit(USART, &usart_options, FOSC0);//Serial
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+Next the TCB's of two tasks are created by function call to 
+\emph on
+ROSA_tcbCreate()
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_tcbCreate(&t1_tcb, "tsk1", task1, t1_stack, T1_STACK_SIZE);
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+These calls fill in the necessary information into the TCB as shown below.
+ First the task id/name is copied into the TCB.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE],    void *tcbFunction,
+ int * tcbStack, int tcbStackSize) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	int i;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Initialize the tcb with the correct values 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	for(i = 0; i < NAMESIZE; i++) { 		
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Copy the id/name 		
+\end_layout
+
+\begin_layout Plain Layout
+
+		tcbTask->id[i] = tcbName[i]; 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+The link to the next TCB is set to NULL as this TCB block have not been
+ installed into the ROSA kernel yet.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Dont link this TCB anywhere yet 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->nexttcb = NULL;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+The start and return addresses are set up to point to the beginning of the
+ task function.
+ The stack and its size are set up, and the USP is set to point to the data
+ area.
+ An initial value of the SR is set.
+ This give us a known initial state of the task.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Set the task function start and return address 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->staddr = tcbFunction; 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->retaddr = (int)tcbFunction;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Set up the stack 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->datasize = tcbStackSize; 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->dataarea = tcbStack + tcbStackSize; 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->saveusp = tcbTask->dataarea;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Set the initial SR 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcbTask->savesr = ROSA_INITIALSR;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+The last thing to do during TCB creation is to set up the task context registers
+ to a known state.
+ This is done in assembler by the 
+\emph on
+ROSA_contextInit()
+\emph default
+ call.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Initialize context 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	ROSA_contextInit(tcbTask); 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+The assembler routine initialize the lr register (task activation record)
+ to point to the start address, STADDR, of the task program code.
+ The registers in the TCB, TCB.SAVEREG.R0 - TCB.SAVEREG.R12, are set to zero.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_contextInit: 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Initialize lr in the savereg area 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.STADDR] 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.LR],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Initialize regs to zero 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov r0,0x0 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.R0],r0 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.R1],r0 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.R2],r0 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.R12],r0 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov pc,lr 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now the TCB have been properly created and it is time to install the TCB
+ into the ROSA kernel.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Install TCB into the TCBLIST.
+\end_layout
+
+\begin_layout Plain Layout
+
+	ROSA_tcbInstall(t1_tcb); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	ROSA_tcbInstall(t2_tcb); 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+This function call check to see if the TCBLIST is empty, which is the case
+ when t1_tcb is installed.
+ The TCB (t1_tcb) is installed at the first position of the list.
+\end_layout
+
+\begin_layout Standard
+If the TCBLIST is not empty, which will be the case when t2_tcb is installed,
+ the TCB will be attached to the last position in the list.
+\end_layout
+
+\begin_layout Standard
+The TCBLIST is circular, which mean the last element will always point to
+ the first element.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void ROSA_tcbInstall(tcb * tcbTask) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	tcb * tcbTmp;
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Is this the first tcb installed? 
+\end_layout
+
+\begin_layout Plain Layout
+
+	if(TCBLIST == NULL) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		TCBLIST = tcbTask;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Install the first tcb
+\end_layout
+
+\begin_layout Plain Layout
+
+		TCBLIST->nexttcb = tcbTask;  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Make the list circular
+\end_layout
+
+\begin_layout Plain Layout
+
+		tcbTask->nexttcb = TCBLIST;  
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	else {
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Find last tcb in the list
+\end_layout
+
+\begin_layout Plain Layout
+
+		tcbTmp = TCBLIST; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		while(tcbTmp->nexttcb != TCBLIST) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			tcbTmp = tcbTmp->nexttcb;
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Install tcb last in the list
+\end_layout
+
+\begin_layout Plain Layout
+
+		tcbTmp->nexttcb = tcbTask;
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+		//Make the list circular
+\end_layout
+
+\begin_layout Plain Layout
+
+		tcbTask->nexttcb = TCBLIST;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally the ROSA kernel can be started:
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+//Start the ROSA kernel
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_start();
+\end_layout
+
+\begin_layout Plain Layout
+
+/* Execution will never return to here */
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In effect this is the initial context switch.
+ This is an assembler routine that set EXECTASK to be the first task in
+ the TCBLIST.
+ The routine load information (USP, SR, STADDR, registers etc.) from EXECTASK
+ and put it directly onto the processor.
+\end_layout
+
+\begin_layout Standard
+Loading lr with STADDR mean that we are going to continue execution at the
+ task program code when this routine is finished.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_start:
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Put the first task from TCBLIST into EXECTASK
+\end_layout
+
+\begin_layout Plain Layout
+
+	lda.w r12,TCBLIST
+\end_layout
+
+\begin_layout Plain Layout
+
+	lda.w r11,EXECTASK
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r12,r12[0x0]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r11[0x0],r12
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Set up start USP
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.SAVEUSP]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w --sp,r0
+\end_layout
+
+\begin_layout Plain Layout
+
+	ldmts sp,sp
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,sp++
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Load start lr, execution will jump here later
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w lr,r12[TCB.STADDR]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Set up start SR, enter user mode
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.SAVESR]
+\end_layout
+
+\begin_layout Plain Layout
+
+	mtsr 0x0,r0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Load start registers R0-R12
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.SAVEREG.R0]
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r1,r12[TCB.SAVEREG.R1]
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r2,r12[TCB.SAVEREG.R2]
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r12,r12[TCB.SAVEREG.R12]
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov pc,lr
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now task1 start to execute.
+ It will light LED1, turn LED2 off and then immediately do a context switch.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void task1(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOn(LED0_GPIO);	//EVK1100 LED1!
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOff(LED1_GPIO);
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_contextSwitch();
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+The context switch routine consist of switching to supervisor mode and three
+ calls to 
+\emph on
+_ROSA_contextSave(), ROSA_scheduler() 
+\emph default
+and 
+\emph on
+_ROSA_contextRestore()
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ROSA_contextSwitch:
+\end_layout
+
+\begin_layout Plain Layout
+
+	pushm lr
+\end_layout
+
+\begin_layout Plain Layout
+
+	lda.w lr,_ROSA_contextSwitch
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Enter supervisor mode
+\end_layout
+
+\begin_layout Plain Layout
+
+	scall 
+\end_layout
+
+\begin_layout Plain Layout
+
+_ROSA_contextSwitch:
+\end_layout
+
+\begin_layout Plain Layout
+
+	call _ROSA_contextSave
+\end_layout
+
+\begin_layout Plain Layout
+
+	call ROSA_scheduler
+\end_layout
+
+\begin_layout Plain Layout
+
+	call _ROSA_contextRestore 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Execution will not return to here!
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+_ROSA_contextSave()
+\emph default
+ routine save the context from the processor into the TCB of EXECTASK.
+ Note that at this point the USP is one element off, caused by the call
+ to the 
+\emph on
+ROSA_contextSwitch()
+\emph default
+.
+ This is due to the fact that we need to push the lr to the stack before
+ entering supervisor mode.
+ A stack correction is made at the end of 
+\emph on
+_ROSA_contextSave()
+\emph default
+ to allow the task to continue its execution in the task program code next
+ time it is activated.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+_ROSA_contextSave:
+\end_layout
+
+\begin_layout Plain Layout
+
+	pushm r12
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Fetch the current executing task
+\end_layout
+
+\begin_layout Plain Layout
+
+	lda.w r12,EXECTASK
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r12,r12[0x0]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save work registers to TCB
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVER0],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVER1],r1
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,sp++            	//Use r0 to save r12
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.R12],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save task SR to TCB
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,sp[SF_SR]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVESR],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save task registers r0-r11 to TCB
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov r0,TCB.SAVEREG.R11
+\end_layout
+
+\begin_layout Plain Layout
+
+	add r0,r12 
+\end_layout
+
+\begin_layout Plain Layout
+
+	stmts r0,r0-r11
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Get the address of the USP
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov r0,sp
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w --sp,r0
+\end_layout
+
+\begin_layout Plain Layout
+
+	stmts sp,sp
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r1,sp++	//USP in r1
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save RETADDR to TCB
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r1[SF_LR_TASK]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Get from user stack, return to task, 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//not to contextSwitch 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.RETADDR],r0 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save LR_task 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEREG.LR],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Correct the USP for the ROSA_contextSwitch() 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//call.
+ This is done since we do not want to 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//return to ROSA_contextSwitch(), where the stack 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//frame is currently at but to the executing task
+\end_layout
+
+\begin_layout Plain Layout
+
+	sub r1,-0x04
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Save USP
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w r12[TCB.SAVEUSP],r1
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov pc,lr 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+When the scheduler is done a new task TCB is present in the EXECTASK.
+ Now 
+\emph on
+_ROSA_contextRestore()
+\emph default
+ will do the final part of the context switch, i.e.
+ turning execution over to the next task.
+ Register values are fetched from the TCB and written directly to the processor
+ or on the stack for retrieval when exiting supervisor mode.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+_ROSA_contextRestore:
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Fetch the current executing task
+\end_layout
+
+\begin_layout Plain Layout
+
+	lda.w r12,EXECTASK
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r12,r12[0x0]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore USP
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r1,r12[TCB.SAVEUSP]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w --sp,r1
+\end_layout
+
+\begin_layout Plain Layout
+
+	ldmts sp,sp
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r1,sp++
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore LR = retaddr
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w lr,r12[TCB.SAVEREG.LR]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore RETADDR
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.RETADDR]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w sp[SF_PC],r0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore registers
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov r0,TCB.SAVEREG.R11 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	add r0,r12
+\end_layout
+
+\begin_layout Plain Layout
+
+	ldmts r0,r0-r11
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore r7
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r7,r12[TCB.SAVEREG.R7]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore SR 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.SAVESR]
+\end_layout
+
+\begin_layout Plain Layout
+
+	st.w sp[SF_SR],r0			//Put SR on the stack for later fetch
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Restore work registers 	
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r0,r12[TCB.SAVER0]
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r1,r12[TCB.SAVER1]
+\end_layout
+
+\begin_layout Plain Layout
+
+	ld.w r12,r12[TCB.SAVEREG.R12]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	//We are done, exit from supervisor mode
+\end_layout
+
+\begin_layout Plain Layout
+
+	rets
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now execution is at task2, which will run until the 
+\emph on
+ROSA_contextSwitch()
+\emph default
+ turn over execution to the next task, which in this case is task1.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void task2(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOff(LED0_GPIO);	//EVK1100 LED1!
+\end_layout
+
+\begin_layout Plain Layout
+
+		ledOn(LED1_GPIO);
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_contextSwitch();
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
 More about context switching
 \end_layout
 
@@ -1323,7 +3524,7 @@ There are two methods for context switching in the ROSA kernel.
 \end_layout
 
 \begin_layout Enumerate
-Voluntary yield from a task (cooperative mode).
+Voluntary context switch from a task (cooperative mode).
 \end_layout
 
 \begin_layout Enumerate
@@ -1335,20 +3536,21 @@ Cooperative and preemptive modes can be used simultaneously in ROSA.
 \end_layout
 
 \begin_layout Subsection
-Yield
+Context switch
 \end_layout
 
 \begin_layout Standard
-A cooperative, voluntary yield is performed by the 
+A cooperative, voluntary context switch is performed by the 
 \emph on
-ROSA_yield()
+ROSA_contextSwitch()
 \emph default
  function call.
- A task that yields give up its remaining CPU time to let other tasks run.
+ By this call the task will give up its remaining CPU time to let other
+ tasks run.
  Later, when the ROSA scheduler put the yielding task into RUN mode again,
  execution continue at the instruction following 
 \emph on
-ROSA_yield()
+ROSA_contextSwitch()
 \emph default
 .
 \end_layout
@@ -1358,8 +3560,21 @@ Example:
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,tabsize=4"
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1390,17 +3605,17 @@ void task(void)
 
 \begin_layout Plain Layout
 
-		ROSA_yield();	//Voluntary context switch
+		ROSA_contextSwitch();	//Voluntary context switch
 \end_layout
 
 \begin_layout Plain Layout
 
-		...				//Execution continue 
+		...				      //Execution continue here
 \end_layout
 
 \begin_layout Plain Layout
 
-                        //here next time the task run.
+                                 //next time this task run.
 \end_layout
 
 \begin_layout Plain Layout
@@ -1413,6 +3628,18 @@ void task(void)
 }
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
 \end_inset
 
 
@@ -1441,6 +3668,19 @@ Example:
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
@@ -1489,7 +3729,7 @@ __attribute__((__interrupt__)) void ROSA_timerISR(void)
 
 \begin_layout Plain Layout
 
-		ROSA_yieldFromISR(); 
+		ROSA_contextSwitchFromISR(); 
 \end_layout
 
 \begin_layout Plain Layout
@@ -1507,6 +3747,15 @@ __attribute__((__interrupt__)) void ROSA_timerISR(void)
 
 \end_layout
 
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Expansion of ROSA
 \end_layout
@@ -1517,8 +3766,21 @@ Imagine we had a way to make a delay in a task.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\scriptsize\ttfamily},language=C,tabsize=4"
+lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
 inline false
 status open
 
@@ -1567,6 +3829,15 @@ void task(void)
 }
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
 \end_inset
 
 
@@ -1684,11 +3955,11 @@ void ROSA_start_lowlevel(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_yield(void); 
+void ROSA_contextSwitch(void); 
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_yieldFromISR(void); 
+void ROSA_contextSwitchFromISR(void); 
 \end_layout
 
 \begin_layout LyX-Code
@@ -1954,7 +4225,7 @@ void gpioToggle(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
-int gpioPVR(int pinnr);
+int gpioGet(int pinnr);
 \begin_inset Newline newline
 \end_inset
 
@@ -4567,7 +6838,7 @@ Nothing.
 \end_layout
 
 \begin_layout Subsubsection
-gpioPVR
+gpioGet
 \end_layout
 
 \begin_layout Standard
@@ -4591,7 +6862,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-int gpioPVR(int pinnr)
+int gpioGet(int pinnr)
 \end_layout
 
 \end_inset

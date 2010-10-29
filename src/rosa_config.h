@@ -39,12 +39,14 @@
 
 //USART configures
 #define USART				(&AVR32_USART0)
+#define USART_BAUDRATE 		57600
+#define USART_CHARLEN		8
 #define USART_RX_PIN		AVR32_USART0_RXD_0_0_PIN
 #define USART_RX_FUNCTION	AVR32_USART0_RXD_0_0_FUNCTION
 #define USART_TX_PIN		AVR32_USART0_TXD_0_0_PIN
 #define USART_TX_FUNCTION	AVR32_USART0_TXD_0_0_FUNCTION
-#define USART_BAUDRATE 		57600
-#define USART_CHARLEN		 8
+
+
 
 /***********************************************************
  * Timer configure

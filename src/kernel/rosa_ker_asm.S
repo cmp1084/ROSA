@@ -65,7 +65,7 @@ ROSA_start:
 	ldmts sp,sp
 	ld.w r0,sp++
 
-	//Load start lr, will jump here after rets
+	//Load start lr, execution will jump here later
 	ld.w lr,r12[TCB.STADDR]
 
 	//Set up start SR, enter user mode
@@ -170,7 +170,6 @@ ROSA_contextInit:
 *********************************************************/
 _ROSA_contextSave:
 	pushm r12
-
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
@@ -204,8 +203,8 @@ _ROSA_contextSave:
 	st.w r12[TCB.SAVEREG.LR],r0
 
 	//Correct the USP for the ROSA_contextSwitch() call.
-	//This is done since we do not want to return to ROSA_contextSwitch(), where the stack frame is currently at,
-	//but to the executing task.
+	//This is done since we do not want to return to ROSA_contextSwitch(),
+	//where the stack frame is currently at, but to the executing task.
 	sub r1,-0x04
 
 	//Save USP
@@ -244,8 +243,8 @@ _ROSA_contextRestore:
 	add r0,r12
 	ldmts r0,r0-r11
 
-	//Restore r7
-	ld.w r7,r12[TCB.SAVEREG.R7]
+	//Restore r7				//TODO: Baby, please...
+	//ld.w r7,r12[TCB.SAVEREG.R7]
 
 	//Restore SR
 	ld.w r0,r12[TCB.SAVESR]

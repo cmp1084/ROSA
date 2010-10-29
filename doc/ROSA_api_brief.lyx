@@ -35,8 +35,8 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\author ""
+\author ""
 \end_header
 
 \begin_body
@@ -70,7 +70,7 @@ ROSA API
 \end_layout
 
 \begin_layout Subsection
-Brief API list 
+Brief API list
 \end_layout
 
 \begin_layout Subsubsection
@@ -78,31 +78,31 @@ Kernel control API
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_init(void);             
+void ROSA_init(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_start(void);            
+void ROSA_start(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_yield(void); 
+void ROSA_switchContext(void);
 \end_layout
 
 \begin_layout Subsubsection
-TCB API 
+TCB API
 \end_layout
 
 \begin_layout LyX-Code
-struct tcb;    
+struct tcb;
 \end_layout
 
 \begin_layout LyX-Code
-tcb * ROSA_tcbCreate(tcb * TCB, char *id, 
+tcb * ROSA_tcbCreate(tcb * TCB, char *id,
 \begin_inset Newline newline
 \end_inset
 
-                     void *taskFunction, 
+                     void *taskFunction,
 \begin_inset Newline newline
 \end_inset
 
@@ -110,7 +110,7 @@ tcb * ROSA_tcbCreate(tcb * TCB, char *id,
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_tcbInstall(tcb * TCB); 
+void ROSA_tcbInstall(tcb * TCB);
 \end_layout
 
 \begin_layout Subsubsection
@@ -122,7 +122,7 @@ I/O driver API
 \end_layout
 
 \begin_layout LyX-Code
-int isButton(int button_nr); 
+int isButton(int button_nr);
 \begin_inset Newline newline
 \end_inset
 
@@ -134,7 +134,7 @@ int isButton(int button_nr);
 \end_layout
 
 \begin_layout LyX-Code
-int isJoystickUp(void); 
+int isJoystickUp(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -142,11 +142,11 @@ int isJoystickDown(void);
 \end_layout
 
 \begin_layout LyX-Code
-int isJoystickLeft(void); 
+int isJoystickLeft(void);
 \end_layout
 
 \begin_layout LyX-Code
-int isJoystickRight(void); 
+int isJoystickRight(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -162,15 +162,15 @@ int isJoystickPressed(void);
 \end_layout
 
 \begin_layout LyX-Code
-void gpioSet(int pinnr); 
+void gpioSet(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
-void gpioClear(int pinnr); 
+void gpioClear(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
-void gpioToggle(int pinnr); 
+void gpioToggle(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
@@ -186,15 +186,15 @@ int gpioGet(int pinnr);
 \end_layout
 
 \begin_layout LyX-Code
-void usartGetLine(volatile avr32_usart_t *, char *); 
+void usartGetLine(volatile avr32_usart_t *, char *);
 \end_layout
 
 \begin_layout LyX-Code
-char usartGetChar(volatile avr32_usart_t *); 
+char usartGetChar(volatile avr32_usart_t *);
 \end_layout
 
 \begin_layout LyX-Code
-void usartWriteLine(volatile avr32_usart_t *, char *); 
+void usartWriteLine(volatile avr32_usart_t *, char *);
 \end_layout
 
 \begin_layout LyX-Code
@@ -241,7 +241,7 @@ void free(void *);
 \end_layout
 
 \begin_layout Section
-Detailed user API 
+Detailed user API
 \end_layout
 
 \begin_layout Subsection
@@ -362,7 +362,7 @@ ROSA_interruptEnable
 \begin_inset Text
 
 \begin_layout Plain Layout
-Prototype: 
+Prototype:
 \end_layout
 
 \end_inset
@@ -883,7 +883,7 @@ Description:
 \begin_layout Plain Layout
 Give a semaphore back.
  The semaphore can only be given back by its owner.
- 
+
 \end_layout
 
 \end_inset
@@ -983,7 +983,7 @@ Description:
 \begin_layout Plain Layout
 Try to take a semaphore.
  Fails if the semaphore is already taken by someone else.
- 
+
 \end_layout
 
 \end_inset
@@ -1923,7 +1923,7 @@ Parameters:
 \begin_inset Text
 
 \begin_layout Plain Layout
-int button_nr - The button number, legal values are: 
+int button_nr - The button number, legal values are:
 \end_layout
 
 \begin_layout Itemize
@@ -2610,7 +2610,7 @@ pinnr
 type
 \emph default
 '.
- 
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -2638,7 +2638,7 @@ int pinnr - The GPIO pin number
 \end_layout
 
 \begin_layout Itemize
-int type - The type to initialize the 
+int type - The type to initialize the
 \emph on
 'pinnr'
 \emph default
@@ -2721,7 +2721,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Set the GPIO 
+Set the GPIO
 \emph on
 'pinnr'
 \emph default
@@ -2823,7 +2823,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Read the value of the GPIO pin 
+Read the value of the GPIO pin
 \emph on
 'pinnr'
 \emph default
@@ -2867,7 +2867,7 @@ Return value:
 \begin_inset Text
 
 \begin_layout Plain Layout
-The current value of the GPIO 
+The current value of the GPIO
 \emph on
 'pinnr'
 \emph default
@@ -2929,7 +2929,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Set the GPIO 
+Set the GPIO
 \emph on
 'pinnr'
 \emph default
@@ -3031,12 +3031,12 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Toggle the GPIO 
+Toggle the GPIO
 \emph on
 'pinnr'
 \emph default
 .
- 
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -3336,7 +3336,7 @@ Description:
 
 \begin_layout Plain Layout
 Initialize the USART controller to do RS-232 serial communication.
- 
+
 \end_layout
 
 \end_inset
@@ -3365,7 +3365,7 @@ usart_options_t opt - The USART options to use during initialization.
 
 \begin_layout Itemize
 long pba_hz - The frequency of the PBA bus.
- 
+
 \end_layout
 
 \end_inset
@@ -3464,7 +3464,7 @@ Parameters:
 
 \begin_layout Itemize
 avr32_usart_t * usart - A pointer to the USART controller.
- 
+
 \end_layout
 
 \begin_layout Itemize
@@ -3644,7 +3644,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Write a single char 
+Write a single char
 \emph on
 'ch'
 \emph default
@@ -3954,7 +3954,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Allocate 
+Allocate
 \emph on
 'size'
 \emph default
@@ -4056,7 +4056,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Free the allocated memory at the location pointed to by 
+Free the allocated memory at the location pointed to by
 \emph on
 'mem'
 \emph default
@@ -4372,7 +4372,7 @@ Description:
 
 \begin_layout Plain Layout
 Start the execution of the TCB's installed into the TCBLIST.
- 
+
 \end_layout
 
 \end_inset
@@ -5766,7 +5766,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Set the RC, compare value, of the timer 0 to 
+Set the RC, compare value, of the timer 0 to
 \emph on
 'rc'
 \emph default
@@ -6067,7 +6067,7 @@ Description:
 
 \begin_layout Plain Layout
 Stop timer 0 from counting any further.
- 
+
 \end_layout
 
 \end_inset

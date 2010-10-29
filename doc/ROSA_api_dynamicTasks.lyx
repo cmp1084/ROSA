@@ -35,7 +35,7 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
+\author ""
 \end_header
 
 \begin_body
@@ -83,43 +83,43 @@ Kernel API
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_init(void);             
+void ROSA_init(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_init_lowlevel(void);    
+void ROSA_init_lowlevel(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_start(void);            
+void ROSA_start(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_start_lowlevel(void);      
+void ROSA_start_lowlevel(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_yield(void); 
+void ROSA_switchContext(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_yieldFromISR(void); 
+void ROSA_switchContextFromISR(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_contextRestore(void); 
+void ROSA_contextRestore(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_contextSave(void); 
+void ROSA_contextSave(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_contextSaveFromISR(void); 
+void ROSA_contextSaveFromISR(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_contextRestoreFromInterrupt(void); 
+void ROSA_contextRestoreFromInterrupt(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -127,15 +127,15 @@ void ROSA_interruptInit(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_interruptDisable(void); 
+void ROSA_interruptDisable(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_interruptEnable(void); 
+void ROSA_interruptEnable(void);
 \end_layout
 
 \begin_layout LyX-Code
-int ROSA_isInterruptEnabled(void); 
+int ROSA_isInterruptEnabled(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -143,11 +143,11 @@ int ROSA_isInterruptEnabled(void);
 \end_layout
 
 \begin_layout Subsubsection
-TCB API 
+TCB API
 \end_layout
 
 \begin_layout LyX-Code
-struct tcb_t;    //TCB struct containing task data 
+struct tcb_t;    //TCB struct containing task data
 \end_layout
 
 \begin_layout LyX-Code
@@ -156,7 +156,7 @@ tcb * tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack, int
 \end_layout
 
 \begin_layout LyX-Code
-void tcbInstall(tcb * TCB); 
+void tcbInstall(tcb * TCB);
 \end_layout
 
 \begin_layout LyX-Code
@@ -169,22 +169,22 @@ void tcbInstall(tcb * TCB);
 \begin_inset Newline newline
 \end_inset
 
-//Functions for inheritance protocol 
+//Functions for inheritance protocol
 \end_layout
 
 \begin_layout LyX-Code
 .
- int tcbPrioGet(void); 
+ int tcbPrioGet(void);
 \end_layout
 
 \begin_layout LyX-Code
 .
- void tcbPrioSet(int prio); 
+ void tcbPrioSet(int prio);
 \end_layout
 
 \begin_layout LyX-Code
 .
- int tcbPrioBaseGet(void); 
+ int tcbPrioBaseGet(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -198,7 +198,7 @@ Semaphore API
 
 \begin_layout LyX-Code
 .
- void semCreate(sem  * semaphore); 
+ void semCreate(sem  * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
@@ -208,7 +208,7 @@ Semaphore API
 
 \begin_layout LyX-Code
 .
- void semTake(sem * semaphore); 
+ void semTake(sem * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
