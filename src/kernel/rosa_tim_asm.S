@@ -24,6 +24,7 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
+#include <avr32/io.h>
 #include "rosa_config.h"
 
 	//Timer functions

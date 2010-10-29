@@ -28,7 +28,7 @@
 #define _ROSA_TIMER_H_
 
 #include <avr32/io.h>
-#include "rosa_config.h"
+
 
 /***********************************************************
  * Kernel timer lowlevel functions

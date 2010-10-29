@@ -30,6 +30,7 @@
 #include <avr32/io.h>
 #include "drivers/debug.h"
 
+
 //Maximum number of chars in the task id (the task name)
 #define NAMESIZE 4
 
@@ -69,8 +70,15 @@
  * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4,	//fPBA / 32
  * 	AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5,	//fPBA / 128
  *	This correspond to a PBA clock (= CPU clock) divisor of
- * 	{2, 8, 32, 128} respectively.
- *
+ * 	{2, 8, 32, 128} respectively. */
+
+//Define shorter name for AVR32_TC_CMR0_TCCLKS_TIMER_CLOCKx
+#define TC_CLOCK_SOURCE_TC2 AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK2
+#define TC_CLOCK_SOURCE_TC3 AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK3
+#define TC_CLOCK_SOURCE_TC4 AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4
+#define TC_CLOCK_SOURCE_TC5 AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5
+
+ /**
  *	RC
  *	---------
  *	This is the compare value that give timer interrupts.
@@ -82,8 +90,9 @@
  *	To get 0.5 s: 12000000 / 128 * 0.5 = 46875 = timerRC
  *
  **********************************************************/
-#define FOSC0 12000000											//CPU clock frequencey
-#define TIMERPRESCALE_CONFIG AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5 	//equals TC_CLOCK_SOURCE_TC5
-#define TIMERRC_CONFIG	46875 / 2								//Corresponding to 0.5 s period at prescale _CLOCKS5
+
+#define FOSC0 12000000		//CPU clock frequencey
+#define TIMERPRESCALE_CONFIG TC_CLOCK_SOURCE_TC5
+#define TIMERRC_CONFIG	46875 / 2	//Corresponding to 0.5 s period at prescale _CLOCKS5
 
 #endif /* _ROSA_CONFIG_H_ */

@@ -33,7 +33,7 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
-#include "rosa_config.h"
+//~ #include "rosa_config.h"
 
 	//Put the code and data in the executable .text section
 	.section .text, "ax", @progbits

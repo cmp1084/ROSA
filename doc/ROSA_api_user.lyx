@@ -17,7 +17,21 @@
 
 \graphics default
 \paperfontsize default
-\use_hyperref false
+\spacing single
+\use_hyperref true
+\pdf_title "API"
+\pdf_author "Marcus Jansson"
+\pdf_subject "ROSA"
+\pdf_keywords "ROSA RTOS"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -66,14 +80,10 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Section
-ROSA API
-\end_layout
-
-\begin_layout Subsection
 Brief API list
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Kernel control API
 \end_layout
 
@@ -89,7 +99,7 @@ void ROSA_start(void);
 void ROSA_switchContext(void);
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 TCB API
 \end_layout
 
@@ -109,7 +119,7 @@ tcb * ROSA_tcbCreate(tcb * TCB, char *id,
 void ROSA_tcbInstall(tcb * TCB);
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 I/O driver API
 \end_layout
 
@@ -226,6 +236,10 @@ int potGetValue(void);
 \begin_inset Newline newline
 \end_inset
 
+
+\begin_inset Newline newline
+\end_inset
+
 //Memory
 \end_layout
 
@@ -245,7 +259,7 @@ void free(void *);
 \end_layout
 
 \begin_layout Section
-Detailed user API
+Detailed API list
 \end_layout
 
 \begin_layout Subsection
@@ -544,6 +558,13 @@ Nothing.
 </row>
 </lyxtabular>
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
 \end_inset
 
 
@@ -1786,6 +1807,13 @@ Nothing.
 </row>
 </lyxtabular>
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
 \end_inset
 
 

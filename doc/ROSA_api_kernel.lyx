@@ -86,35 +86,11 @@ void ROSA_init(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_init_lowlevel(void);
-\end_layout
-
-\begin_layout LyX-Code
 void ROSA_start(void);
 \end_layout
 
 \begin_layout LyX-Code
 void ROSA_switchContext(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_switchContextFromISR(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_interruptInit(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_interruptDisable(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_interruptEnable(void);
-\end_layout
-
-\begin_layout LyX-Code
-int ROSA_isInterruptEnabled(void);
 \end_layout
 
 \begin_layout LyX-Code
@@ -126,7 +102,7 @@ TCB API
 \end_layout
 
 \begin_layout LyX-Code
-struct tcb_t;    //TCB struct containing task data
+struct tcb;    //TCB struct containing task data
 \end_layout
 
 \begin_layout LyX-Code
@@ -138,61 +114,24 @@ tcb * tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack, int
 void tcbInstall(tcb * TCB);
 \end_layout
 
-\begin_layout LyX-Code
-.
- void tcbDestroy(tcb * TCB);
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-//Functions for inheritance protocol
-\end_layout
-
-\begin_layout LyX-Code
-.
- int tcbPrioGet(void);
-\end_layout
-
-\begin_layout LyX-Code
-.
- void tcbPrioSet(int prio);
-\end_layout
-
-\begin_layout LyX-Code
-.
- int tcbPrioBaseGet(void);
-\end_layout
-
-\begin_layout LyX-Code
-.
- void tcbPrioBaseSet(int prio);
-\end_layout
-
 \begin_layout Subsubsection
 Semaphore API
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semCreate(sem  * semaphore);
+void semCreate(sem  * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semDestroy(sem * semaphore);
+void semDestroy(sem * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semTake(sem * semaphore);
+void semTake(sem * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
-.
- void semGive(sem * semaphore);
+void semGive(sem * semaphore);
 \end_layout
 
 \begin_layout Subsubsection
@@ -204,43 +143,11 @@ Timer API
 \end_layout
 
 \begin_layout LyX-Code
-void timerPrescalerSet(int prescale);
+void timerPeriodSet(int ms);
 \end_layout
 
 \begin_layout LyX-Code
-void timerRCSet(int);
-\begin_inset Newline newline
-\end_inset
 
-
-\begin_inset Newline newline
-\end_inset
-
-//Timer control
-\end_layout
-
-\begin_layout LyX-Code
-void timerStart(void);
-\end_layout
-
-\begin_layout LyX-Code
-void timerStop(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_timerReadSR(void);
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-//The interrupt handler
-\end_layout
-
-\begin_layout LyX-Code
-void timerISR(void);              //The interrupt handler.
 \end_layout
 
 \begin_layout Subsubsection
@@ -248,23 +155,15 @@ sysTick API
 \end_layout
 
 \begin_layout LyX-Code
-.
- void sysTickIncrease(void);
+int sysTickGet(void);
 \end_layout
 
 \begin_layout LyX-Code
-.
- int sysTickGet(void);
+void sysTickWait(int ticks);
 \end_layout
 
 \begin_layout LyX-Code
-.
- void sysTickWait(int ticks);
-\end_layout
-
-\begin_layout LyX-Code
-.
- void sysTickWaitUntil(int ticks);
+void sysTickWaitUntil(int ticks);
 \end_layout
 
 \begin_layout Subsubsection

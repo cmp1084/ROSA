@@ -46,7 +46,7 @@ Appendix
 \end_layout
 
 \begin_layout Section*
-ROSA API Dynamic tasks
+ROSA API sysTick
 \end_layout
 
 \begin_layout Standard
@@ -74,52 +74,23 @@ Brief API list
 \end_layout
 
 \begin_layout Standard
-This is a list of the dynamic task API for ROSA.
+This is a list of the sysTick API for ROSA.
 \end_layout
 
 \begin_layout Subsubsection
-TCB API
+sysTick API
 \end_layout
 
 \begin_layout LyX-Code
-tcb * tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack, int
- stackSize);
+int sysTickGet(void); 
 \end_layout
 
 \begin_layout LyX-Code
-void tcbInstall(tcb * TCB);
+void sysTickWait(int ticks); 
 \end_layout
 
 \begin_layout LyX-Code
-tcb * tcbAdd(tcb * TCB);
-\end_layout
-
-\begin_layout LyX-Code
-void tcbDestroy(tcb * TCB);
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-//Functions for inheritance protocol
-\end_layout
-
-\begin_layout LyX-Code
-int tcbPrioGet(void);
-\end_layout
-
-\begin_layout LyX-Code
-void tcbPrioSet(int prio);
-\end_layout
-
-\begin_layout LyX-Code
-int tcbPrioBaseGet(void);
-\end_layout
-
-\begin_layout LyX-Code
-void tcbPrioBaseSet(int prio);
+void sysTickWaitUntil(int tick);
 \end_layout
 
 \end_body

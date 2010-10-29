@@ -24,6 +24,7 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
+#include "rosa_config.h"
 #include "drivers/delay.h"
 #include "kernel/rosa_int.h"
 
@@ -56,7 +57,7 @@ int ROSA_timerPeriodSet(unsigned int ms)
 {
 	int prescale, rc;
 	//FOSC0 / timerPrescale * time[s];
-	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK4;	//
+	prescale = TIMERPRESCALE_CONFIG;
 	rc = FOSC0 / prescale * ms;
 	ROSA_timerPrescaleSet(prescale);
 	ROSA_timerRCSet(rc);

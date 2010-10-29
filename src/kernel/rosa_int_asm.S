@@ -33,7 +33,7 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
-#include "rosa_config.h"
+//#include "rosa_config.h"
 
 	//General constants
 	.equ TRUE,0x01
@@ -355,7 +355,6 @@ ROSA_contextRestoreFromISR:
 
 	//Restore work registers
 	ld.w r0,r12[TCB.SAVER0]
-	//ld.w r1,r12[TCB.SAVER1]
 
 	//Restart timer 0, necessary as timer is stopped by the irq event.
 	pushm lr

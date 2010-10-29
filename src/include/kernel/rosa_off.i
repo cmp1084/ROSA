@@ -42,7 +42,7 @@
  *
  * Comment:
  * 	These are the offsets ROSA low level routines uses to
- * 	reach into the tcb_t struct.
+ * 	reach into the tcb struct.
  *
  **********************************************************/
 .offset  0
