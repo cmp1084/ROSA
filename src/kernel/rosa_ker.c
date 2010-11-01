@@ -108,7 +108,7 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, in
 	tcbTask->savesr = ROSA_INITIALSR;
 
 	//Initialize context.
-	ROSA_contextInit(tcbTask);
+	contextInit(tcbTask);
 }
 
 

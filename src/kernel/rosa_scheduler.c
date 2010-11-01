@@ -27,14 +27,14 @@
 #include "kernel/rosa_scheduler.h"
 
 /***********************************************************
- * ROSA_scheduler
+ * scheduler
  *
  * Comment:
  * 	Minimalistic scheduler for round robin task switch.
  * 	This scheduler choose the next task to execute by looking
  * 	at the nexttcb of the current running task.
  **********************************************************/
-void ROSA_scheduler(void)
+void scheduler(void)
 {
 	//Find the next task to execute
 	EXECTASK = EXECTASK->nexttcb;

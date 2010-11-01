@@ -24,18 +24,18 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _ROSA_SCHEDULER_H_
-#define _ROSA_SCHEDULER_H_
+#ifndef _scheduler_H_
+#define _scheduler_H_
 
 #include "kernel/rosa_ker.h"
 /***********************************************************
- * ROSA_scheduler
+ * scheduler
  *
  * Comment:
  * 	Minimalistic scheduler for round robin task switch.
  * 	This scheduler choose the next task to execute by looking
  * 	at the nexttcb of the current running task.
  **********************************************************/
-void ROSA_scheduler(void);
+void scheduler(void);
 
-#endif /* _ROSA_SCHEDULER_H_ */
+#endif /* _scheduler_H_ */

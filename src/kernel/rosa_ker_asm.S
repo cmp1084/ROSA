@@ -33,15 +33,14 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
-//~ #include "rosa_config.h"
 
 	//Put the code and data in the executable .text section
 	.section .text, "ax", @progbits
 
 	//Global Kernel functions
 	.global ROSA_start
-	.global ROSA_contextInit
-	.global ROSA_contextSwitch
+	.global contextInit
+	.global ROSA_yield
 
 /*********************************************************
 * ROSA_start kernel code
@@ -91,14 +90,14 @@ ROSA_start:
 
 
 /*********************************************************
- * ROSA_contextInit
+ * contextInit
  *
  * Comment:
  * The initial save of a tasks context to the tcb
  * from supervisor mode.
  *
  ********************************************************/
-ROSA_contextInit:
+contextInit:
 	//Initialize lr in the savereg area
 	ld.w r0,r12[TCB.STADDR]
 	st.w r12[TCB.SAVEREG.LR],r0
@@ -122,16 +121,14 @@ ROSA_contextInit:
 
 
 /*********************************************************
-* _ROSA_TASK_SWITCH kernel code, various functions:
-* 	_ROSA_scall_contextSave
-* 	_ROSA_scall_contextRestore
-* 	_ROSA_scall_contextSaveFromISR
-* 	_ROSA_scall_contextRestoreFromISR
+* ROSA_yield kernel code, various functions:
+* 	contextSave
+* 	contextRestore
 *
 * Comment:
 * 	Task switch routines.
 * 	These routines are executed after a call to
-* 	ROSA_contextSwitch() or ROSA_contextSwitchFromISR().
+* 	ROSA_yield() or ROSA_yieldFromISR().
 *
 *********************************************************/
 //This is the current state of the supervisor and user stack frame:
@@ -161,14 +158,14 @@ ROSA_contextInit:
 .equ SF_LR_TASK, 0x00 //The link back to the next user task instruction is located here.
 
 /*********************************************************
-* _ROSA_scall_contextSave
+* contextSave
 *
 * Comment:
 * Task switch routine. This routine save task context.
 * Context of the TCB referenced by EXECTASK will be saved.
 *
 *********************************************************/
-_ROSA_contextSave:
+contextSave:
 	pushm r12
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
@@ -196,14 +193,14 @@ _ROSA_contextSave:
 	ld.w r1,sp++					//USP in r1
 
 	//Save RETADDR to TCB
-	ld.w r0,r1[SF_LR_TASK]			//Get from user stack, return to task, not to contextSwitch
-	st.w r12[TCB.RETADDR],r0		//Correction of stack is done later
+	ld.w r0,r1[SF_LR_TASK]			//Get lr from user stack, we want to return to task, not to contextSwitch
+	st.w r12[TCB.RETADDR],r0		//correction of stack is done later
 
 	//Save LR_task
 	st.w r12[TCB.SAVEREG.LR],r0
 
-	//Correct the USP for the ROSA_contextSwitch() call.
-	//This is done since we do not want to return to ROSA_contextSwitch(),
+	//Correct the USP for the ROSA_yield() call.
+	//This is done since we do not want to return to ROSA_yield(),
 	//where the stack frame is currently at, but to the executing task.
 	sub r1,-0x04
 
@@ -213,14 +210,14 @@ _ROSA_contextSave:
 	mov pc,lr
 
 /*********************************************************
-* _ROSA_contextRestore
+* contextRestore
 *
 * Comment:
 * Taskswitch routine. This routine restore task context.
 * Context of the TCB referenced by EXECTASK will be restored.
 *
 *********************************************************/
-_ROSA_contextRestore:
+contextRestore:
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
@@ -243,9 +240,6 @@ _ROSA_contextRestore:
 	add r0,r12
 	ldmts r0,r0-r11
 
-	//Restore r7				//TODO: Baby, please...
-	//ld.w r7,r12[TCB.SAVEREG.R7]
-
 	//Restore SR
 	ld.w r0,r12[TCB.SAVESR]
 	st.w sp[SF_SR],r0			//Put SR on the stack for later fetch
@@ -259,7 +253,7 @@ _ROSA_contextRestore:
 	rets
 
 /*********************************************************
-* _ROSA_ the users interface to the kernel
+* ROSA_, the users interface to the kernel
 *
 * Comment:
 * Below are the user callable functions that perform
@@ -268,9 +262,9 @@ _ROSA_contextRestore:
 * user mode and transfer control to supervisor mode.
 *
 *********************************************************/
-
+//Note most kernel function is located in other source files.
 /*********************************************************
-* ROSA_contextSwitch
+* ROSA_yield
 *
 * Comment:
 * 	scall helper functions, called from user mode and
@@ -278,13 +272,13 @@ _ROSA_contextRestore:
 * 	They are used for context switching.
 *
 *********************************************************/
-ROSA_contextSwitch:
+ROSA_yield:
 	pushm lr
-	lda.w lr,_ROSA_contextSwitch
+	lda.w lr,_yield
 	//Enter supervisor mode
 	scall
-_ROSA_contextSwitch:
-	call _ROSA_contextSave
-	call ROSA_scheduler
-	call _ROSA_contextRestore
+_yield:
+	call contextSave
+	call scheduler
+	call contextRestore
 	//Execution will not return to here!

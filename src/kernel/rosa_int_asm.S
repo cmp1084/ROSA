@@ -33,22 +33,21 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
-//#include "rosa_config.h"
 
 	//General constants
 	.equ TRUE,0x01
 	.equ FALSE,0x00
 
 	//Global functions
-	.global ROSA_interruptDisable
-	.global ROSA_interruptEnable
+	.global interruptDisable
+	.global interruptEnable
 	.global ROSA_isInterruptEnabled
-	.global ROSA_interruptInit
-	.global ROSA_contextSaveFromISR
-	.global ROSA_contextRestoreFromISR
+	.global interruptInit
+	.global contextSaveFromISR
+	.global contextRestoreFromISR
 
 	//Other functions
-	.global _ROSA_readSR
+	//.global _ROSA_readSR TODO: remove
 
 	//Interrupt constants
 	.equ INTLEVEL0,0
@@ -72,7 +71,7 @@ _handle_Supervisor_Call:
 	mov pc,lr								//ROSA Kernel function calls pass through here.
 
 /***********************************************************
- * ROSA_timer interrupt handling, lowlevel
+ * ROSA timer interrupt handling, lowlevel
  *
  * Comment:
  * 	Send the interrupt to the proper ISR handler,
@@ -120,7 +119,7 @@ privilegedCalls:
 
 	//Look for interruptDisable
 priv_interruptdisable:
-	lda.w r12,(ROSA_interruptDisable)
+	lda.w r12,interruptDisable
 	cp.w r11,r12
 	brne priv_interruptenable
 	ld.w r12,sp[USERSR]
@@ -131,7 +130,7 @@ priv_interruptdisable:
 
 	//Look for interruptEnable
 priv_interruptenable:
-	lda.w r12,(ROSA_interruptEnable)
+	lda.w r12,interruptEnable
 	cp.w r11,r12
 	brne privexception
 	ld.w r12,sp[USERSR]
@@ -145,15 +144,15 @@ privexception:								//Not ok.
 
 
 /***********************************************************
- * ROSA_interruptInit
+ * interruptInit
  *
  * Comment:
  * 	Interrupt setup routines
  *
  * C prototypes:
- * 	extern void ROSA_interruptInit(void);
+ * 	extern void interruptInit(void);
  **********************************************************/
-ROSA_interruptInit:
+interruptInit:
 	pushm r11,r12,lr
 	//Get autovector offset to _int0
 	lda.w r11,_int0
@@ -173,11 +172,11 @@ ROSA_interruptInit:
 
 
 /*********************************************************
- * ROSA_interruptDisable
- * ROSA_interruptEnable
+ * interruptDisable
+ * interruptEnable
  * ROSA_isInterruptEnabled
- * ROSA_contextSaveFromISR
- * ROSA_contextRestoreFromISR
+ * contextSaveFromISR
+ * contextRestoreFromISR
  *
  * Comment:
  * 	Helper functions, called from user mode and
@@ -186,31 +185,31 @@ ROSA_interruptInit:
  *
  *********************************************************/
 /**********************************************************
- * ROSA_interruptDisable
+ * interruptDisable
  *
  * Comment:
  * 	Disable global interrupts.
  *
  * C prototype:
- * 	void ROSA_interruptDisable(void);
+ * 	void interruptDisable(void);
  *
  *********************************************************/
-ROSA_interruptDisable:
+interruptDisable:
 	ssrf AVR32_SR_GM
 	mov pc,lr
 
 
 /**********************************************************
- * ROSA_interruptEnable
+ * interruptEnable
  *
  * Comment:
  * 	Enable global interrupts.
  *
  * C prototype:
- * 	void ROSA_interruptEnable(void);
+ * 	void interruptEnable(void);
  *
  *********************************************************/
-ROSA_interruptEnable:
+interruptEnable:
 	csrf AVR32_SR_GM
 	mov pc,lr
 
@@ -237,7 +236,7 @@ ROSA_isInterruptEnabled:
 
 
 /*********************************************************
-* ROSA_contextSaveFromISR
+* contextSaveFromISR
 *
 * Comment:
 * Context switch routine. This routine save task context
@@ -258,7 +257,7 @@ ROSA_isInterruptEnabled:
 .equ SFINT0_R9, 0x06*0x04+SFINT0OFFSET
 .equ SFINT0_R8, 0x07*0x04+SFINT0OFFSET
 
-ROSA_contextSaveFromISR:
+contextSaveFromISR:
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
@@ -305,7 +304,7 @@ ROSA_contextSaveFromISR:
 	mov pc,lr
 
 /*********************************************************
-* _ROSA_contextRestoreFromISR
+* contextRestoreFromISR
 *
 * Comment:
 * Context switch routine. This routine restore task context
@@ -313,7 +312,7 @@ ROSA_contextSaveFromISR:
 * Context of the TCB referenced by EXECTASK will be restored.
 *
 *********************************************************/
-ROSA_contextRestoreFromISR:
+contextRestoreFromISR:
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]

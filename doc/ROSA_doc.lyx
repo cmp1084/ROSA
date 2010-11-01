@@ -136,7 +136,6 @@ seems
  like the programs work in parallel.
  But as the UC3A processor is a single core processor, only one program
  at a time can be executed.
- 
 \end_layout
 
 \begin_layout Standard
@@ -149,7 +148,6 @@ A small operating system like ROSA can be used to enhance the structure
 \begin_layout Standard
 Compared to other light weight kernels, ROSA is a tiny kernel with very
  limited functionality.
- 
 \end_layout
 
 \begin_layout Subsection
@@ -236,7 +234,7 @@ rosa/
 
 \begin_deeper
 \begin_layout Itemize
-bin/ 
+bin/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -248,7 +246,7 @@ bin/
 \end_layout
 
 \begin_layout Itemize
-cpu/ 
+cpu/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -260,7 +258,7 @@ cpu/
 \end_layout
 
 \begin_layout Itemize
-doc/ 
+doc/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -272,7 +270,7 @@ doc/
 \end_layout
 
 \begin_layout Itemize
-include/ 
+include/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -285,7 +283,7 @@ include/
 
 \begin_deeper
 \begin_layout Itemize
-drivers/ 
+drivers/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -297,7 +295,7 @@ drivers/
 \end_layout
 
 \begin_layout Itemize
-kernel/ 
+kernel/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -310,7 +308,7 @@ kernel/
 
 \end_deeper
 \begin_layout Itemize
-src/ 
+src/
 \begin_inset space \qquad{}
 \end_inset
 
@@ -323,7 +321,7 @@ src/
 
 \begin_deeper
 \begin_layout Itemize
-main.c 
+main.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -335,7 +333,7 @@ main.c
 \end_layout
 
 \begin_layout Itemize
-rosa_config.h 
+rosa_config.h
 \begin_inset space \qquad{}
 \end_inset
 
@@ -356,7 +354,7 @@ kernel/
 
 \begin_deeper
 \begin_layout Itemize
-rosa_ker.c 
+rosa_ker.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -368,7 +366,7 @@ rosa_ker.c
 \end_layout
 
 \begin_layout Itemize
-rosa_ker_asm.S 
+rosa_ker_asm.S
 \begin_inset space \qquad{}
 \end_inset
 
@@ -389,7 +387,6 @@ rosa_scheduler.c
 \end_inset
 
 - Scheduler specific source.
- 
 \end_layout
 
 \begin_layout Itemize
@@ -429,7 +426,7 @@ rosa_tim.c
 \end_layout
 
 \begin_layout Itemize
-rosa_tim_asm.S 
+rosa_tim_asm.S
 \begin_inset space \qquad{}
 \end_inset
 
@@ -447,7 +444,7 @@ drivers/
 
 \begin_deeper
 \begin_layout Itemize
-button.c 
+button.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -471,7 +468,7 @@ delay.c
 \end_layout
 
 \begin_layout Itemize
-gpio.c 
+gpio.c
 \begin_inset space \hfill{}
 \end_inset
 
@@ -479,7 +476,7 @@ gpio.c
 \end_layout
 
 \begin_layout Itemize
-led.c 
+led.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -491,7 +488,7 @@ led.c
 \end_layout
 
 \begin_layout Itemize
-pot.S 
+pot.S
 \begin_inset space \qquad{}
 \end_inset
 
@@ -503,7 +500,7 @@ pot.S
 \end_layout
 
 \begin_layout Itemize
-usart.c 
+usart.c
 \begin_inset space \qquad{}
 \end_inset
 
@@ -517,7 +514,7 @@ usart.c
 \end_deeper
 \end_deeper
 \begin_layout Itemize
-Makefile 
+Makefile
 \begin_inset space \hfill{}
 \end_inset
 
@@ -554,13 +551,209 @@ in the rosa/ directory.
 \end_layout
 
 \begin_layout Subsubsection
+Adding code to ROSA
+\end_layout
+
+\begin_layout Standard
+To add code to ROSA, either add the code in the existing files or write
+ a new file.
+ When new files are added the Makefile need to be updated.
+ This is simply done by adding the new source file to the Makefile SOURCE
+ variable.
+ The main source directory is defined by the SOURCEDIR variable.
+ Also the source subdirectories are defined in varables for convenience.
+\end_layout
+
+\begin_layout Standard
+In the example below
+\emph on
+newfile.c
+\emph default
+ is added.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 0
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+#Sources are located in this dir
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCEDIR = src
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+#Various source subdirectories
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+STARTUPDIR = $(SOURCEDIR)/cpu
+\end_layout
+
+\begin_layout Plain Layout
+
+KERNELDIR = $(SOURCEDIR)/kernel
+\end_layout
+
+\begin_layout Plain Layout
+
+DRIVERSDIR = $(SOURCEDIR)/drivers
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+#The sources of ROSA
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE =  $(KERNELDIR)/rosa_int.c
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE += $(KERNELDIR)/rosa_tim.c
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE += $(KERNELDIR)/rosa_ker.c
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE += $(KERNELDIR)/rosa_scheduler.c
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+#Add your source files here
+\end_layout
+
+\begin_layout Plain Layout
+
+#-------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE += $(SOURCEDIR)/newfile.c
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#-------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+##############################################################
+\end_layout
+
+\begin_layout Plain Layout
+
+#Leave main.c in the last position.
+\end_layout
+
+\begin_layout Plain Layout
+
+SOURCE += $(SOURCEDIR)/main.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
 AVR32 Studio
 \end_layout
 
 \begin_layout Standard
 AVR32 Studio can be used to compile ROSA.
  First the ROSA project must be set up properly.
- This is done by creating a new Make Project (Main menu File/New/Project...)
+ 2
+\end_layout
+
+\begin_layout Standard
+This is done by creating a new Make Project (Main menu File/New/Project...)
  and importing the rosa/ directory into AVR32 Studio.
 \begin_inset Newline newline
 \end_inset
@@ -569,7 +762,7 @@ AVR32 Studio can be used to compile ROSA.
 \end_layout
 
 \begin_layout Subsection
-How to program ROSA 
+How to program ROSA
 \begin_inset Newline newline
 \end_inset
 
@@ -591,7 +784,6 @@ make program
 
 \begin_layout Standard
 in the rosa/ directory.
- 
 \end_layout
 
 \begin_layout Subsubsection
@@ -642,14 +834,13 @@ Kernel functions
 \end_layout
 
 \begin_layout Standard
-All kernel functions that the user can call are prefixed 
+All kernel functions that the user can call are prefixed
 \emph on
-ROSA_
+ ROSA_
 \emph default
 , e.g.
- 
 \emph on
-ROSA_scheduler().
+scheduler().
 \end_layout
 
 \begin_layout Standard
@@ -666,9 +857,9 @@ Kernel configuration
 \end_layout
 
 \begin_layout Standard
-A few user configurations can be done through the 
+A few user configurations can be done through the
 \emph on
-rosa_config.h
+ rosa_config.h
 \emph default
  file.
  For example the USART baudrate is defined here.
@@ -743,7 +934,6 @@ The data area is the private stack for the task.
  The data area contains temporary data etc.
  for the task.
  The stack size must be suitable to hold all temporary data.
- 
 \end_layout
 
 \begin_layout Subsubsection
@@ -765,7 +955,7 @@ TCBLIST
 \begin_layout Standard
 The ROSA kernel utilizes a variable TCBLIST which contain a link to the
  TCBs in the kernel.
- See Figure 
+ See Figure
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:Figure1tcblist"
@@ -849,13 +1039,13 @@ Creating and installing tasks
 
 \begin_layout Standard
 All TCB's are linked together by the variable TCBLIST.
- When a task have been created by 
+ When a task have been created by
 \emph on
-ROSA_tcbCreate()
+ ROSA_tcbCreate()
 \emph default
- and installed in the kernel by 
+ and installed in the kernel by
 \emph on
-ROSA_tcbInstall()
+ ROSA_tcbInstall()
 \emph default
 , the TCBLIST will contain a reference to the first TCB created.
 \end_layout
@@ -895,13 +1085,13 @@ All CPU registers are saved into the TCB in order to not be destroyed by
 Part of this needs to be done in assembler, due to the low level nature
  of e.g.
  saving specific CPU registers.
- This is handled by the 
+ This is handled by the
 \emph on
-ROSA_contextInit()
+ ROSA_contextInit()
 \emph default
- call last in 
+ call last in
 \emph on
-ROSA_tcbCreate()
+ ROSA_tcbCreate()
 \emph default
 .
 \end_layout
@@ -911,9 +1101,9 @@ Starting the ROSA kernel
 \end_layout
 
 \begin_layout Standard
-When 
+When
 \emph on
-ROSA_start()
+ ROSA_start()
 \emph default
  is called the first task in TCBLIST will start to execute.
  In order to activate the first task we must load the correct value for
@@ -925,7 +1115,6 @@ ROSA_start()
 \begin_layout Standard
 To start task execution the task start address, STADDR, is loaded from the
  TCB and a jump is done to STADDR.
- 
 \end_layout
 
 \begin_layout Subsection
@@ -933,16 +1122,12 @@ Context switching
 \end_layout
 
 \begin_layout Standard
-When a task have finished its execution during a period, 
+When a task have finished its execution during a period,
 \emph on
-ROSA_contextSwitch()
+ ROSA_yield()
 \emph default
  is called.
- 
-\emph on
-ROSA_contextSwitch() 
-\emph default
-performs the following sequence:
+ The functionperforms the following sequence:
 \end_layout
 
 \begin_layout Itemize
@@ -950,12 +1135,12 @@ The context of the CPU is stored to the TCB.
 \end_layout
 
 \begin_layout Itemize
-The scheduler, 
+The scheduler function,
 \emph on
-ROSA_scheduler()
+ scheduler()
 \emph default
-, is called and the currently running TCB, referenced to by the variable
- EXECTASK, is changed to another TCB from the TCBLIST.
+, is called and a new TCB is written into EXECTASK.
+ 
 \end_layout
 
 \begin_layout Itemize
@@ -963,26 +1148,26 @@ The context of the new TCB is restored by a call to
 \begin_inset Newline newline
 \end_inset
 
- 
+
 \emph on
-ROSA_contextRestore()
+contextRestore()
 \emph default
 .
 \end_layout
 
 \begin_layout Standard
-The 
+The
 \emph on
-ROSA_contextSwitch() 
+ ROSA_yield()
 \emph default
-utilizes the supervisor mode which is entered by the '
+ utilizes the supervisor mode which is entered by the '
 \emph on
 scall
 \emph default
-' instruction.
- This instruction jumps to the 
+' system call instruction.
+ This instruction jumps to the
 \emph on
-_handle_Supervisor_Call
+ _handle_Supervisor_Call
 \emph default
  vector and effectively runs the context switch routines in supervisor mode.
 \end_layout
@@ -1029,7 +1214,7 @@ Context save
 \begin_layout Standard
 
 \emph on
-_ROSA_contextSave()
+contextSave()
 \emph default
  does the following operations:
 \end_layout
@@ -1063,13 +1248,14 @@ Scheduling
 \end_layout
 
 \begin_layout Standard
-The 
+The
 \emph on
-ROSA_scheduler()
+ scheduler()
 \emph default
  function fetch the next task to execute.
- A reference to the task TCB is put in the EXECTASK variable.
- 
+ The currently running TCB, referenced to by the variable EXECTASK, is changed
+ to another TCB from the TCBLIST.
+ A reference to the new task TCB is put in the EXECTASK variable.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1079,7 +1265,7 @@ Context restore
 \begin_layout Standard
 
 \emph on
-_ROSA_contextRestore()
+contextRestore()
 \emph default
  practically does the reverse of the context save:
 \end_layout
@@ -1108,6 +1294,10 @@ Restores SR.
 Restores work registers.
 \end_layout
 
+\begin_layout Itemize
+Return from supervisor mode.
+\end_layout
+
 \begin_layout Standard
 This sequence makes the CPU start executing the new task.
 \end_layout
@@ -1129,7 +1319,7 @@ Simple source code walk through
 \begin_layout Standard
 This is a description on how to set up the main.c file and start running
  the ROSA kernel.
- A more detailed walk through of the kernel is found in section 
+ A more detailed walk through of the kernel is found in section
 \begin_inset CommandInset ref
 LatexCommand vref
 reference "sec:Kernel-source-code"
@@ -1145,7 +1335,6 @@ Headers
 
 \begin_layout Standard
 We start in the main.c by including the necessary header files.
- 
 \end_layout
 
 \begin_layout Standard
@@ -1226,18 +1415,17 @@ Tasks
 
 \begin_layout Standard
 Now we define our tasks; task1 and task2.
- Note that the tasks consist of a 
+ Note that the tasks consist of a
 \emph on
-while(1)
+ while(1)
 \emph default
 -loop, which basically will make the task run forever.
- 
 \end_layout
 
 \begin_layout Standard
-The next thing to note is the 
+The next thing to note is the
 \emph on
-ledOn()/Off()
+ ledOn()/Off()
 \emph default
  scheme, task1 will light up LED1 of the EVK1100.
  Task2 will light up LED2.
@@ -1248,12 +1436,12 @@ ledOn()/Off()
 \begin_layout Standard
 
 \emph on
-ROSA_contextSwitch()
+ROSA_yield()
 \emph default
  is the function which performs a context switch, allowing both tasks to
- run in pseudo parallel, despite the forever 
+ run in pseudo parallel, despite the forever
 \emph on
-while(1)
+ while(1)
 \emph default
 -loop.
 \end_layout
@@ -1324,7 +1512,7 @@ void task1(void)
 
 \begin_layout Plain Layout
 
-		ROSA_contextSwitch();
+		ROSA_yield();
 \end_layout
 
 \begin_layout Plain Layout
@@ -1388,7 +1576,7 @@ void task2(void)
 
 \begin_layout Plain Layout
 
-		ROSA_contextSwitch();
+		ROSA_yield();
 \end_layout
 
 \begin_layout Plain Layout
@@ -1420,7 +1608,6 @@ We declare our TCB and stack for the two tasks we are going to create.
  The first thing we do is to reserve stack space by defining a global array
  with appropriate size.
  Space for the TCB is also reserved by the tcb struct.
- 
 \end_layout
 
 \begin_layout Standard
@@ -1498,18 +1685,18 @@ More TCB and TCBLIST
 \begin_layout Standard
 So far so good, but ROSA does not know where to find the tasks we want to
  run, and neither are the TCBs of the tasks set up correctly yet.
- This is done by calling 
+ This is done by calling
 \emph on
-ROSA_tcbCreate()
+ ROSA_tcbCreate()
 \emph default
- and 
+ and
 \emph on
-ROSA_tcbInstall().
+ ROSA_tcbInstall().
 
 \emph default
- This must be done before starting ROSA with the 
+ This must be done before starting ROSA with the
 \emph on
-ROSA_start()
+ ROSA_start()
 \emph default
  call.
  Execution control is now in the hands of ROSA and will not return to this
@@ -1517,9 +1704,9 @@ ROSA_start()
 \end_layout
 
 \begin_layout Standard
-Below is an example of how it is done from the 
+Below is an example of how it is done from the
 \emph on
-main()
+ main()
 \emph default
 -function:
 \end_layout
@@ -1694,17 +1881,16 @@ This is a closer look at the ROSA kernel.
 \end_layout
 
 \begin_layout Standard
-In the 
+In the
 \emph on
-main()
+ main()
 \emph default
  function, as shown previously, the first kernel function to be called is
- 
 \emph on
-ROSA_init().
- 
+ ROSA_init().
+
 \emph default
-This function sets the TCBLIST and EXECTASK to NULL.
+ This function sets the TCBLIST and EXECTASK to NULL.
  This is done since no task have been added yet.
  Also I/O is initialized by this function call.
 \end_layout
@@ -1730,12 +1916,12 @@ status open
 
 \begin_layout Plain Layout
 
-void ROSA_init(void) 
+void ROSA_init(void)
 \end_layout
 
 \begin_layout Plain Layout
 
-{ 
+{
 \end_layout
 
 \begin_layout Plain Layout
@@ -1745,12 +1931,12 @@ void ROSA_init(void)
 
 \begin_layout Plain Layout
 
-	TCBLIST = NULL; 
+	TCBLIST = NULL;
 \end_layout
 
 \begin_layout Plain Layout
 
-	EXECTASK = NULL; 
+	EXECTASK = NULL;
 \end_layout
 
 \begin_layout Plain Layout
@@ -1759,27 +1945,27 @@ void ROSA_init(void)
 
 \begin_layout Plain Layout
 
-	//Do initialization of I/O drivers 
+	//Do initialization of I/O drivers
 \end_layout
 
 \begin_layout Plain Layout
 
-	ledInit();                         //LEDs 
+	ledInit();                         //LEDs
 \end_layout
 
 \begin_layout Plain Layout
 
-	buttonInit();                      //Buttons 
+	buttonInit();                      //Buttons
 \end_layout
 
 \begin_layout Plain Layout
 
-	joystickInit();                    //Joystick 
+	joystickInit();                    //Joystick
 \end_layout
 
 \begin_layout Plain Layout
 
-	potInit();                         //Potentiometer 
+	potInit();                         //Potentiometer
 \end_layout
 
 \begin_layout Plain Layout
@@ -1803,9 +1989,9 @@ void ROSA_init(void)
 \begin_inset VSpace defskip
 \end_inset
 
-Next the TCB's of two tasks are created by function call to 
+Next the TCB's of two tasks are created by function call to
 \emph on
-ROSA_tcbCreate()
+ ROSA_tcbCreate()
 \emph default
 .
 \end_layout
@@ -1852,7 +2038,6 @@ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 
 These calls fill in the necessary information into the TCB as shown below.
  First the task id/name is copied into the TCB.
- 
 \end_layout
 
 \begin_layout Standard
@@ -1877,12 +2062,12 @@ status open
 \begin_layout Plain Layout
 
 void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE],    void *tcbFunction,
- int * tcbStack, int tcbStackSize) 
+ int * tcbStack, int tcbStackSize)
 \end_layout
 
 \begin_layout Plain Layout
 
-{ 	
+{
 \end_layout
 
 \begin_layout Plain Layout
@@ -1892,27 +2077,26 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE],    void *tcbFunction,
 
 \begin_layout Plain Layout
 
-	
 \end_layout
 
 \begin_layout Plain Layout
 
-	//Initialize the tcb with the correct values 	
+	//Initialize the tcb with the correct values
 \end_layout
 
 \begin_layout Plain Layout
 
-	for(i = 0; i < NAMESIZE; i++) { 		
+	for(i = 0; i < NAMESIZE; i++) {
 \end_layout
 
 \begin_layout Plain Layout
 
-		//Copy the id/name 		
+		//Copy the id/name
 \end_layout
 
 \begin_layout Plain Layout
 
-		tcbTask->id[i] = tcbName[i]; 	
+		tcbTask->id[i] = tcbName[i];
 \end_layout
 
 \begin_layout Plain Layout
@@ -1956,12 +2140,12 @@ status open
 
 \begin_layout Plain Layout
 
-	//Dont link this TCB anywhere yet 	
+	//Dont link this TCB anywhere yet
 \end_layout
 
 \begin_layout Plain Layout
 
-	tcbTask->nexttcb = NULL;	
+	tcbTask->nexttcb = NULL;
 \end_layout
 
 \end_inset
@@ -2004,12 +2188,12 @@ status open
 
 \begin_layout Plain Layout
 
-	//Set the task function start and return address 	
+	//Set the task function start and return address
 \end_layout
 
 \begin_layout Plain Layout
 
-	tcbTask->staddr = tcbFunction; 	
+	tcbTask->staddr = tcbFunction;
 \end_layout
 
 \begin_layout Plain Layout
@@ -2023,17 +2207,17 @@ status open
 
 \begin_layout Plain Layout
 
-	//Set up the stack 	
+	//Set up the stack
 \end_layout
 
 \begin_layout Plain Layout
 
-	tcbTask->datasize = tcbStackSize; 	
+	tcbTask->datasize = tcbStackSize;
 \end_layout
 
 \begin_layout Plain Layout
 
-	tcbTask->dataarea = tcbStack + tcbStackSize; 	
+	tcbTask->dataarea = tcbStack + tcbStackSize;
 \end_layout
 
 \begin_layout Plain Layout
@@ -2043,12 +2227,11 @@ status open
 
 \begin_layout Plain Layout
 
-	
 \end_layout
 
 \begin_layout Plain Layout
 
-	//Set the initial SR 	
+	//Set the initial SR
 \end_layout
 
 \begin_layout Plain Layout
@@ -2097,12 +2280,12 @@ status open
 
 \begin_layout Plain Layout
 
-	//Initialize context 	
+	//Initialize context
 \end_layout
 
 \begin_layout Plain Layout
 
-	ROSA_contextInit(tcbTask); 
+	contextInit(tcbTask);
 \end_layout
 
 \begin_layout Plain Layout
@@ -2147,17 +2330,17 @@ status open
 
 \begin_layout Plain Layout
 
-ROSA_contextInit: 	
+contextInit:
 \end_layout
 
 \begin_layout Plain Layout
 
-	//Initialize lr in the savereg area 	
+	//Initialize lr in the savereg area
 \end_layout
 
 \begin_layout Plain Layout
 
-	ld.w r0,r12[TCB.STADDR] 	
+	ld.w r0,r12[TCB.STADDR]
 \end_layout
 
 \begin_layout Plain Layout
@@ -2167,32 +2350,31 @@ ROSA_contextInit:
 
 \begin_layout Plain Layout
 
-	
 \end_layout
 
 \begin_layout Plain Layout
 
-	//Initialize regs to zero 	
+	//Initialize regs to zero
 \end_layout
 
 \begin_layout Plain Layout
 
-	mov r0,0x0 	
+	mov r0,0x0
 \end_layout
 
 \begin_layout Plain Layout
 
-	st.w r12[TCB.SAVEREG.R0],r0 	
+	st.w r12[TCB.SAVEREG.R0],r0
 \end_layout
 
 \begin_layout Plain Layout
 
-	st.w r12[TCB.SAVEREG.R1],r0 	
+	st.w r12[TCB.SAVEREG.R1],r0
 \end_layout
 
 \begin_layout Plain Layout
 
-	st.w r12[TCB.SAVEREG.R2],r0 	
+	st.w r12[TCB.SAVEREG.R2],r0
 \end_layout
 
 \begin_layout Plain Layout
@@ -2202,12 +2384,12 @@ ROSA_contextInit:
 
 \begin_layout Plain Layout
 
-	st.w r12[TCB.SAVEREG.R12],r0 	
+	st.w r12[TCB.SAVEREG.R12],r0
 \end_layout
 
 \begin_layout Plain Layout
 
-	mov pc,lr 
+	mov pc,lr
 \end_layout
 
 \end_inset
@@ -2255,12 +2437,12 @@ status open
 
 \begin_layout Plain Layout
 
-	ROSA_tcbInstall(t1_tcb); 
+	ROSA_tcbInstall(t1_tcb);
 \end_layout
 
 \begin_layout Plain Layout
 
-	ROSA_tcbInstall(t2_tcb); 
+	ROSA_tcbInstall(t2_tcb);
 \end_layout
 
 \begin_layout Plain Layout
@@ -2315,7 +2497,7 @@ status open
 
 \begin_layout Plain Layout
 
-void ROSA_tcbInstall(tcb * tcbTask) 
+void ROSA_tcbInstall(tcb * tcbTask)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2330,7 +2512,7 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-	// Is this the first tcb installed? 
+	// Is this the first tcb installed?
 \end_layout
 
 \begin_layout Plain Layout
@@ -2354,7 +2536,7 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-		TCBLIST->nexttcb = tcbTask;  
+		TCBLIST->nexttcb = tcbTask;
 \end_layout
 
 \begin_layout Plain Layout
@@ -2368,12 +2550,12 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-		tcbTask->nexttcb = TCBLIST;  
+		tcbTask->nexttcb = TCBLIST;
 \end_layout
 
 \begin_layout Plain Layout
 
-	} 	
+	}
 \end_layout
 
 \begin_layout Plain Layout
@@ -2388,7 +2570,7 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-		tcbTmp = TCBLIST; 
+		tcbTmp = TCBLIST;
 \end_layout
 
 \begin_layout Plain Layout
@@ -2408,7 +2590,6 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-	
 \end_layout
 
 \begin_layout Plain Layout
@@ -2423,7 +2604,6 @@ void ROSA_tcbInstall(tcb * tcbTask)
 
 \begin_layout Plain Layout
 
-	
 \end_layout
 
 \begin_layout Plain Layout
@@ -2520,7 +2700,6 @@ In effect this is the initial context switch.
 \begin_layout Standard
 Loading lr with STADDR means that we are going to continue execution at
  the task program code when this routine is finished.
- 
 \end_layout
 
 \begin_layout Standard
@@ -2738,7 +2917,7 @@ void task1(void)
 
 \begin_layout Plain Layout
 
-		ROSA_contextSwitch();
+		ROSA_yield();
 \end_layout
 
 \begin_layout Plain Layout
@@ -2763,17 +2942,17 @@ void task1(void)
 \end_inset
 
 The context switch routine consists of switching to supervisor mode and
- three calls to 
+ three calls to
 \emph on
-_ROSA_contextSave(), ROSA_scheduler() 
+ contextSave(), scheduler()
 \emph default
-and
+ and
 \begin_inset Newline newline
 \end_inset
 
- 
+
 \emph on
-_ROSA_contextRestore()
+contextRestore()
 \emph default
 .
 \end_layout
@@ -2799,7 +2978,7 @@ status open
 
 \begin_layout Plain Layout
 
-ROSA_contextSwitch:
+ROSA_yield:
 \end_layout
 
 \begin_layout Plain Layout
@@ -2809,7 +2988,7 @@ ROSA_contextSwitch:
 
 \begin_layout Plain Layout
 
-	lda.w lr,_ROSA_contextSwitch
+	lda.w lr,_yield
 \end_layout
 
 \begin_layout Plain Layout
@@ -2819,27 +2998,27 @@ ROSA_contextSwitch:
 
 \begin_layout Plain Layout
 
-	scall 
+	scall
 \end_layout
 
 \begin_layout Plain Layout
 
-_ROSA_contextSwitch:
+_yield:
 \end_layout
 
 \begin_layout Plain Layout
 
-	call _ROSA_contextSave
+	call contextSave
 \end_layout
 
 \begin_layout Plain Layout
 
-	call ROSA_scheduler
+	call scheduler
 \end_layout
 
 \begin_layout Plain Layout
 
-	call _ROSA_contextRestore 
+	call contextRestore
 \end_layout
 
 \begin_layout Plain Layout
@@ -2862,26 +3041,11 @@ _ROSA_contextSwitch:
 \end_layout
 
 \begin_layout Standard
-The 
+The
 \emph on
-_ROSA_contextSave()
+ contextSave()
 \emph default
  routine saves the context from the processor into the TCB of EXECTASK.
- Note that at this point the USP is one element off, caused by the call
- to the 
-\emph on
-ROSA_contextSwitch()
-\emph default
-.
- This is due to the fact that we need to push the lr to the stack before
- entering supervisor mode.
- A stack correction is made at the end of 
-\emph on
-_ROSA_contextSave()
-\emph default
- to allow the task to continue its execution in the task program code next
- time it is activated.
- 
 \end_layout
 
 \begin_layout Standard
@@ -2905,7 +3069,7 @@ status open
 
 \begin_layout Plain Layout
 
-_ROSA_contextSave:
+contextSave:
 \end_layout
 
 \begin_layout Plain Layout
@@ -2992,7 +3156,7 @@ _ROSA_contextSave:
 
 \begin_layout Plain Layout
 
-	add r0,r12 
+	add r0,r12
 \end_layout
 
 \begin_layout Plain Layout
@@ -3049,17 +3213,17 @@ _ROSA_contextSave:
 
 \begin_layout Plain Layout
 
-	//Get from user stack, return to task, 
+	//Get from user stack, return to task,
 \end_layout
 
 \begin_layout Plain Layout
 
-	//not to contextSwitch 	
+	//not to ROSA_yield
 \end_layout
 
 \begin_layout Plain Layout
 
-	st.w r12[TCB.RETADDR],r0 
+	st.w r12[TCB.RETADDR],r0
 \end_layout
 
 \begin_layout Plain Layout
@@ -3068,7 +3232,7 @@ _ROSA_contextSave:
 
 \begin_layout Plain Layout
 
-	//Save LR_task 	
+	//Save LR_task
 \end_layout
 
 \begin_layout Plain Layout
@@ -3082,23 +3246,7 @@ _ROSA_contextSave:
 
 \begin_layout Plain Layout
 
-	//Correct the USP for the ROSA_contextSwitch() 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//call.
- This is done since we do not want to 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//return to ROSA_contextSwitch(), where the stack 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//frame is currently at but to the executing task
+	//Save USP
 \end_layout
 
 \begin_layout Plain Layout
@@ -3108,21 +3256,16 @@ _ROSA_contextSave:
 
 \begin_layout Plain Layout
 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//Save USP
-\end_layout
-
-\begin_layout Plain Layout
-
 	st.w r12[TCB.SAVEUSP],r1
 \end_layout
 
 \begin_layout Plain Layout
 
-	mov pc,lr 
+\end_layout
+
+\begin_layout Plain Layout
+
+	mov pc,lr
 \end_layout
 
 \end_inset
@@ -3137,9 +3280,9 @@ _ROSA_contextSave:
 \end_inset
 
 When the scheduler is done a new task TCB is present in the EXECTASK.
- Now 
+ Now
 \emph on
-_ROSA_contextRestore()
+ contextRestore()
 \emph default
  will do the final part of the context switch, i.e.
  turning execution over to the next task.
@@ -3168,7 +3311,7 @@ status open
 
 \begin_layout Plain Layout
 
-_ROSA_contextRestore:
+contextRestore:
 \end_layout
 
 \begin_layout Plain Layout
@@ -3259,7 +3402,7 @@ _ROSA_contextRestore:
 
 \begin_layout Plain Layout
 
-	mov r0,TCB.SAVEREG.R11 	
+	mov r0,TCB.SAVEREG.R11
 \end_layout
 
 \begin_layout Plain Layout
@@ -3292,7 +3435,7 @@ _ROSA_contextRestore:
 
 \begin_layout Plain Layout
 
-	//Restore SR 	
+	//Restore SR
 \end_layout
 
 \begin_layout Plain Layout
@@ -3311,7 +3454,7 @@ _ROSA_contextRestore:
 
 \begin_layout Plain Layout
 
-	//Restore work registers 	
+	//Restore work registers
 \end_layout
 
 \begin_layout Plain Layout
@@ -3358,9 +3501,9 @@ _ROSA_contextRestore:
 \end_layout
 
 \begin_layout Standard
-Now execution is at task2, which will run until the 
+Now execution is at task2, which will run until the
 \emph on
-ROSA_contextSwitch()
+ ROSA_yield()
 \emph default
  turn over execution to the next task, which in this case is task1.
 \end_layout
@@ -3411,7 +3554,7 @@ void task2(void)
 
 \begin_layout Plain Layout
 
-		ROSA_contextSwitch();
+		ROSA_yield();
 \end_layout
 
 \begin_layout Plain Layout
@@ -3441,9 +3584,9 @@ void task2(void)
 \begin_layout Standard
 The two tasks will continue to execute in this fashion, taking turn to run
  their program code on the processor one loop at a time before leaving execution
- over to the other task by the 
+ over to the other task by the
 \emph on
-ROSA_contextSwitch()
+ ROSA_yield()
 \emph default
  call.
 \end_layout

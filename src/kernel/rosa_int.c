@@ -27,19 +27,19 @@
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_scheduler.h"
 
-void ROSA_contextSaveFromISR(void);
-void ROSA_contextRestoreFromISR(void);
+void contextSaveFromISR(void);
+void contextRestoreFromISR(void);
 
 /***********************************************************
- * ROSA_contextSwitchFromISR
+ * ROSA_yieldFromISR
  *
  * Comment:
  * 	Perform a yield from an ISR
  *
  **********************************************************/
-void ROSA_contextSwitchFromISR(void)
+void ROSA_yieldFromISR(void)
 {
-	ROSA_contextSaveFromISR();	  //Save the task context
-	ROSA_scheduler();			  //Find next task to execute
-	ROSA_contextRestoreFromISR(); //...and switch over to it.
+	contextSaveFromISR();	  //Save the task context
+	scheduler();			  //Find next task to execute
+	contextRestoreFromISR();  //...and switch over to it.
 }

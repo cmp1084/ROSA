@@ -80,7 +80,7 @@ ROSA_timerPrescale:
 ROSA_timerInit:
 	pushm r11,r12,lr
 	//Remove any remaining timer interrupts
-	call ROSA_interruptDisable;
+	call interruptDisable;
 	call ROSA_timerClearInterrupt
 
 	//Setup timer waveform

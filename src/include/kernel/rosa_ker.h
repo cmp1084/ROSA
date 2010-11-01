@@ -40,19 +40,14 @@ extern tcb * EXECTASK;
  * Kernel low level context switch functions
  ***********************************************************/
 extern void ROSA_contextInit(tcb * tcbTask);
-extern void ROSA_contextSwitch(void);
+extern void ROSA_yield(void);
 
 
 /***********************************************************
  * Other kernel functions
  ***********************************************************/
-//Kernel lowlevel initialization
-extern void ROSA_init_lowlevel(void);
+//None
 
-
-//This is the lowlevel call to start the first task.
-//EXECTASK should have been preloaded with the first task to run.
-extern void ROSA_start_lowlevel(void);
 /***********************************************************
  * General kernel API
  *

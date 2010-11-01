@@ -34,12 +34,12 @@ void usartReset(volatile avr32_usart_t *usart)
 
 	//Disable all USART interrupts.
 	if((interruptEnabled = ROSA_isInterruptEnabled())) {
-			ROSA_interruptDisable();
+			interruptDisable();
 	}
 	usart->idr = 0xFFFFFFFF;
 	usart->csr;
 	if(interruptEnabled) {
-		ROSA_interruptEnable();
+		interruptEnable();
 	}
 
 	//Reset mode and other registers that could cause unpredictable behavior after reset.

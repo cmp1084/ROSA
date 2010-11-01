@@ -33,20 +33,20 @@
  * Kernel interrupt handling functions
  ***********************************************************/
 //Interrupt initialization must be done before enabling interrupts
-extern void ROSA_interruptInit(void);
+extern void interruptInit(void);
 
 //Disable interrupts
-extern void ROSA_interruptDisable(void);
+extern void interruptDisable(void);
 
 //Enable interrupts
-extern void ROSA_interruptEnable(void);
+extern void interruptEnable(void);
 
 //Check if interrupts are enabled.
 extern int  ROSA_isInterruptEnabled(void);
 
 //Read the status register
-extern int _ROSA_readSR(void);
+//extern int _ROSA_readSR(void); TODO: Remove
 
-void ROSA_contextSwitchFromISR(void);
+void ROSA_yieldFromISR(void);
 
 #endif /* _ROSA_INT_H_ */

@@ -57,7 +57,7 @@ void task1(void)
 		ledOn(LED0_GPIO);
 		ledOff(LED1_GPIO);
 		delay_ms(250);
-		ROSA_contextSwitch();
+		ROSA_yield();
 	}
 }
 
@@ -72,7 +72,7 @@ void task2(void)
 		ledOff(LED0_GPIO);
 		ledOn(LED1_GPIO);
 		delay_ms(250);
-		ROSA_contextSwitch();
+		ROSA_yield();
 	}
 }
 
