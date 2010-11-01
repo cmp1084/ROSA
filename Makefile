@@ -35,7 +35,7 @@ PROGRAM = rosa
 SOURCEDIR = src
 
 ##############################################################
-#Various source directories
+#Various source subdirectories
 ##############################################################
 STARTUPDIR = $(SOURCEDIR)/cpu
 KERNELDIR = $(SOURCEDIR)/kernel
@@ -44,17 +44,24 @@ DRIVERSDIR = $(SOURCEDIR)/drivers
 ##############################################################
 #The sources of ROSA
 ##############################################################
-SOURCE= \
-	$(KERNELDIR)/rosa_int.c \
-	$(KERNELDIR)/rosa_tim.c \
-	$(KERNELDIR)/rosa_ker.c \
-	$(KERNELDIR)/rosa_scheduler.c \
-	$(DRIVERSDIR)/gpio.c \
-	$(DRIVERSDIR)/led.c \
-	$(DRIVERSDIR)/button.c \
-	$(DRIVERSDIR)/usart.c \
-	$(DRIVERSDIR)/delay.c \
-	$(SOURCEDIR)/main.c
+SOURCE =  $(KERNELDIR)/rosa_int.c
+SOURCE += $(KERNELDIR)/rosa_tim.c
+SOURCE += $(KERNELDIR)/rosa_ker.c
+SOURCE += $(KERNELDIR)/rosa_scheduler.c
+SOURCE += $(DRIVERSDIR)/gpio.c
+SOURCE += $(DRIVERSDIR)/led.c
+SOURCE += $(DRIVERSDIR)/button.c
+SOURCE += $(DRIVERSDIR)/usart.c
+SOURCE += $(DRIVERSDIR)/delay.c
+
+##############################################################
+#Add your source files here
+##############################################################
+
+#SOURCE += $(SOURCEDIR)/dynamicTask.c
+
+##############################################################
+SOURCE += $(SOURCEDIR)/main.c
 
 ##############################################################
 #The assembler sources of ROSA
@@ -72,12 +79,12 @@ ASMSOURCE= \
 INCDIRS = -Isrc -Isrc/include
 
 ##############################################################
-#binaries are located in this dir
+#Binaries are located in this dir
 ##############################################################
 BINDIR = bin
 
 ##############################################################
-# The target board and MCU
+#The target board and MCU
 ##############################################################
 BOARD = EVK1100
 PART = uc3a0512
@@ -95,18 +102,18 @@ MKDIR = mkdir
 ##############################################################
 #Various compile flags etc
 ##############################################################
+LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 DEBUG = -ggdb
 OPT = -O0
 AFLAGS = -x assembler-with-cpp
 CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
-LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o)
 
 ##############################################################
 #Makefile rules
 ##############################################################
-all: $(OBJ) elf $(PROGRAM)
+all: clean $(OBJ) elf $(PROGRAM)
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
