@@ -46,7 +46,7 @@ Appendix
 \end_layout
 
 \begin_layout Section*
-ROSA API Kernel
+ROSA API Semaphores
 \end_layout
 
 \begin_layout Standard
@@ -66,7 +66,7 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Section
-ROSA API 
+ROSA API
 \end_layout
 
 \begin_layout Subsection
@@ -74,44 +74,8 @@ Brief API list
 \end_layout
 
 \begin_layout Standard
-This is a list of the kernel API for ROSA.
-\end_layout
-
-\begin_layout Subsubsection
-Kernel API
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_init(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_start(void);
-\end_layout
-
-\begin_layout LyX-Code
-void ROSA_switchContext(void);
-\end_layout
-
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout Subsubsection
-TCB API
-\end_layout
-
-\begin_layout LyX-Code
-struct tcb;    //TCB struct containing task data
-\end_layout
-
-\begin_layout LyX-Code
-tcb * tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack, int
- stackSize);
-\end_layout
-
-\begin_layout LyX-Code
-void tcbInstall(tcb * TCB);
+This is a list of the semaphore API for ROSA.
+ 
 \end_layout
 
 \begin_layout Subsubsection
@@ -119,7 +83,7 @@ Semaphore API
 \end_layout
 
 \begin_layout LyX-Code
-void semCreate(sem  * semaphore);
+void semCreate(sem  * semaphore); 
 \end_layout
 
 \begin_layout LyX-Code
@@ -127,51 +91,11 @@ void semDestroy(sem * semaphore);
 \end_layout
 
 \begin_layout LyX-Code
-void semTake(sem * semaphore);
+void semTake(sem * semaphore); 
 \end_layout
 
 \begin_layout LyX-Code
 void semGive(sem * semaphore);
-\end_layout
-
-\begin_layout Subsubsection
-Timer API
-\end_layout
-
-\begin_layout LyX-Code
-//sysTick real time period
-\end_layout
-
-\begin_layout LyX-Code
-void timerPeriodSet(int ms);
-\end_layout
-
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout Subsubsection
-sysTick API
-\end_layout
-
-\begin_layout LyX-Code
-int sysTickGet(void);
-\end_layout
-
-\begin_layout LyX-Code
-void sysTickWait(int ticks);
-\end_layout
-
-\begin_layout LyX-Code
-void sysTickWaitUntil(int ticks);
-\end_layout
-
-\begin_layout Subsubsection
-debugging functionality API
-\end_layout
-
-\begin_layout LyX-Code
-dgbPrintTcb(tcb * TCB);               //Printing of tcb's to serial
 \end_layout
 
 \end_body

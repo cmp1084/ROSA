@@ -46,7 +46,7 @@ Appendix
 \end_layout
 
 \begin_layout Section*
-ROSA API Dynamic tasks
+ROSA API sysTick
 \end_layout
 
 \begin_layout Standard
@@ -74,29 +74,27 @@ Brief API list
 \end_layout
 
 \begin_layout Standard
-This is a list of the dynamic task and priority inheritance protocol API
- for ROSA.
+This is a list of the sysTick API for ROSA.
 \end_layout
 
 \begin_layout Subsubsection
-TCB API
+sysTick API
 \end_layout
 
 \begin_layout LyX-Code
-tcb * ROSA_tcbCreate(tcb * TCB, char *id, void *taskFunction, int *stack,
- int stackSize);
+int ROSA_sysTickGet(void); 
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_tcbInstall(tcb * TCB);
+void ROSA_sysTickWait(int ticks); 
 \end_layout
 
 \begin_layout LyX-Code
-int ROSA_taskAdd(tcb * TCB);
+void ROSA_sysTickWaitUntil(int tick);
 \end_layout
 
 \begin_layout LyX-Code
-int ROSA_taskDestroy(tcb * TCB);
+
 \end_layout
 
 \begin_layout Subsection
@@ -104,7 +102,7 @@ Detailed API list
 \end_layout
 
 \begin_layout Subsubsection
-ROSA_tcbCreate
+ROSA_sysTickGet
 \end_layout
 
 \begin_layout Standard
@@ -128,8 +126,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-void ROSA_tcbCreate(tcb * TCB, char * id, void * taskFunc, int * stack,
- int stackSize)
+int ROSA_sysTickGet(void)
 \end_layout
 
 \end_inset
@@ -149,7 +146,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Create a TCB entry according to the given parameters.
+Get the current system tick from the ROSA kernel.
 \end_layout
 
 \end_inset
@@ -168,26 +165,110 @@ Parameters:
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
-\begin_layout Itemize
-tcb * TCB - A pointer to the TCB block to be created.
+\begin_layout Plain Layout
+None.
 \end_layout
 
-\begin_layout Itemize
-char * id - A identification for the TCB block of length NAMESIZE (default
- NAMESIZE = 4)
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Return value:
 \end_layout
 
-\begin_layout Itemize
-void * taskFunc - A pointer to the function which are to be executed by
- the task.
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The current system tick.
 \end_layout
 
-\begin_layout Itemize
-int * stack - A pointer to the task stack area.
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout Itemize
-int stackSize - The maximum allowed stack for this task.
+\begin_layout Subsubsection
+ROSA_sysTickWait
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="9cm">
+<row>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Prototype:
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
+\begin_inset Text
+
+\begin_layout Plain Layout
+void ROSA_sysTickWait(int ticks)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wait '
+\emph on
+ticks
+\emph default
+' number of system ticks before continuing.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+int ticks - The number of system ticks to wait.
 \end_layout
 
 \end_inset
@@ -221,7 +302,7 @@ Nothing.
 \end_layout
 
 \begin_layout Subsubsection
-ROSA_tcbInstall
+ROSA_sysTickWaitUntil
 \end_layout
 
 \begin_layout Standard
@@ -245,7 +326,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-void ROSA_tcbInstall(tcb * TCB)
+void ROSA_sysTickWaitUntil(int tick)
 \end_layout
 
 \end_inset
@@ -265,7 +346,11 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Install a TCB entry into the TCBLIST of the ROSA kernel.
+Wait until the absolute value of the system tick is equal to '
+\emph on
+tick
+\emph default
+' before continuing.
 \end_layout
 
 \end_inset
@@ -285,7 +370,7 @@ Parameters:
 \begin_inset Text
 
 \begin_layout Plain Layout
-tcb *TCB - A pointer to the TCB to install into the kernel.
+int tick - The system tick to wait for.
 \end_layout
 
 \end_inset
@@ -306,202 +391,6 @@ Return value:
 
 \begin_layout Plain Layout
 Nothing.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-ROSA_taskAdd
-\end_layout
-
-\begin_layout Standard
-\align left
-\begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="2">
-<features>
-<column alignment="left" valignment="top" width="0">
-<column alignment="left" valignment="top" width="9cm">
-<row>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Prototype:
-\end_layout
-
-\end_inset
-</cell>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
-\begin_inset Text
-
-\begin_layout Plain Layout
-int ROSA_taskAdd(tcb * TCB)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Description:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Add a dynamic task to ROSA.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Parameters:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-tcb * TCB - A pointer to the dynamic TCB to be added.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Return value:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-TRUE or FALSE, dependning on success.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-ROSA_taskDestroy
-\end_layout
-
-\begin_layout Standard
-\align left
-\begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="2">
-<features>
-<column alignment="left" valignment="top" width="0">
-<column alignment="left" valignment="top" width="9cm">
-<row>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Prototype:
-\end_layout
-
-\end_inset
-</cell>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
-\begin_inset Text
-
-\begin_layout Plain Layout
-int ROSA_taskDestroy(tcb * TCB)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Description:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Remove and destroy a dynamic task from ROSA.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Parameters:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-tcb * TCB - A pointer to the dynamic TCB to be removed.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Return value:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-TRUE or FALSE, dependning on success.
 \end_layout
 
 \end_inset

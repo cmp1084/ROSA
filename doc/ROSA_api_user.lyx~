@@ -17,7 +17,21 @@
 
 \graphics default
 \paperfontsize default
-\use_hyperref false
+\spacing single
+\use_hyperref true
+\pdf_title "API"
+\pdf_author "Marcus Jansson"
+\pdf_subject "ROSA"
+\pdf_keywords "ROSA RTOS"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -66,14 +80,10 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Section
-ROSA API
-\end_layout
-
-\begin_layout Subsection
 Brief API list
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Kernel control API
 \end_layout
 
@@ -89,12 +99,8 @@ void ROSA_start(void);
 void ROSA_switchContext(void);
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 TCB API
-\end_layout
-
-\begin_layout LyX-Code
-struct tcb;
 \end_layout
 
 \begin_layout LyX-Code
@@ -113,7 +119,7 @@ tcb * ROSA_tcbCreate(tcb * TCB, char *id,
 void ROSA_tcbInstall(tcb * TCB);
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 I/O driver API
 \end_layout
 
@@ -202,7 +208,15 @@ void usartWriteChar(volatile avr32_usart_t *,
 \begin_inset Newline newline
 \end_inset
 
- char);
+     char);
+\end_layout
+
+\begin_layout LyX-Code
+void usartWriteTcb(volatile avr32_usart_t * usart,
+\begin_inset Newline newline
+\end_inset
+
+     tcb * dbgtcb);
 \begin_inset Newline newline
 \end_inset
 
@@ -215,6 +229,10 @@ void usartWriteChar(volatile avr32_usart_t *,
 
 \begin_layout LyX-Code
 int potGetValue(void);
+\begin_inset Newline newline
+\end_inset
+
+
 \begin_inset Newline newline
 \end_inset
 
@@ -241,7 +259,7 @@ void free(void *);
 \end_layout
 
 \begin_layout Section
-Detailed user API
+Detailed API list
 \end_layout
 
 \begin_layout Subsection
@@ -439,6 +457,114 @@ Nothing.
 </row>
 </lyxtabular>
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+ROSA_contextSwitch
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="9cm">
+<row>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Prototype:
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
+\begin_inset Text
+
+\begin_layout Plain Layout
+void ROSA_contextSwitch(void)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Switch context.
+ Save current task context.
+ Write a new TCB into the global EXECTASK variable.
+ Continue execution in the task given by EXECTASK.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Nothing.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Return value:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Nothing.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
 \end_inset
 
 
@@ -781,6 +907,104 @@ TRUE or FALSE depending on the state of the push button.
 \end_layout
 
 \begin_layout Subsubsection
+isJoystickUp
+\end_layout
+
+\begin_layout Standard
+\align left
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features>
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="9cm">
+<row>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Prototype:
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
+\begin_inset Text
+
+\begin_layout Plain Layout
+int isJoystickUp(void)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Check if the joystick is pressed up.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+None.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Return value:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+TRUE or FALSE depending on the state of the joystick.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
 isJoystickDown
 \end_layout
 
@@ -977,104 +1201,6 @@ TRUE or FALSE depending on the state of the joystick.
 \end_layout
 
 \begin_layout Subsubsection
-isJoystickPressed
-\end_layout
-
-\begin_layout Standard
-\align left
-\begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="2">
-<features>
-<column alignment="left" valignment="top" width="0">
-<column alignment="left" valignment="top" width="9cm">
-<row>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Prototype:
-\end_layout
-
-\end_inset
-</cell>
-<cell multicolumn="1" alignment="left" valignment="top" usebox="none" width="10cm">
-\begin_inset Text
-
-\begin_layout Plain Layout
-int isJoystickPressed(void)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Description:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Check if the joystick is pressed/clicked down its center.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Parameters:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-None.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Return value:
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-TRUE or FALSE depending on the state of the joystick.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
 isJoystickRight
 \end_layout
 
@@ -1173,7 +1299,7 @@ TRUE or FALSE depending on the state of the joystick.
 \end_layout
 
 \begin_layout Subsubsection
-isJoystickUp
+isJoystickPressed
 \end_layout
 
 \begin_layout Standard
@@ -1197,7 +1323,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-int isJoystickUp(void)
+int isJoystickPressed(void)
 \end_layout
 
 \end_inset
@@ -1217,7 +1343,7 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Check if the joystick is pressed up.
+Check if the joystick is pressed/clicked down its center.
 \end_layout
 
 \end_inset
@@ -1686,6 +1812,13 @@ Nothing.
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 potGetValue
 \end_layout
@@ -1830,7 +1963,6 @@ Description:
 
 \begin_layout Plain Layout
 Get a line, until a return is received, from the USART.
- The default baudrate is 57600 baud.
 \end_layout
 
 \end_inset
@@ -1933,7 +2065,6 @@ Description:
 
 \begin_layout Plain Layout
 Get a single character from the USART controller.
- The default baudrate is 57600 baud.
 \end_layout
 
 \end_inset
@@ -2036,7 +2167,6 @@ Write a single char
 'ch'
 \emph default
  to the USART controller.
- The default baudrate is 57600 baud.
 \end_layout
 
 \end_inset
@@ -2139,7 +2269,6 @@ Description:
 
 \begin_layout Plain Layout
 Write a string of characters to the USART controller.
- The default baudrate is 57600 baud.
 \end_layout
 
 \end_inset
@@ -2242,7 +2371,6 @@ Description:
 
 \begin_layout Plain Layout
 Write TCB debugging information to the USART controller.
- The default baudrate is 57600 baud.
 \end_layout
 
 \end_inset

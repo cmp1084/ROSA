@@ -96,7 +96,7 @@ void ROSA_start(void);
 \end_layout
 
 \begin_layout LyX-Code
-void ROSA_switchContext(void);
+void ROSA_yield(void);
 \end_layout
 
 \begin_layout Subsection
@@ -463,7 +463,7 @@ Nothing.
 \end_layout
 
 \begin_layout Subsubsection
-ROSA_contextSwitch
+ROSA_yield
 \end_layout
 
 \begin_layout Standard
@@ -487,7 +487,7 @@ Prototype:
 \begin_inset Text
 
 \begin_layout Plain Layout
-void ROSA_contextSwitch(void)
+void ROSA_yield(void)
 \end_layout
 
 \end_inset
@@ -507,10 +507,10 @@ Description:
 \begin_inset Text
 
 \begin_layout Plain Layout
-Switch context.
+Yield the current task execution and switch context.
  Save current task context.
- Write a new TCB into the global EXECTASK variable.
- Continue execution in the task given by EXECTASK.
+ Write a new TCB into the global EXECTASK variable and continue execution
+ in the task given by EXECTASK.
 \end_layout
 
 \end_inset
