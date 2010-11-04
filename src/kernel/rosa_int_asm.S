@@ -41,13 +41,10 @@
 	//Global functions
 	.global interruptDisable
 	.global interruptEnable
-	.global ROSA_isInterruptEnabled
+	.global isInterruptEnabled
 	.global interruptInit
 	.global contextSaveFromISR
 	.global contextRestoreFromISR
-
-	//Other functions
-	//.global _ROSA_readSR TODO: remove
 
 	//Interrupt constants
 	.equ INTLEVEL0,0
@@ -75,7 +72,7 @@ _handle_Supervisor_Call:
  *
  * Comment:
  * 	Send the interrupt to the proper ISR handler,
- *  in this case: ROSA_timerISR().
+ *  in this case: timerISR().
  *
  **********************************************************/
 	//TC0 interrupt
@@ -86,7 +83,7 @@ _int0:
 	andl r12,LINE0							//TC0 irq is at line 0
 	cp.w r12,LINE0							//Is line 0 sending interrupt signal?
 	brne _int0_exit							//No, exit
-	lda.w r12,ROSA_timerISR
+	lda.w r12,timerISR						//Pointer to the timer ISR
 	mov pc,r12								//Yes, go to the ISR.
 _int0_exit:
 	rete
@@ -174,7 +171,7 @@ interruptInit:
 /*********************************************************
  * interruptDisable
  * interruptEnable
- * ROSA_isInterruptEnabled
+ * isInterruptEnabled
  * contextSaveFromISR
  * contextRestoreFromISR
  *
@@ -215,7 +212,7 @@ interruptEnable:
 
 
 /**********************************************************
- * ROSA_isInterruptEnabled
+ * isInterruptEnabled
  *
  * Comment:
  * 	Check if global interrupts are enabled.
@@ -224,10 +221,10 @@ interruptEnable:
  * TRUE or FALSE
  *
  * C prototype:
- * 	int ROSA_isInterruptEnabled(void);
+ * 	int isInterruptEnabled(void);
  *
  *********************************************************/
-ROSA_isInterruptEnabled:
+isInterruptEnabled:
 	mfsr r12,0
 	lsr r12,AVR32_SR_GM
 	andl r12,TRUE
@@ -357,7 +354,7 @@ contextRestoreFromISR:
 
 	//Restart timer 0, necessary as timer is stopped by the irq event.
 	pushm lr
-	call ROSA_timerStart
+	call timerStart
 	popm lr
 
 	//Return back to the ISR handler

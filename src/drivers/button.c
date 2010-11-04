@@ -31,7 +31,8 @@
  * buttonInit
  *
  * Comment:
- * 	Initialize all three EVK1100 buttons
+ * 	Initialize all three EVK1100 buttons.
+ *
  * Returns:
  * 	TRUE or FALSE
  *
@@ -43,16 +44,23 @@ void buttonInit(void)
 	gpioInit(PUSH_BUTTON_2, INPUT);
 }
 
-
-//Read the value of the pvr
-//Return TRUE or FALSE
+/**********************************************************
+ * isButton
+ *
+ * Comment:
+ * 	Check if a button is pressed or not.
+ *
+ * Returns:
+ * 	TRUE or FALSE
+ *
+ *********************************************************/
 int isButton(int nr)
 {
 	return !gpioGet(nr);
 }
 
 /**********************************************************
- * initJoyStick
+ * initJoystick
  *
  * Comment:
  * 	Initialize the GPIOs connected to the joystick on
@@ -62,7 +70,6 @@ int isButton(int nr)
  * 	Nothing
  *
  *********************************************************/
-
 void joystickInit(void)
 {
 	gpioInit(JOYSTICK_DOWN, INPUT);
@@ -104,4 +111,3 @@ int isJoystickPressed(void)
 {
 	return isButton(JOYSTICK_PRESS);
 }
-

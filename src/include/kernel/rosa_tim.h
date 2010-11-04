@@ -29,26 +29,29 @@
 
 #include <avr32/io.h>
 
+/***********************************************************
+ * Kernel timer user functions
+ ***********************************************************/
+int timerPeriodSet(unsigned int ms);
 
 /***********************************************************
- * Kernel timer lowlevel functions
+ * Kernel timer functions
  ***********************************************************/
-extern void ROSA_timerInit(void);
-extern void ROSA_timerReset(void);
-extern void ROSA_timerStart(void);
-extern void ROSA_timerStop(void);
+extern void timerInit(void);
+extern void timerReset(void);
+extern void timerStart(void);
+extern void timerStop(void);
 
 //Read the TC0 timers status register
-extern void ROSA_timerClearInterrupt(void);
-extern void ROSA_timerPrescaleSet(int);
-extern void ROSA_timerRCSet(int);
-int ROSA_timerPeriodSet(unsigned int ms);
+extern void timerClearInterrupt(void);
+extern void timerPrescaleSet(int);
+extern void timerRCSet(int);
 
 //The timer interrupt service routine
-void ROSA_timerISR(void);
+void timerISR(void);
 
 //Timer variables
-extern int ROSA_timerPrescale;
-extern int ROSA_timerRC;
+extern int timerPrescale;
+extern int timerRC;
 
 #endif /* _ROSA_TIMER_H_ */

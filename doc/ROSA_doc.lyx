@@ -531,234 +531,109 @@ How to compile ROSA
 \end_layout
 
 \begin_layout Subsubsection
-make
-\end_layout
-
-\begin_layout Standard
-ROSA can be cross compiled by using the GNU 'make' command from the rosa/
- directory on a *nix-like system with the avr32 GNU toolchain properly installed.
- Simply compile ROSA by typing:
-\end_layout
-
-\begin_layout LyX-Code
-make
-\end_layout
-
-\begin_layout Standard
-in the rosa/ directory.
- A binary file, which can be programmed onto the EVK1100, is produced in
- the rosa/bin/ directory.
-\end_layout
-
-\begin_layout Subsubsection
-Adding code to ROSA
-\end_layout
-
-\begin_layout Standard
-To add code to ROSA, either add the code in the existing files or write
- a new file.
- When new files are added the Makefile need to be updated.
- This is simply done by adding the new source file to the Makefile SOURCE
- variable.
- The main source directory is defined by the SOURCEDIR variable.
- Also the source subdirectories are defined in varables for convenience.
-\end_layout
-
-\begin_layout Standard
-In the example below
-\emph on
-newfile.c
-\emph default
- is added.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Box Framed
-position "t"
-hor_pos "c"
-has_inner_box 0
-inner_pos "t"
-use_parbox 0
-width "100col%"
-special "none"
-height "1in"
-height_special "totalheight"
-status open
-
-\begin_layout Plain Layout
-\begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-#Sources are located in this dir
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCEDIR = src
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-#Various source subdirectories
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-STARTUPDIR = $(SOURCEDIR)/cpu
-\end_layout
-
-\begin_layout Plain Layout
-
-KERNELDIR = $(SOURCEDIR)/kernel
-\end_layout
-
-\begin_layout Plain Layout
-
-DRIVERSDIR = $(SOURCEDIR)/drivers
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-#The sources of ROSA
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE =  $(KERNELDIR)/rosa_int.c
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE += $(KERNELDIR)/rosa_tim.c
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE += $(KERNELDIR)/rosa_ker.c
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE += $(KERNELDIR)/rosa_scheduler.c
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-#Add your source files here
-\end_layout
-
-\begin_layout Plain Layout
-
-#-------------------------------------------------------------
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE += $(SOURCEDIR)/newfile.c
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-#-------------------------------------------------------------
-\end_layout
-
-\begin_layout Plain Layout
-
-##############################################################
-\end_layout
-
-\begin_layout Plain Layout
-
-#Leave main.c in the last position.
-\end_layout
-
-\begin_layout Plain Layout
-
-SOURCE += $(SOURCEDIR)/main.c
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
 AVR32 Studio
 \end_layout
 
 \begin_layout Standard
 AVR32 Studio can be used to compile ROSA.
  First the ROSA project must be set up properly.
- 2
+ This is done by importing the rosa/ directory into AVR32 Studio:
 \end_layout
 
-\begin_layout Standard
-This is done by creating a new Make Project (Main menu File/New/Project...)
- and importing the rosa/ directory into AVR32 Studio.
+\begin_layout Itemize
+Select 
+\begin_inset Quotes eld
+\end_inset
+
+File/Import...
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Select 
+\begin_inset Quotes eld
+\end_inset
+
+Existing project into workspace
+\begin_inset Quotes erd
+\end_inset
+
+
 \begin_inset Newline newline
 \end_inset
 
 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Import existing project into workspace
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename pic/importexisting.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Browse for the ROSA directory.
+\end_layout
+
+\begin_layout Itemize
+Select the ROSA project.
+\end_layout
+
+\begin_layout Itemize
+Select 
+\begin_inset Quotes eld
+\end_inset
+
+Copy project into workspace.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Click 
+\begin_inset Quotes eld
+\end_inset
+
+Finish
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Compiling is done by the normal procedure.
 \end_layout
 
 \begin_layout Subsection
@@ -767,23 +642,6 @@ How to program ROSA
 \end_inset
 
 onto the EVK1100
-\end_layout
-
-\begin_layout Subsubsection
-make
-\end_layout
-
-\begin_layout Standard
-After a successful compile, ROSA can be programmed by the Dragon JTAG debugger
- onto the EVK1100 MCU flash memory by typing:
-\end_layout
-
-\begin_layout LyX-Code
-make program
-\end_layout
-
-\begin_layout Standard
-in the rosa/ directory.
 \end_layout
 
 \begin_layout Subsubsection
@@ -839,8 +697,9 @@ All kernel functions that the user can call are prefixed
  ROSA_
 \emph default
 , e.g.
+
 \emph on
-scheduler().
+ ROSA_init().
 \end_layout
 
 \begin_layout Standard
@@ -1087,7 +946,7 @@ Part of this needs to be done in assembler, due to the low level nature
  saving specific CPU registers.
  This is handled by the
 \emph on
- ROSA_contextInit()
+ contextInit()
 \emph default
  call last in
 \emph on
@@ -1822,39 +1681,6 @@ int main(void)
 
 \end_layout
 
-\begin_layout Subsubsection
-Compiling
-\end_layout
-
-\begin_layout Standard
-To compile the ROSA system, enter the rosa/ directory and type:
-\end_layout
-
-\begin_layout LyX-Code
-make
-\end_layout
-
-\begin_layout Standard
-to start the compilation.
-\end_layout
-
-\begin_layout Subsubsection
-Programming
-\end_layout
-
-\begin_layout Standard
-To program the binary onto the EVK1100, enter the rosa directory and type:
-\end_layout
-
-\begin_layout LyX-Code
-make program
-\end_layout
-
-\begin_layout Standard
-When the programming is done the two tasks should start to execute on the
- EVK1100.
-\end_layout
-
 \begin_layout Section
 Kernel source code walk through
 \begin_inset Index
@@ -2254,7 +2080,7 @@ The last thing to do during TCB creation is to set up the task context registers
  to a known state.
  This is done in assembler by the
 \emph on
- ROSA_context-Init()
+ context-Init()
 \emph default
  call.
 \end_layout
@@ -2955,6 +2781,15 @@ The context switch routine consists of switching to supervisor mode and
 contextRestore()
 \emph default
 .
+ When a call is done the return address is written to the lr register.
+ The lr register will be overwritten by consecutive calls.
+ Pushing the lr register to the stack is essential as this contain the return
+ address to the yielding task and needs to be saved into the TCB.SAVEREG.LR
+ in the 
+\emph on
+contextSave
+\emph default
+ routine.
 \end_layout
 
 \begin_layout Standard

@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef rosa_OFF_H_
-#define rosa_OFF_H_
+#ifndef _ROSA_OFF_H_
+#define _ROSA_OFF_H_
 /***********************************************************
  * TCB OFFSETS
  *
@@ -77,4 +77,4 @@ TCB.SAVEREG.R0:  .word 0
 
 TCB.TCBSIZE:	.space 1,0	/* Size marker of TCB */
 
-#endif /* rosa_OFF_H_ */
+#endif /* _ROSA_OFF_H_ */

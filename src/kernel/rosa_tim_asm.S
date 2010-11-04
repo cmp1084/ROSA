@@ -28,37 +28,37 @@
 #include "rosa_config.h"
 
 	//Timer functions
-	.global ROSA_timerInit
-	.global ROSA_timerStart
-	.global ROSA_timerStop
-	.global ROSA_timerReset
-	.global ROSA_timerRCSet
-	.global ROSA_timerPrescaleSet
-	.global ROSA_timerClearInterrupt
+	.global timerInit
+	.global timerStart
+	.global timerStop
+	.global timerReset
+	.global timerRCSet
+	.global timerPrescaleSet
+	.global timerClearInterrupt
 
 	//Timer variables
-	.global ROSA_timerPrescale
-	.global ROSA_timerRC
+	.global timerPrescale
+	.global timerRC
 
 	//Timer variables
-ROSA_timerRC:
+timerRC:
 	.word TIMERRC_CONFIG
-ROSA_timerPrescale:
+timerPrescale:
 	.word TIMERPRESCALE_CONFIG
 
 /***********************************************************
- * ROSA_timer functions, various
+ * timer functions, various
  *
  * Comment:
  * 	Functions to setup and control timer 0
  *
  * C prototypes:
- * 	extern void ROSA_timerInit(void);
- *  extern void ROSA_timerStart(void);
- *  extern void ROSA_timerReset(void);
- *  extern void ROSA_timerStop(void);
- *  extern void ROSA_timerClearInterrupt(void);
- *  extern void ROSA_timerRCSet(void);
+ * 	extern void timerInit(void);
+ *  extern void timerStart(void);
+ *  extern void timerReset(void);
+ *  extern void timerStop(void);
+ *  extern void timerClearInterrupt(void);
+ *  extern void timerRCSet(void);
  **********************************************************/
 //Timer CMR0
 .equ WAVE,(1 << AVR32_TC_WAVE_OFFSET)
@@ -68,20 +68,20 @@ ROSA_timerPrescale:
 .equ CPCS,0x01
 
 /***********************************************************
- * ROSA_timerInit
+ * timerInit
  *
  * Comment:
  * 	Setup the TC0 timer.
- *	Actually _starting_ the timer is done by ROSA_timerStart();
+ *	Actually _starting_ the timer is done by timerStart();
  *
  * C prototypes:
- * 	extern void ROSA_timerInit(void);
+ * 	extern void timerInit(void);
  **********************************************************/
-ROSA_timerInit:
+timerInit:
 	pushm r11,r12,lr
 	//Remove any remaining timer interrupts
 	call interruptDisable;
-	call ROSA_timerClearInterrupt
+	call timerClearInterrupt
 
 	//Setup timer waveform
 	mov r12,lo(AVR32_TC_ADDRESS)
@@ -96,25 +96,25 @@ ROSA_timerInit:
 	st.w r12[AVR32_TC_IER0],r11
 
 	//Init RC and prescale
-	call ROSA_timerRCSet
-	call ROSA_timerPrescaleSet
+	call timerRCSet
+	call timerPrescaleSet
 	popm r11,r12,lr
 	mov pc,lr
 
 
 /***********************************************************
- * ROSA_timerStart and ROSA_timerReset
+ * timerStart and timerReset
  *
  * Comment:
  * 	Start/Reset the TC0 timer
- *	This also reloads RC from ROSA_timerRC
+ *	This also reloads RC from timerRC
  *
  * C prototypes:
- *  extern void ROSA_timerStart(void);
- *  extern void ROSA_timerReset(void);
+ *  extern void timerStart(void);
+ *  extern void timerReset(void);
  **********************************************************/
-ROSA_timerStart:
-ROSA_timerReset:
+timerStart:
+timerReset:
 	pushm r11,r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
@@ -122,8 +122,8 @@ ROSA_timerReset:
 	st.w r12[AVR32_TC_CCR0],r11
 
 	//Init RC counter value
-	mov r11,lo(ROSA_timerRC)
-	orh r11,hi(ROSA_timerRC)
+	mov r11,lo(timerRC)
+	orh r11,hi(timerRC)
 	ld.w r11,r11[0x0]
 	st.w r12[AVR32_TC_RC0],r11
 	popm r11,r12
@@ -131,15 +131,15 @@ ROSA_timerReset:
 
 
 /***********************************************************
- * ROSA_timerStop
+ * timerStop
  *
  * Comment:
  * 	Stop the TC0 timer
  *
  * C prototypes:
- *  extern void ROSA_timerStop(void);
+ *  extern void timerStop(void);
  **********************************************************/
-ROSA_timerStop:
+timerStop:
 	pushm r11,r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
@@ -150,20 +150,20 @@ ROSA_timerStop:
 
 
 /***********************************************************
- * ROSA_timerRCSet
+ * timerRCSet
  *
  * Comment:
  * 	Set the RC value of the timer
  * 	No checking for sane limits is done.
  *	The current value of the RC can be read through
- *	the variable 'ROSA_timerRC'.
+ *	the variable timerRC.
  *
  * C prototypes:
- *  extern void ROSA_timerRCSet(void);
+ *  extern void timerRCSet(void);
  **********************************************************/
-ROSA_timerRCSet:
+timerRCSet:
 	pushm r11,r12
-	lda.w r11,ROSA_timerRC
+	lda.w r11,timerRC
 	st.w r11[0x0],r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
@@ -173,27 +173,27 @@ ROSA_timerRCSet:
 
 
 /***********************************************************
- * ROSA_timerPrescaleSet
+ * timerPrescaleSet
  *
  * Comment:
  * 	Set the prescale value of the timer
  * 	No checking for sane limits is done.
  *	The current value for the prescale can be read through
- * 	the variable 'ROSA_timerPrescale'.
+ * 	the variable timerPrescale.
  *
  * C prototypes:
- *  extern void ROSA_timerPrescaleSet(void);
+ *  extern void timerPrescaleSet(void);
  **********************************************************/
-ROSA_timerPrescaleSet:
+timerPrescaleSet:
 	pushm r10,r11,r12
-	lda.w r11,ROSA_timerPrescale
+	lda.w r11,timerPrescale
 	st.w r11[0x0],r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
 	ld.w r10,r12[AVR32_TC_CMR0]
 	mov r11,~AVR32_TC_TCCLKS_MASK
 	and r10,r11
-	lda.w r11,ROSA_timerPrescale
+	lda.w r11,timerPrescale
 	ld.w r11,r11[0x0]
 	or r11,r10
 	st.w r12[AVR32_TC_CMR0],r11
@@ -202,15 +202,15 @@ ROSA_timerPrescaleSet:
 
 
 /***********************************************************
- * ROSA_timerClearInterrupt
+ * timerClearInterrupt
  *
  * Comment:
  * 	Read TC0.SR in order to clear the interrupt flag
  *
  * C prototypes:
- *  extern void ROSA_timerClearInterrupt(void);
+ *  extern void timerClearInterrupt(void);
  **********************************************************/
-ROSA_timerClearInterrupt:
+timerClearInterrupt:
 	pushm r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)

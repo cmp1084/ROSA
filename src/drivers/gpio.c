@@ -28,13 +28,11 @@
 #include "drivers/gpio.h"
 
 /***********************************************************
- * ROSA_timerPrescaleSet
+ * gpioInit
  *
  * Comment:
- * 	Set the prescale value of the timer
+ * 	Initialize a GPIO pin to to be input or output
  *
- * C prototypes:
- *  extern void ROSA_timerPrescaleSet(void);
  **********************************************************/
 void gpioInit(int pinnr, int type)
 {
@@ -63,13 +61,11 @@ void gpioInit(int pinnr, int type)
 	}
 }
 /***********************************************************
- * ROSA_timerPrescaleSet
+ * gpioClear
  *
  * Comment:
- * 	Set the prescale value of the timer
+ * 	Set a GPIO pin to logic level 0.
  *
- * C prototypes:
- *  extern void ROSA_timerPrescaleSet(void);
  **********************************************************/
 void gpioClear(int pinnr)
 {
@@ -83,14 +79,13 @@ void gpioClear(int pinnr)
 
 	gpioport->ovrc = pin;
 }
+
 /***********************************************************
- * ROSA_timerPrescaleSet
+ * gpioSet
  *
  * Comment:
- * 	Set the prescale value of the timer
+ * 	Set a GPIO pin to logic value 1.
  *
- * C prototypes:
- *  extern void ROSA_timerPrescaleSet(void);
  **********************************************************/
 void gpioSet(int pinnr)
 {
@@ -105,6 +100,13 @@ void gpioSet(int pinnr)
 	gpioport->ovrs = pin;
 }
 
+/***********************************************************
+ * gpioToggle
+ *
+ * Comment:
+ * 	Toggle a GPIO pin from logic value 0 to 1, or 1 to 0.
+ *
+ **********************************************************/
 void gpioToggle(int pinnr)
 {
 	volatile avr32_gpio_port_t * gpioport;
@@ -118,6 +120,17 @@ void gpioToggle(int pinnr)
 	gpioport->ovrt = pin;
 }
 
+
+/***********************************************************
+ * gpioGet
+ *
+ * Comment:
+ * 	Get a GPIO pin value.
+ *
+ * Returns:
+ * 	The value of the GPIO pin.
+ *
+ **********************************************************/
 int gpioGet(int pinnr)
 {
 	volatile avr32_gpio_port_t * gpioport;

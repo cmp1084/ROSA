@@ -24,8 +24,8 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef rosa_KER_H_
-#define rosa_KER_H_
+#ifndef _ROSA_KER_H_
+#define _ROSA_KER_H_
 
 #include "rosa_def.h"
 
@@ -60,7 +60,7 @@ extern void ROSA_yield(void);
 #define ROSA_INITIALSR 0x1c0000
 
 //Timer interrupt service routine
-__attribute__((__interrupt__)) extern void ROSA_timerISR(void);
+__attribute__((__interrupt__)) extern void timerISR(void);
 
 //Initialize the kernel
 void ROSA_init(void);
@@ -73,4 +73,4 @@ extern void ROSA_tcbInstall(tcb *task);
 //This start running the created and installed tasks.
 extern void ROSA_start(void);
 
-#endif /* rosa_KER_H_ */
+#endif /* _ROSA_KER_H_ */

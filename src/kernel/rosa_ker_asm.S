@@ -38,8 +38,8 @@
 	.section .text, "ax", @progbits
 
 	//Global Kernel functions
-	.global ROSA_start
 	.global contextInit
+	.global ROSA_start
 	.global ROSA_yield
 
 /*********************************************************
@@ -262,7 +262,7 @@ contextRestore:
 * user mode and transfer control to supervisor mode.
 *
 *********************************************************/
-//Note most kernel function is located in other source files.
+//Note most kernel functions are located in other source files.
 /*********************************************************
 * ROSA_yield
 *

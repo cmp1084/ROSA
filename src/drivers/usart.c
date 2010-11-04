@@ -33,7 +33,7 @@ void usartReset(volatile avr32_usart_t *usart)
 	int interruptEnabled;
 
 	//Disable all USART interrupts.
-	if((interruptEnabled = ROSA_isInterruptEnabled())) {
+	if((interruptEnabled = isInterruptEnabled())) {
 			interruptDisable();
 	}
 	usart->idr = 0xFFFFFFFF;

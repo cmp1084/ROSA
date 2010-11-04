@@ -35,7 +35,7 @@
  * 	This is the basic timer interrupt service routine.
  **********************************************************/
 __attribute__((__interrupt__))
-void ROSA_timerISR(void)
+void timerISR(void)
 {
 	int sr;
 	volatile avr32_tc_t * tc = &AVR32_TC;
@@ -47,19 +47,19 @@ void ROSA_timerISR(void)
 }
 
 /***********************************************************
- * ROSA_timerPeriodSet
+ * timerPeriodSet
  *
  * Comment:
  * 	Set the timer period to 'ms' milliseconds.
  *
  **********************************************************/
-int ROSA_timerPeriodSet(unsigned int ms)
+int timerPeriodSet(unsigned int ms)
 {
 	int prescale, rc;
 	//FOSC0 / timerPrescale * time[s];
 	prescale = TIMERPRESCALE_CONFIG;
 	rc = FOSC0 / prescale * ms;
-	ROSA_timerPrescaleSet(prescale);
-	ROSA_timerRCSet(rc);
+	timerPrescaleSet(prescale);
+	timerRCSet(rc);
 	return rc * prescale / FOSC0;
 }
