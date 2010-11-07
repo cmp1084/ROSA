@@ -21,8 +21,6 @@
 \use_hyperref true
 \pdf_title "ROSA - Real time Operating System for AVR32"
 \pdf_author "Marcus Jansson"
-\pdf_subject "Real time RTOS AVR32"
-\pdf_keywords "Real time RTOS AVR32"
 \pdf_bookmarks true
 \pdf_bookmarksnumbered false
 \pdf_bookmarksopen false
@@ -31,7 +29,7 @@
 \pdf_pdfborder true
 \pdf_colorlinks false
 \pdf_backref false
-\pdf_pdfusetitle true
+\pdf_pdfusetitle false
 \papersize a4paper
 \use_geometry false
 \use_amsmath 1
@@ -186,7 +184,7 @@ Potentiometer.
 \end_layout
 
 \begin_layout Itemize
-Serial ports.
+Serial port.
 \end_layout
 
 \begin_layout Subsection
