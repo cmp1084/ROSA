@@ -1,0 +1,469 @@
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans avant
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_title "ROSA Appendix"
+\pdf_author "Marcus Jansson"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Expansion of ROSA
+\end_layout
+
+\begin_layout Subsection
+More about context switching
+\end_layout
+
+\begin_layout Standard
+There are two methods for context switching in the ROSA kernel.
+\end_layout
+
+\begin_layout Enumerate
+Voluntary context switch from a task (cooperative mode).
+\end_layout
+
+\begin_layout Enumerate
+Timer interrupts (preemptive mode).
+\end_layout
+
+\begin_layout Standard
+Cooperative and preemptive modes can be used simultaneously in ROSA.
+\end_layout
+
+\begin_layout Subsection
+Context switch
+\end_layout
+
+\begin_layout Standard
+A cooperative, voluntary context switch is performed by the
+\emph on
+ ROSA_yield()
+\emph default
+ function call.
+ By this call the task will give up its remaining CPU time to let other
+ tasks run.
+ Later, when the ROSA scheduler put the yielding task into RUN mode again,
+ execution continue at the instruction following
+\emph on
+ ROSA_yield()
+\emph default
+.
+\end_layout
+
+\begin_layout Subsubsection*
+Example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 0
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void task(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		...
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_yield();   //Voluntary context switch
+\end_layout
+
+\begin_layout Plain Layout
+
+		...
+             //Execution continue here
+\end_layout
+
+\begin_layout Plain Layout
+
+                        //next time this task run.
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Timer interrupts
+\end_layout
+
+\begin_layout Standard
+Preemptive kernel mode is activated by initiating and starting the timer
+ interrupts once, in which case the task switches will be automatic until
+ the timer interrupts are stopped.
+\end_layout
+
+\begin_layout Standard
+ROSA utilizes timer 0 of the AVR32 to generate periodic interrupts.
+ The periodicity is set by the 
+\emph on
+timerPeriodSet()
+\emph default
+ function.
+ Context switching is performed in the interrupt service routine, 
+\emph on
+timerISR(),
+\emph default
+ using the 
+\emph on
+contextSaveFromISR()
+\emph default
+ function.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 0
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+__attribute__((__interrupt__)) void timerISR(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	int sr;
+\end_layout
+
+\begin_layout Plain Layout
+
+	volatile avr32_tc_t * tc = &AVR32_TC;
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Read the timer status register to determine if this is a valid interrupt
+\end_layout
+
+\begin_layout Plain Layout
+
+	sr = tc->channel[0].sr;
+\end_layout
+
+\begin_layout Plain Layout
+
+	if(sr & AVR32_TC_CPCS_MASK)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_yieldFromISR();
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Imagine we had a way to make a delay in a task.
+ The code could look like this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Framed
+position "t"
+hor_pos "c"
+has_inner_box 0
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=C,showstringspaces=false,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void task(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		...
+\end_layout
+
+\begin_layout Plain Layout
+
+		ROSA_sysTickWait(10);    //Delay 10 ticks
+\end_layout
+
+\begin_layout Plain Layout
+
+		...
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Tick?
+\end_layout
+
+\begin_layout Standard
+What is a tick? A tick is closely related to timer interrupts, which are
+ generated by a timer circuit inside the MCU.
+ When an interrupt happens an interrupt service routine (ISR) is run.
+ The ISR increase the system time by one 
+\begin_inset Quotes eld
+\end_inset
+
+tick
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Thereafter it checks if there are any tasks which should be activated,
+ i.e.
+ the tasks which have previously been waiting but want to run now.
+ For a real time system, 1 ms usually is a good period between ticks.
+ This is often called 
+\emph on
+system tick
+\emph default
+, or 
+\emph on
+sysTick 
+\emph default
+for short.
+ In ROSA it would be appropriate to call the function
+\emph on
+ ROSA_sysTickWait()
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+ROSA_sysTickWait()
+\end_layout
+
+\begin_layout Standard
+The delay function work according to the following:
+\end_layout
+
+\begin_layout Itemize
+Link the executing task into a DELAY queue.
+\end_layout
+
+\begin_layout Itemize
+Link out a task from the READY queue.
+\end_layout
+
+\begin_layout Itemize
+Call the scheduler to see which task should begin execute.
+\end_layout
+
+\begin_layout Standard
+As we can see this require a number of queues to handle the DELAY.
+ At least one queue for all waiting tasks and one queue for the tasks which
+ are ready.
+\end_layout
+
+\begin_layout Standard
+None of this is yet implemented in ROSA.
+\end_layout
+
+\end_body
+\end_document
