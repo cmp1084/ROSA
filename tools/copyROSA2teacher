@@ -1,0 +1,175 @@
+#!/bin/bash
+#######################################################################
+# Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
+# This file is NOT part of the ROSA package and is NOT free software.
+# It may NOT be used without written permission from the author.
+#
+# ONLY FOR INTERNAL HARD CODE SOLUTION USE!
+#
+#######################################################################
+
+echo ------------------------------------------------------------------
+echo Checklist
+echo ------------------------------------------------------------------
+echo Documentation:
+echo               doc/.tex
+echo               doc/.pdf
+echo
+echo Did you save source files?
+echo Correct source files?
+echo Correct Directory?
+echo
+echo Remember to confirm the .zip package
+echo Remember to svn add new files
+echo Remember to svn ci
+echo
+
+
+#The name of the packed file, without .zip postfix
+TEACHERFILE=ROSA_teacher
+TEACHERDIR=/tmp/$TEACHERFILE
+TEACHERSVNDIR=/tmp/ies_labs/ESP_ROSA/$TEACHERFILE
+FINALDESTINATION=/tmp/ies_labs/ESP_ROSA/zip
+
+#The teacher (=original) dir is given on the command line, first parameter
+ROSADIR=$1
+
+HOME=`pwd`
+
+#These are the end node directories (which need to be created first)
+DIRSTRUCTURE="
+.settings
+doc/order
+src/cpu/linkscript
+src/cpu/startup
+src/drivers
+src/include/drivers
+src/include/kernel
+src/kernel
+"
+
+
+#These are the files which should be included in the TEACHERFILE package
+
+STARTUPFILES="
+src/cpu/linkscript/link_uc3a0512.lds
+src/cpu/startup/crt0.S
+"
+
+DRIVERFILES="
+src/include/drivers/button.h
+src/include/drivers/debug.h
+src/include/drivers/delay.h
+src/include/drivers/gpio.h
+src/include/drivers/led.h
+src/include/drivers/pot.h
+src/include/drivers/usart.h
+src/drivers/button.c
+src/drivers/delay.c
+src/drivers/gpio.c
+src/drivers/led.c
+src/drivers/pot.S
+src/drivers/usart.c
+"
+
+KERNELFILES="
+src/include/kernel/rosa_def.h
+src/include/kernel/rosa_ext.h
+src/include/kernel/rosa_int.h
+src/include/kernel/rosa_ker.h
+src/include/kernel/rosa_off.i
+src/include/kernel/rosa_scheduler.h
+src/include/kernel/rosa_tim.h
+src/kernel/rosa_int.c
+src/kernel/rosa_int_asm.S
+src/kernel/rosa_ker.c
+src/kernel/rosa_ker_asm.S
+src/kernel/rosa_scheduler.c
+src/kernel/rosa_tim.c
+src/kernel/rosa_tim_asm.S
+"
+
+OTHERFILES="
+src/main.c
+src/rosa_config.h
+AUTHOR
+CHANGELOG
+COPYING
+README
+TODO
+"
+
+DOCFILES="
+doc/ROSA_doc.pdf
+doc/ROSA_timerInterrupt.pdf
+doc/ROSA_API_appendix.pdf
+doc/order/order.pdf
+doc/order/order_API_appendix.pdf
+doc/ROSA_doc.tex
+doc/ROSA_timerInterrupt.tex
+doc/ROSA_API_appendix.tex
+doc/order/order.tex
+doc/order/order_API_appendix.tex
+"
+
+#AVR32 Studio files, take caution if source code have changed, these need to be changed too
+PROJECTFILES="
+.cproject
+.framework
+.project
+.settings/com.atmel.avr32.managedbuilder.prefs
+"
+
+FILES="$STARTUPFILES $KERNELFILES $DRIVERFILES $OTHERFILES $DOCFILES $PROJECTFILES"
+
+echo Home is $HOME
+echo Startup files are     : $STARTUPFILES
+echo Kernel files are      : $KERNELFILES
+echo Other files are       : $OTHERFILES
+echo
+echo Working on these files: $FILES
+echo
+
+echo Making the object files
+cd $ROSADIR
+make
+cd $HOME
+
+echo Making the directory structure from: $DIRSTRUCTURE
+for i in $DIRSTRUCTURE;
+do {
+	mkdir -p $TEACHERDIR/$i
+}
+done
+
+echo copying $ROSADIR to $TEACHERDIR
+
+for i in $FILES;
+do {
+
+	#echo $i
+	#mkdir -p $TEACHERDIR
+	#if [ -d $ROSADIR/$i/src ]; then
+	#{
+	#	mkdir -p $TEACHERDIR/$i/src
+	cp $ROSADIR/$i $TEACHERDIR/$i
+	cp $ROSADIR/$i $TEACHERSVNDIR/$i
+	#}
+	#else
+	#	echo No src dir
+	#fi
+}
+done
+
+#Make the .zip file and move it to its final destination
+#TODO: This can be done a little nicer.
+cd $TEACHERDIR
+cd ..
+echo zip -r $TEACHERFILE.zip $TEACHERFILE
+zip -r $TEACHERFILE.zip $TEACHERFILE
+mv $TEACHERFILE.zip $FINALDESTINATION
+
+#Clean up
+cd $ROSADIR
+#make clean
+cd $HOME

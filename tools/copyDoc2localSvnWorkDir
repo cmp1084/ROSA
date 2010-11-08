@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#Copy documentation from the source directory to the dest directory
+#manual svn operations required
+#e.g. svn add and svn ci
+SRC=~/avr32/ROSA
+DEST=/tmp/ies_labs/ESP_ROSA/doc
+
+cp $SRC/doc/ROSA_doc.pdf $DEST
+cp $SRC/doc/ROSA_timerInterrupt.tex $DEST
+cp $SRC/doc/ROSA_timerInterrupt.pdf $DEST
+cp $SRC/doc/ROSA_API_appendix.tex $DEST
+cp $SRC/doc/ROSA_API_appendix.pdf $DEST
+cp $SRC/doc/order/order.tex $DEST/order
+cp $SRC/doc/order/order.pdf $DEST/order
+cp $SRC/doc/order/order_API_appendix.tex $DEST/order
+cp $SRC/doc/order/order_API_appendix.pdf $DEST/order
