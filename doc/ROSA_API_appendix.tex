@@ -1,0 +1,450 @@
+%% LyX 1.6.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage{avant}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+
+\usepackage{array}
+\usepackage[unicode=true, 
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdftitle={Appendix},
+ pdfauthor={Marcus Jansson}}
+ 
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\par\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+\makeatother
+
+\begin{document}
+
+\title{Appendix}
+
+\maketitle
+\begin{center}
+{\Huge ROSA User API}
+\par\end{center}{\Huge \par}
+
+\tableofcontents{}
+
+\pagebreak{}
+
+
+\section{Kernel control}
+
+
+\subsection{Brief API list}
+\begin{lyxcode}
+void~ROSA\_init(void);
+
+void~ROSA\_start(void);
+
+void~ROSA\_yield(void);
+
+tcb~{*}~ROSA\_tcbCreate(tcb~{*}~TCB,~char~{*}id,~\\
+~~~~~~~~~~~~~~~~~~~~~void~{*}taskFunction,~\\
+~~~~~~~~~~~~~~~~~~~~~int~{*}stack,~int~stackSize);
+
+void~ROSA\_tcbInstall(tcb~{*}~TCB);
+
+//Memory
+
+void~{*}~malloc(size\_t~size)
+
+void~free(void~{*});
+
+\pagebreak{}
+\end{lyxcode}
+
+\subsection{Detailed API list}
+
+
+\subsubsection{ROSA\_init}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_init(void)}\tabularnewline
+Description: & Initialize the ROSA kernel.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_start}
+
+\begin{flushleft}
+\begin{tabular}{ll}
+Prototype: & void ROSA\_start(void)\tabularnewline
+Description: & Start execution of the installed TCB's.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_yield}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_yield(void)}\tabularnewline
+Description: & Yield the current task execution and switch context. Save current
+task context. Write a new TCB into the global EXECTASK variable and
+continue execution in the task given by EXECTASK.\tabularnewline
+Parameters: & Nothing.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+\pagebreak{}
+
+
+\subsubsection{ROSA\_tcbCreate}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_tcbCreate(tcb {*}TCB, char {*}id, void {*}taskFunc, int
+{*}stack, int stackSize)}\tabularnewline
+Description: & Create a TCB entry according to the given parameters.\tabularnewline
+Parameters: & \begin{itemize}
+\item tcb {*}TCB - A pointer to the TCB block to be created.
+\item char {*}id - A identification for the TCB block of length NAMESIZE
+(default NAMESIZE = 4)
+\item void {*}taskFunc - A pointer to the function which are to be executed
+by the task.
+\item int {*}stack - A pointer to the task stack area.
+\item int stackSize - The maximum allowed stack for this task.
+\end{itemize}
+\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_tcbInstall}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_tcbInstall(tcb {*}TCB)}\tabularnewline
+Description: & Install a TCB entry into the TCBLIST of the ROSA kernel.\tabularnewline
+Parameters: & tcb {*}TCB - A pointer to the TCB to install into the kernel.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+\pagebreak{}
+
+
+\section{I/O Driver API}
+
+
+\subsection{Brief API list}
+\begin{lyxcode}
+//Button
+
+int~isButton(int~button\_nr);~\\
+~\\
+//Joystick
+
+int~isJoystickUp(void);
+
+int~isJoystickDown(void);
+
+int~isJoystickLeft(void);
+
+int~isJoystickRight(void);
+
+int~isJoystickPressed(void);~\\
+~\\
+//GPIO
+
+void~gpioClear(int~pinnr);
+
+int~gpioGet(int~pinnr);
+
+void~gpioSet(int~pinnr);
+
+void~gpioToggle(int~pinnr);~\\
+~\\
+//USART
+
+void~usartGetLine(volatile~avr32\_usart\_t~{*},~char~{*});
+
+char~usartGetChar(volatile~avr32\_usart\_t~{*});
+
+void~usartWriteLine(volatile~avr32\_usart\_t~{*},~char~{*});
+
+void~usartWriteChar(volatile~avr32\_usart\_t~{*},~\\
+~~~~~char);
+
+void~usartWriteTcb(volatile~avr32\_usart\_t~{*}~usart,~\\
+~~~~~tcb~{*}~dbgtcb);~\\
+~\\
+//Potentiometer
+
+int~potGetValue(void);
+\end{lyxcode}
+
+\subsection{Detailed API list}
+
+
+\subsubsection{isButton}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isButton(int button\_nr)}\tabularnewline
+Description: & Check if the button is pressed.\tabularnewline
+Parameters: & int button\_nr - The button number, legal values are:
+\begin{itemize}
+\item PUSH\_BUTTON\_0
+\item PUSH\_BUTTON\_1
+\item PUSH\_BUTTON\_2
+\end{itemize}
+\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the push button.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{isJoystickUp}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isJoystickUp(void)}\tabularnewline
+Description: & Check if the joystick is pressed up.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the joystick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{isJoystickDown}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isJoystickDown(void)}\tabularnewline
+Description: & Check if the joystick is pressed down.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the joystick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{isJoystickLeft}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isJoystickLeft(void)}\tabularnewline
+Description: & Check if the joystick is pressed left.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the joystick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{isJoystickRight}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isJoystickRight(void)}\tabularnewline
+Description: & Check if the joystick is pressed right.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the joystick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{isJoystickPressed}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int isJoystickPressed(void)}\tabularnewline
+Description: & Check if the joystick is pressed/clicked down its center.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & TRUE or FALSE depending on the state of the joystick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{gpioClear}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void gpioClear(int pinnr)}\tabularnewline
+Description: & Set the GPIO\emph{'pinnr'} to 0.\tabularnewline
+Parameters: & int pinnr - The GPIO pin number.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{gpioGet}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int gpioGet(int pinnr)}\tabularnewline
+Description: & Read the value of the GPIO pin\emph{'pinnr'}.\tabularnewline
+Parameters: & int pinnr - The GPIO pin number.\tabularnewline
+Return value: & The current value of the GPIO\emph{'pinnr'}.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{gpioSet}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void gpioSet(int pinnr)}\tabularnewline
+Description: & Set the GPIO\emph{'pinnr'} to 1.\tabularnewline
+Parameters: & int pinnr - The GPIO pin number.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{gpioToggle}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void gpioToggle(int pinnr)}\tabularnewline
+Description: & Toggle the GPIO\emph{'pinnr'}.
+
+Example: If it previously was 1, it will become 0, and vice verse.\tabularnewline
+Parameters: & int pinnr - The GPIO pin number.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+\pagebreak{}
+
+
+\subsubsection{potGetValue}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int potGetValue(void)}\tabularnewline
+Description: & Get the current value of the potentiometer of the EVK1100.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & The current value of the potentiometer.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{usartGetLine}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void usartGetLine(volatile avr32\_usart\_t {*} usart, char {*} buf)}\tabularnewline
+Description: & Get a line, until a return is received, from the USART.\tabularnewline
+Parameters: & \begin{itemize}
+\item avr32\_usart\_t {*} usart - A pointer to the USART controller.
+\item char {*} buf - A pointer to the buffer to hold the input line.
+\end{itemize}
+\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{usartGetChar}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{char usartGetChar(volatile avr32\_usart\_t {*} usart)}\tabularnewline
+Description: & Get a single character from the USART controller.\tabularnewline
+Parameters: & avr32\_usart\_t {*} usart - A pointer to the USART controller.\tabularnewline
+Return value: & A char from the USART controller.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{usartWriteChar}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void usartWriteChar(volatile avr32\_usart\_t {*} usart, char ch)}\tabularnewline
+Description: & Write a single char\emph{'ch'} to the USART controller.\tabularnewline
+Parameters: & \begin{itemize}
+\item avr32\_usart\_t {*} usart - A pointer to the USART controller.
+\item char ch - The character to write to the USART controller.
+\end{itemize}
+\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{usartWriteLine}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void usartWriteLine(volatile avr32\_usart\_t {*} usart, char {*} string)}\tabularnewline
+Description: & Write a string of characters to the USART controller.\tabularnewline
+Parameters: & \begin{itemize}
+\item avr32\_usart\_t {*} usart - A pointer to the USART controller.
+\item char {*} string - A pointer to the string to write to the USART controller.
+\end{itemize}
+\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{usartWriteTcb}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void usartWriteTcb(volatile avr32\_usart\_t {*} usart, tcb {*} dbgtcb)}\tabularnewline
+Description: & Write TCB debugging information to the USART controller.\tabularnewline
+Parameters: & \begin{itemize}
+\item avr32\_usart\_t {*} usart - A pointer to the USART controller.
+\item tcb {*}TCB - A pointer to the TCB to write to the USART controller.
+\end{itemize}
+\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{malloc}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void {*} malloc(size\_t size)}\tabularnewline
+Description: & Allocate\emph{'size'} bytes of memory from the heap.\tabularnewline
+Parameters: & size\_t size - The number of bytes to allocate.\tabularnewline
+Return value: & A pointer to the allocated memory.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{free}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void {*} free(void {*}mem)}\tabularnewline
+Description: & Free the allocated memory at the location pointed to by\emph{'mem'}.\tabularnewline
+Parameters: & void {*} mem - A pointer to the allocated memory to set free.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+\end{document}

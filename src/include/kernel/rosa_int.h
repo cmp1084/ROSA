@@ -42,10 +42,7 @@ extern void interruptDisable(void);
 extern void interruptEnable(void);
 
 //Check if interrupts are enabled.
-extern int  isInterruptEnabled(void);
-
-//Read the status register
-//extern int _ROSA_readSR(void); TODO: Remove
+extern int isInterruptEnabled(void);
 
 void ROSA_yieldFromISR(void);
 

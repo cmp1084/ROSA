@@ -37,14 +37,15 @@
 __attribute__((__interrupt__))
 void timerISR(void)
 {
-	int sr;
+	int sr, a = 0;
 	volatile avr32_tc_t * tc = &AVR32_TC;
 
 	//Read the timer status register to determine if this is a valid interrupt
-	sr = tc->channel[0].sr;
+	a = sr = tc->channel[0].sr;
 	if(sr & AVR32_TC_CPCS_MASK)
 		ROSA_yieldFromISR();
 }
+
 
 /***********************************************************
  * timerPeriodSet
@@ -55,10 +56,12 @@ void timerISR(void)
  **********************************************************/
 int timerPeriodSet(unsigned int ms)
 {
-	int prescale, rc;
-	//FOSC0 / timerPrescale * time[s];
-	prescale = TIMERPRESCALE_CONFIG;
-	rc = FOSC0 / prescale * ms;
+
+	int rc, prescale;
+	int f[] = { 2, 8, 32, 128 };
+	//FOSC0 / factor_prescale * time[s];
+	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5;
+	rc = FOSC0 / f[prescale - 1] * ms / 1000;
 	timerPrescaleSet(prescale);
 	timerRCSet(rc);
 	return rc * prescale / FOSC0;

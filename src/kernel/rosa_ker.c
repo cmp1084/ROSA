@@ -73,6 +73,17 @@ void ROSA_init(void)
 	//Start with empty TCBLIST and no EXECTASK.
 	TCBLIST = NULL;
 	EXECTASK = NULL;
+
+	//Initialize the timer to 100 ms period.
+	//...
+	//timerInit(100);
+	//...
+
+	interruptDisable();
+	interruptInit();
+	timerInit(1);
+	timerStart();
+	interruptEnable();
 }
 
 /***********************************************************

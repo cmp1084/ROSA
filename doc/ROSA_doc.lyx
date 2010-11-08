@@ -535,7 +535,9 @@ AVR32 Studio
 \begin_layout Standard
 AVR32 Studio can be used to compile ROSA.
  First the ROSA project must be set up properly.
- This is done by importing the rosa/ directory into AVR32 Studio:
+ This is done by importing the rosa/ directory into AVR32 Studio.
+ Either from a unpacked source directory or a zip packed file containing
+ the project:
 \end_layout
 
 \begin_layout Itemize
@@ -560,10 +562,45 @@ Existing project into workspace
 \end_inset
 
 
-\begin_inset Newline newline
+\end_layout
+
+\begin_layout Itemize
+Browse for the ROSA directory or a .zip package containing a ROSA project.
+\end_layout
+
+\begin_layout Itemize
+Select the ROSA project.
+\end_layout
+
+\begin_layout Itemize
+Select 
+\begin_inset Quotes eld
+\end_inset
+
+Copy project into workspace.
+\begin_inset Quotes erd
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+Click 
+\begin_inset Quotes eld
+\end_inset
+
+Finish
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Compiling is done by the normal AVR32 studio compile procedure.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
@@ -596,42 +633,46 @@ Import existing project into workspace
 \end_inset
 
 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
 \end_layout
 
-\begin_layout Itemize
-Browse for the ROSA directory.
-\end_layout
+\begin_layout Plain Layout
+\begin_inset Caption
 
-\begin_layout Itemize
-Select the ROSA project.
-\end_layout
-
-\begin_layout Itemize
-Select 
-\begin_inset Quotes eld
+\begin_layout Plain Layout
+Select ROSA directory or .zip package
+\begin_inset Newline newline
 \end_inset
 
-Copy project into workspace.
-\begin_inset Quotes erd
+
+\begin_inset Graphics
+	filename pic/importexistingprojects.png
+	scale 50
+
 \end_inset
 
 
 \end_layout
 
-\begin_layout Itemize
-Click 
-\begin_inset Quotes eld
 \end_inset
 
-Finish
-\begin_inset Quotes erd
-\end_inset
 
-.
 \end_layout
 
-\begin_layout Standard
-Compiling is done by the normal procedure.
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -648,7 +689,8 @@ AVR32 Studio
 
 \begin_layout Standard
 AVR32 Studio can also be used for programming the MCU flash by the normal
- procedure.
+ AVR32 Studio programming procedure.
+ 
 \end_layout
 
 \begin_layout Section
@@ -719,7 +761,7 @@ A few user configurations can be done through the
  rosa_config.h
 \emph default
  file.
- For example the USART baudrate is defined here.
+ For example the timer period and the USART baudrate is defined here.
  The default is 57600 baud.
 \end_layout
 

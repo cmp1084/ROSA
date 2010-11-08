@@ -74,7 +74,7 @@ static const usart_options_t usart_options = {
 	.charlength  = USART_CHARLEN,
 	.paritytype  = USART_NO_PARITY,
 	.stopbits    = USART_1_STOPBIT,
-	.channelmode = USART_NORMAL_CHMODE
+	.channelmode = USART_NORMAL_CHMODE,
 };
 
 void usartReset(volatile avr32_usart_t *usart);

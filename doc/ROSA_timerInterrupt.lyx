@@ -194,24 +194,33 @@ Timer interrupts
 
 \begin_layout Standard
 Preemptive kernel mode is activated by initiating and starting the timer
- interrupts once, in which case the task switches will be automatic until
- the timer interrupts are stopped.
+ interrupts once.
+ The task switches will be automatic until the timer interrupts are stopped.
 \end_layout
 
 \begin_layout Standard
 ROSA utilizes timer 0 of the AVR32 to generate periodic interrupts.
- The periodicity is set by the 
+ The periodicity is set during the initialization by the 
 \emph on
-timerPeriodSet()
+timerInit()
 \emph default
  function.
- Context switching is performed in the interrupt service routine, 
+ The timer is started after initialization by the 
+\emph on
+timerStart()
+\emph default
+ function.
+ 
+\end_layout
+
+\begin_layout Standard
+Context switching is performed in the interrupt service routine, 
 \emph on
 timerISR(),
 \emph default
  using the 
 \emph on
-contextSaveFromISR()
+contextSwitchFromISR()
 \emph default
  function.
 \end_layout

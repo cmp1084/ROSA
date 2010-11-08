@@ -33,9 +33,18 @@
 //Driver includes
 #include "drivers/led.h"
 #include "drivers/delay.h"
+#include "drivers/usart.h"
 
 //Include configuration
 #include "rosa_config.h"
+
+//Include system files
+#include "system/semaphore.h"
+
+/*************************************************************
+ * Semaphores
+ ************************************************************/
+sem test;
 
 //Data blocks for the tasks
 #define T1_STACK_SIZE 0x40
@@ -56,6 +65,12 @@ void task1(void)
 	while(1) {
 		ledOn(LED0_GPIO);
 		ledOff(LED1_GPIO);
+		while(ROSA_semTake(&test)) {
+			ledOn(LED2_GPIO);
+		}
+		ledOff(LED2_GPIO);
+		delay_ms(300);
+		ROSA_semGive(&test);
 		delay_ms(250);
 		ROSA_yield();
 	}
@@ -71,7 +86,12 @@ void task2(void)
 	while(1) {
 		ledOff(LED0_GPIO);
 		ledOn(LED1_GPIO);
+		while(ROSA_semTake(&test)) {
+			ledOn(LED3_GPIO);
+		}
+		ledOff(LED3_GPIO);
 		delay_ms(250);
+		ROSA_semGive(&test);
 		ROSA_yield();
 	}
 }
@@ -89,6 +109,9 @@ int main(void)
 	ROSA_tcbInstall(&t1_tcb);
 	ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 	ROSA_tcbInstall(&t2_tcb);
+
+	//Create test semaphore
+	ROSA_semCreate(&test);
 
 	//Start the ROSA kernel
 	ROSA_start();

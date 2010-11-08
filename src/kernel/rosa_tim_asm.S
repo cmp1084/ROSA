@@ -27,6 +27,13 @@
 #include <avr32/io.h>
 #include "rosa_config.h"
 
+.section .data
+	//Timer variables
+timerRC:
+	.word 0
+timerPrescale:
+	.word 0
+
 	//Timer functions
 	.global timerInit
 	.global timerStart
@@ -40,12 +47,7 @@
 	.global timerPrescale
 	.global timerRC
 
-	//Timer variables
-timerRC:
-	.word TIMERRC_CONFIG
-timerPrescale:
-	.word TIMERPRESCALE_CONFIG
-
+.section .text, "ax", @progbits
 /***********************************************************
  * timer functions, various
  *
@@ -75,10 +77,11 @@ timerPrescale:
  *	Actually _starting_ the timer is done by timerStart();
  *
  * C prototypes:
- * 	extern void timerInit(void);
+ * 	extern void timerInit(unsigned ms);
  **********************************************************/
 timerInit:
-	pushm r11,r12,lr
+	pushm r11,lr
+	pushm r12
 	//Remove any remaining timer interrupts
 	call interruptDisable;
 	call timerClearInterrupt
@@ -95,10 +98,11 @@ timerInit:
 	lsl r11,AVR32_TC_CPCS_OFFSET
 	st.w r12[AVR32_TC_IER0],r11
 
-	//Init RC and prescale
-	call timerRCSet
-	call timerPrescaleSet
-	popm r11,r12,lr
+	//Set the timer period
+	popm r12
+	call timerPeriodSet
+
+	popm r11,lr
 	mov pc,lr
 
 
@@ -159,7 +163,7 @@ timerStop:
  *	the variable timerRC.
  *
  * C prototypes:
- *  extern void timerRCSet(void);
+ *  extern void timerRCSet(int);
  **********************************************************/
 timerRCSet:
 	pushm r11,r12
@@ -167,6 +171,7 @@ timerRCSet:
 	st.w r11[0x0],r12
 	mov r12,lo(AVR32_TC_ADDRESS)
 	orh r12,hi(AVR32_TC_ADDRESS)
+	ld.w r11,r11[0x0]
 	st.w r12[AVR32_TC_RC0],r11
 	popm r11,r12
 	mov pc,lr
@@ -182,7 +187,7 @@ timerRCSet:
  * 	the variable timerPrescale.
  *
  * C prototypes:
- *  extern void timerPrescaleSet(void);
+ *  extern void timerPrescaleSet(int);
  **********************************************************/
 timerPrescaleSet:
 	pushm r10,r11,r12

@@ -1,0 +1,143 @@
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans lmss
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Section*
+Order for software modification
+\end_layout
+
+\begin_layout Section*
+Order overview
+\end_layout
+
+\begin_layout Standard
+We would like to order software modifications to the ROSA real time operating
+ system.
+ The modifications need to be integrated into the existing ROSA without
+ breaking the old funcitonality.
+ 
+\end_layout
+
+\begin_layout Standard
+We need the following features:
+\end_layout
+
+\begin_layout Itemize
+Dynamic creation of tasks
+\end_layout
+
+\begin_layout Itemize
+Priority scheduler
+\end_layout
+
+\begin_layout Itemize
+Semaphores
+\end_layout
+
+\begin_layout Itemize
+Immediate inheritance protocol
+\end_layout
+
+\begin_layout Itemize
+Premeptive scheduling
+\end_layout
+
+\begin_layout Standard
+If possible, a message box system in the RTOS would be useful.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Order details
+\end_layout
+
+\begin_layout Subsubsection*
+Dynamic creation of tasks
+\end_layout
+
+\begin_layout Standard
+We would like to be able to create and remove tasks on the fly.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Priority scheduler
+\end_layout
+
+\begin_layout Standard
+The scheduler in ROSA is too simple for our needs.
+ Some tasks we run need to be at a higher priority.
+ Arrangements for this in the code would be really helpful.
+\end_layout
+
+\begin_layout Subsubsection*
+Semaphores
+\end_layout
+
+\begin_layout Standard
+Today we have no option to protect our resources with semaphores.
+ This must be included into the system.
+\end_layout
+
+\begin_layout Subsubsection*
+Immediate inheritance protocol
+\end_layout
+
+\begin_layout Standard
+With semaphores we can foresee some slight problems.
+ Preferably we would like to use the immediate inheritance protocol to solve
+ those problems.
+ An option would be to also add PCP into ROSA.
+\end_layout
+
+\begin_layout Subsubsection*
+Premeptive scheduling
+\end_layout
+
+\begin_layout Standard
+We need better control over the periodicity of our task execution.
+ Preferably we would like to have a periodicity in the millisecond range.
+\end_layout
+
+\end_body
+\end_document

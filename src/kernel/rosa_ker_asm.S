@@ -102,6 +102,11 @@ contextInit:
 	ld.w r0,r12[TCB.STADDR]
 	st.w r12[TCB.SAVEREG.LR],r0
 
+	//~ pushm lr
+	//~ call timerStart
+	//~ call interruptEnable
+	//~ popm lr
+
 	//Initialize regs to zero
 	mov r0,0x0
 	st.w r12[TCB.SAVEREG.R0],r0
@@ -166,7 +171,10 @@ contextInit:
 *
 *********************************************************/
 contextSave:
-	pushm r12
+	pushm r12,lr
+	call interruptDisable
+	call timerStop
+	popm lr
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
@@ -249,6 +257,10 @@ contextRestore:
 	ld.w r1,r12[TCB.SAVER1]
 	ld.w r12,r12[TCB.SAVEREG.R12]
 
+	pushm lr
+	call timerStart
+	call interruptEnable
+	popm lr
 	//We are done, exit from supervisor mode
 	rets
 

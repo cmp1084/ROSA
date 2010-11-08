@@ -1,0 +1,234 @@
+%% LyX 1.6.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage{avant}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{babel}
+
+\usepackage{array}
+\usepackage[unicode=true, 
+ bookmarks=false,
+ breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdftitle={Appendix },
+ pdfauthor={Marcus Jansson}}
+ 
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\par\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+\makeatother
+
+\begin{document}
+
+\title{Appendix}
+
+\maketitle
+\begin{center}
+{\Huge Extended ROSA API}
+\par\end{center}{\Huge \par}
+
+\tableofcontents{}
+
+
+\title{\pagebreak{}}
+
+
+\section{Dynamic tasks}
+
+
+\subsection{Brief API list}
+
+This is a list of the dynamic task API for ROSA.
+\begin{lyxcode}
+tcb~{*}~ROSA\_taskAdd(tcb~{*}~TCB,~char~{*}id,~void~{*}taskFunction,~
+
+~~~~~~~~~~~~~~~~~~~int~{*}stack,~int~stackSize);~
+
+int~ROSA\_taskDestroy(void);~
+\end{lyxcode}
+
+\subsection{Detailed API list}
+
+
+\subsubsection{ROSA\_taskAdd}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{tcb {*} ROSA\_taskAdd(tcb {*} TCB, char {*} id, void {*} taskFunction,
+int {*}stack, int stackSize);}\tabularnewline
+Description: & Creates a TCB and install it in the ROSA kernel.\tabularnewline
+Parameters: & \begin{itemize}
+\item tcb {*} TCB - A pointer to the TCB block to be created.
+\item char {*} id - A identification for the TCB block of length NAMESIZE
+(default NAMESIZE = 4)
+\item void {*} taskFunction - A pointer to the function which are to be
+executed by the task.
+\item int {*} stack - A pointer to the task stack area.
+\item int stackSize - The maximum allowed stack for this task.
+\end{itemize}
+\tabularnewline
+Return value: & tcb {*} to the added task.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_taskDestroy}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int ROSA\_taskDestroy(void)}\tabularnewline
+Description: & Destroy the currently executing task.\tabularnewline
+Parameters: & tcb {*}TCB - A pointer to the TCB to destroy.\tabularnewline
+Return value: & TRUE or FALSE depending on success.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+\pagebreak{}
+
+
+\section{Semaphores}
+
+
+\subsection{Brief API list}
+
+This is a list of the semaphore API for ROSA. 
+\begin{lyxcode}
+void~ROSA\_semCreate(sem~~{*}~semaphore);~
+
+int~ROSA\_semDestroy(sem~{*}~semaphore);
+
+void~ROSA\_semGive(sem~{*}~semaphore);
+
+int~ROSA\_semTake(sem~{*}~semaphore);~
+\end{lyxcode}
+
+\subsection{Detailed API list}
+
+
+\subsubsection{ROSA\_semCreate}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_semCreate(sem {*} semaphore)}\tabularnewline
+Description: & Creates a semaphore.\tabularnewline
+Parameters: & sem {*} semaphore - A pointer to the semaphore to create.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_semDestroy}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int ROSA\_semDestroy(sem {*} semaphore)}\tabularnewline
+Description: & Destroy a semaphore and free all associated resources. Fail if the
+semaphore is locked.\tabularnewline
+Parameters: & sem {*} semaphore - A pointer to the semaphore to destroy.\tabularnewline
+Return value: & TRUE or FALSE depending on success.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_semGive}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_semGive(sem {*} semaphore)}\tabularnewline
+Description: & Give a semaphore back. The semaphore can only be given back by its
+owner. \tabularnewline
+Parameters: & sem {*} semaphore - A pointer to the semaphore to give back.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_semTake}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int ROSA\_semTake(sem {*} semaphore)}\tabularnewline
+Description: & Try to take a semaphore. Fails and returns FALSE if the semaphore
+is already taken by someone else. \tabularnewline
+Parameters: & sem {*} semaphore - A pointer to the semaphore to try to take.\tabularnewline
+Return value: & Return TRUE or FALSE depending on the success to take semaphore.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+\pagebreak{}
+
+
+\section{sysTick}
+
+
+\subsection{Brief API list}
+
+This is a list of the sysTick API for ROSA.
+\begin{lyxcode}
+int~ROSA\_sysTickGet(void);~
+
+void~ROSA\_sysTickWait(int~ticks);~
+
+void~ROSA\_sysTickWaitUntil(int~tick);
+
+
+\end{lyxcode}
+
+\subsection{Detailed API list}
+
+
+\subsubsection{ROSA\_sysTickGet}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{int ROSA\_sysTickGet(void)}\tabularnewline
+Description: & Get the current system tick from the ROSA kernel.\tabularnewline
+Parameters: & None.\tabularnewline
+Return value: & The current system tick.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_sysTickWait}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_sysTickWait(int ticks)}\tabularnewline
+Description: & Wait '\emph{ticks}' number of system ticks before continuing.\tabularnewline
+Parameters: & int ticks - The number of system ticks to wait.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+
+
+\subsubsection{ROSA\_sysTickWaitUntil}
+
+\begin{flushleft}
+\begin{tabular}{l>{\raggedright}p{9cm}}
+\multicolumn{1}{l}{Prototype:} & \multicolumn{1}{>{\raggedright}p{10cm}}{void ROSA\_sysTickWaitUntil(int tick)}\tabularnewline
+Description: & Wait until the value of the system tick is equal to '\emph{tick}'
+before continuing.\tabularnewline
+Parameters: & int tick - The system tick to wait for.\tabularnewline
+Return value: & Nothing.\tabularnewline
+\end{tabular}
+\par\end{flushleft}
+\end{document}

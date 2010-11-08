@@ -30,27 +30,23 @@
 #include <avr32/io.h>
 
 /***********************************************************
- * Kernel timer user functions
- ***********************************************************/
-int timerPeriodSet(unsigned int ms);
-
-/***********************************************************
  * Kernel timer functions
  ***********************************************************/
-extern void timerInit(void);
+extern void timerInit(unsigned int);
 extern void timerReset(void);
 extern void timerStart(void);
 extern void timerStop(void);
 
-//Read the TC0 timers status register
+//The timer interrupt service routine
+void timerISR(void);
 extern void timerClearInterrupt(void);
+
+//Timer period functions
+int timerPeriodSet(unsigned int ms);
 extern void timerPrescaleSet(int);
 extern void timerRCSet(int);
 
-//The timer interrupt service routine
-void timerISR(void);
-
-//Timer variables
+//Timer period variables
 extern int timerPrescale;
 extern int timerRC;
 

@@ -39,10 +39,11 @@ SOURCEDIR = src
 ##############################################################
 STARTUPDIR = $(SOURCEDIR)/cpu
 KERNELDIR = $(SOURCEDIR)/kernel
+SYSTEMDIR = $(SOURCEDIR)/system
 DRIVERSDIR = $(SOURCEDIR)/drivers
 
 ##############################################################
-#The sources of ROSA
+#The kernel sources of ROSA
 ##############################################################
 SOURCE =  $(KERNELDIR)/rosa_int.c
 SOURCE += $(KERNELDIR)/rosa_tim.c
@@ -55,7 +56,7 @@ SOURCE += $(DRIVERSDIR)/usart.c
 SOURCE += $(DRIVERSDIR)/delay.c
 
 ##############################################################
-#Add your source files here
+#Add your kernel source files here
 ##############################################################
 
 #SOURCE += $(SOURCEDIR)/dynamicTask.c
@@ -64,7 +65,7 @@ SOURCE += $(DRIVERSDIR)/delay.c
 SOURCE += $(SOURCEDIR)/main.c
 
 ##############################################################
-#The assembler sources of ROSA
+#The kernel assembler sources of ROSA
 ##############################################################
 ASMSOURCE= \
 	$(STARTUPDIR)/startup/crt0.S \
@@ -72,6 +73,12 @@ ASMSOURCE= \
 	$(KERNELDIR)/rosa_tim_asm.S \
 	$(KERNELDIR)/rosa_ker_asm.S \
 	$(DRIVERSDIR)/pot.S \
+
+##############################################################
+#The system sources of ROSA
+##############################################################
+SYSTEMSOURCE= \
+	$(SYSTEMDIR)/semaphore.c \
 
 ##############################################################
 #Header files are located in these files
@@ -108,12 +115,12 @@ OPT = -O0
 AFLAGS = -x assembler-with-cpp
 CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
-OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o)
+OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o)
 
 ##############################################################
 #Makefile rules
 ##############################################################
-all: clean $(OBJ) elf $(PROGRAM)
+all: $(OBJ) elf bin$(PROGRAM)
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
@@ -121,19 +128,21 @@ all: clean $(OBJ) elf $(PROGRAM)
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o$@
 
-$(PROGRAM):
-	$(OBJCOPY) -O binary $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
+bin$(PROGRAM):
+	$(OBJCOPY) -O binary $(BINDIR)/$(PROGRAM).elf $(BINDIR)/bin$(PROGRAM).bin
 
 elf:
 	@$(TEST) -d $(BINDIR) || $(MKDIR) $(BINDIR)
 	$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(PROGRAM).elf
 
-program: $(BINDIR)/$(PROGRAM).bin
-	avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(PROGRAM).bin
+program: $(BINDIR)/bin$(PROGRAM).bin
+#erase sectors [-e], program internal flash [-f] at offset [-O] 0x80000000 using the xtal as clock [-cxtal], verify [-v], reset [-R] and run [-r]
+	avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/bin$(PROGRAM).bin
 
 gdb:
 	avr32gdbproxy -t localhost:4712 -a localhost:4711 -cUSB -eavrdragon
-
+dump:
+	 avr32-objdump -S -x $(BINDIR)/$(PROGRAM).elf|less
 clean:
 	rm -f $(OBJ) $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
 

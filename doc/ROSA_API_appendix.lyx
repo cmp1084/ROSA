@@ -61,7 +61,7 @@ Appendix
 \align center
 
 \size giant
-ROSA API
+ROSA User API
 \end_layout
 
 \begin_layout Standard
@@ -2617,6 +2617,10 @@ Nothing.
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
 
 \end_layout
 

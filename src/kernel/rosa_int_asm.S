@@ -100,6 +100,7 @@ _int0_exit:
 .equ PRIV_STACKOFFSET,0x08					//Due to r11, r12 pushed to stack. 0x04 * 2 = 0x08
 .equ USERSR,0x00+PRIV_STACKOFFSET
 .equ USERPC,0x04+PRIV_STACKOFFSET
+.equ USERR12,0x00
 
 privilegedCalls:
 //Stack frame at this point in time:
@@ -107,7 +108,7 @@ privilegedCalls:
 //USERSR - user SR at the offending instant
 //USERPC - user PC which contain the offending instruction
 
-	//Investigate is this is a legal disable/enable interrupt requests
+	//Investigate if this is a legal disable/enable interrupt requests
 	pushm r11,r12
 	ld.w r11,sp[USERPC]
 	mov r12,r11
@@ -129,10 +130,20 @@ priv_interruptdisable:
 priv_interruptenable:
 	lda.w r12,interruptEnable
 	cp.w r11,r12
-	brne privexception
+	brne priv_isinterruptenable
 	ld.w r12,sp[USERSR]
 	cbr r12,AVR32_SR_GM						//Ok, enable interrupts
 	st.w sp[USERSR],r12
+	popm r11,r12
+	rete
+
+	//Look for isInterruptEnable
+priv_isinterruptenable:
+	lda.w r12,isInterruptEnabled
+	cp.w r11,r12
+	brne privexception
+	ld.w r12,sp[USERSR]						//Ok, read interrupt flag
+	st.w sp[USERR12],r12
 	popm r11,r12
 	rete
 

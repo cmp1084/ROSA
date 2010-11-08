@@ -1,0 +1,8 @@
+To compile ROSA simply type:
+	cd ROSA/
+	make
+
+To program ROSA to the EVK type:
+	cd ROSA/
+	make program
+

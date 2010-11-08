@@ -1,0 +1,65 @@
+%% LyX 1.6.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+
+\begin{document}
+
+\section*{Order for software modification}
+
+
+\section*{Order overview}
+
+We would like to order software modifications to the ROSA real time
+operating system. The modifications need to be integrated into the
+existing ROSA without breaking the old funcitonality. 
+
+We need the following features:
+\begin{itemize}
+\item Dynamic creation of tasks
+\item Priority scheduler
+\item Semaphores
+\item Immediate inheritance protocol
+\item Premeptive scheduling
+\end{itemize}
+If possible, a message box system in the RTOS would be useful. 
+
+
+\subsection*{Order details}
+
+
+\subsubsection*{Dynamic creation of tasks}
+
+We would like to be able to create and remove tasks on the fly. 
+
+
+\subsubsection*{Priority scheduler}
+
+The scheduler in ROSA is too simple for our needs. Some tasks we run
+need to be at a higher priority. Arrangements for this in the code
+would be really helpful.
+
+
+\subsubsection*{Semaphores}
+
+Today we have no option to protect our resources with semaphores.
+This must be included into the system.
+
+
+\subsubsection*{Immediate inheritance protocol}
+
+With semaphores we can foresee some slight problems. Preferably we
+would like to use the immediate inheritance protocol to solve those
+problems. An option would be to also add PCP into ROSA.
+
+
+\subsubsection*{Premeptive scheduling}
+
+We need better control over the periodicity of our task execution.
+Preferably we would like to have a periodicity in the millisecond
+range.
+\end{document}

@@ -45,10 +45,4 @@ extern void contextSave(void);
 extern void contextSaveFromISR(void);
 extern void contextRestoreFromISR(void);
 
-
-/***********************************************************
- * Other kernel functions
- ***********************************************************/
-//None
-
 #endif /* rosa_EXT_H_ */
