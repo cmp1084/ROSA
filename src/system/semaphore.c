@@ -31,55 +31,24 @@ File creation date: 20101108 15:41:45
 
 #include "system/semaphore.h"
 
-#define OK 0
-#define ERROR -1
-
-#define LOCKED 1
-#define UNLOCKED 0
-
-
-/***********************************************************
- * semInterruptDisable
- *
- * Comment:
- * Disable interrupts and return TRUE or FALSE
- * depending on if interrupt was previously enabled or not.
- *
- **********************************************************/
-int semInterruptDisable(void)
-{
-	int interrupt = isInterruptEnabled();
-	interruptDisable();
-	return interrupt;
-}
-
-/***********************************************************
- * semInterruptEnable
- *
- * Comment:
- * Enable interrupts, if 'interrupt' is TRUE.
- *
- **********************************************************/
-void semInterruptEnable(int interrupt)
-{
-	if(interrupt) {
-		interruptEnable();
-	}
-}
-
 /***********************************************************
  * ROSA_semCreate
  *
  * Comment:
  * Create a semaphore. Initiate it to be unlocked.
  *
+ * Backdraw:
+ * void function, can not signal errors in a good way.
+ *
  **********************************************************/
 void ROSA_semCreate(sem * semaphore)
 {
-	int interrupt =	semInterruptDisable();
-	semaphore->tcbHandle = NULL;			//No one uses the semaphore
-	semaphore->value = UNLOCKED;	//The semaphore is not locked
-	semInterruptEnable(interrupt);	//Enable interrupts if they was enabled previously
+	int interruptOnOff = isInterruptEnabled();
+	interruptDisableIf(interruptOnOff); //Make the semaphore operation atomic.
+	while(semaphore == NULL);			//Jam here if a NULL semaphore is detected
+	semaphore->tcbHandle = NULL;		//No one uses the semaphore
+	semaphore->value = UNLOCKED;		//The semaphore is not locked
+	interruptEnableIf(interruptOnOff);	//Enable interrupts if they was _enabled_ previously too. Otherwise, keep them disabled.
 }
 
 /***********************************************************
@@ -91,16 +60,19 @@ void ROSA_semCreate(sem * semaphore)
  **********************************************************/
 int ROSA_semDestroy(sem * semaphore)
 {
-	int interrupt =	semInterruptDisable();
+	int interruptOnOff = isInterruptEnabled();
+	if(semaphore == NULL) {
+		return ERROR;
+	}
 	if(semaphore->value != UNLOCKED) {
-		semInterruptEnable(interrupt);
+		interruptEnableIf(interruptOnOff);
 		return ERROR;
 	}
 	if(semaphore->tcbHandle == EXECTASK) {
-		semInterruptEnable(interrupt);
+		interruptEnableIf(interruptOnOff);
 		return OK;
 	}
-	semInterruptEnable(interrupt);
+	interruptEnableIf(interruptOnOff);
 	return ERROR;
 }
 
@@ -116,16 +88,17 @@ int ROSA_semDestroy(sem * semaphore)
  **********************************************************/
 void ROSA_semGive(sem * semaphore)
 {
-	int interrupt =	semInterruptDisable();
-	if(semaphore->tcbHandle != EXECTASK) {
-		semInterruptEnable(interrupt);
+
+	int interruptOnOff = isInterruptEnabled();
+	if(semaphore->tcbHandle != EXECTASK) {	//Only the owner may return a semaphore. Oh! How bad!!!
+		interruptEnableIf(interruptOnOff);
 		return;
 	}
-	semaphore->value = UNLOCKED;		//-- to make a counting semaphore
+	semaphore->value = UNLOCKED;
 	if(semaphore->value == UNLOCKED) {
 		semaphore->tcbHandle = NULL;
 	}
-	semInterruptEnable(interrupt);
+	interruptEnableIf(interruptOnOff);
 	return;
 }
 
@@ -137,13 +110,28 @@ void ROSA_semGive(sem * semaphore)
  **********************************************************/
 int ROSA_semTake(sem * semaphore)
 {
-	int interrupt =	semInterruptDisable();
+	int interruptOnOff;
+
+	if(!semaphore) {
+		return ERROR;
+		//~ while(1);		//Error, The semaphore does not exist
+	}
+
+	interruptOnOff = isInterruptEnabled();
 	if(semaphore->tcbHandle != NULL) {
-		semInterruptEnable(interrupt);
+		interruptEnableIf(interruptOnOff);
 		return ERROR;
 	}
 	semaphore->tcbHandle = EXECTASK;
-	semaphore->value = LOCKED;		// ++ to make a counting semaphore
-	semInterruptEnable(interrupt);
+	semaphore->value = LOCKED;
+	interruptEnableIf(interruptOnOff);
 	return OK;
+}
+
+void ROSA_semGiveTo(Tcb * tcbblock, sem * semaphore)
+{
+	//If current task own the semaphore, give it to another task
+	if(semaphore->tcbHandle == EXECTASK) {
+		semaphore->tcbHandle = tcbblock;
+	}
 }

@@ -24,8 +24,8 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef rosa_def_H_
-#define rosa_def_H_
+#ifndef _ROSA_DEF_H_
+#define _ROSA_DEF_H_
 
 #include "rosa_config.h"
 
@@ -33,26 +33,28 @@
 #define NULL 0
 #endif
 
-/***********************************************************
- * TCB block
- *
- * Comment:
- * 	This struct contain all the necessary information to
- * 	do a context switch
- *
- **********************************************************/
-typedef struct tcb_record_t {
-	struct tcb_record_t * nexttcb;
-	char id[NAMESIZE];		//The task id/name
-	void (*staddr) (void);	//Start address
-	int *dataarea;			//The stack data area
-	int datasize;			//The stack size
-	int *saveusp;			//The current stack position
-	int SAVER0;				//Temporary work register
-	int SAVER1;				//Temporary work register
-	int savesr;				//The current status register
-	int retaddr;			//The return address
-	int savereg[15];		//The CPU registers
-} tcb;
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+//TODO: Reconsider OK and ERROR
+#ifndef OK
+#define OK TRUE
+#endif
+#ifndef ERROR
+#define ERROR FALSE
+#endif
+
+#ifndef ON
+#define ON 1
+#endif
+#ifndef OFF
+#define OFF 0
+#endif
+
+//struct Tcb moved to file include/kernel/rosa_tcb.h
 
 #endif /* rosa_def_H_ */

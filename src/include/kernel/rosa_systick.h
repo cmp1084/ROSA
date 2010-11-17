@@ -22,54 +22,62 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
-/* Tab size: 4 */
+#ifndef _ROSA_SYSTICK_H_
+#define _ROSA_SYSTICK_H_
 
-#include "kernel/rosa_int.h"
-#include "kernel/rosa_scheduler.h"
-
-void contextSaveFromISR(void);
-void contextRestoreFromISR(void);
+#include "kernel/rosa_ext.h"
+#include "kernel/rosa_ker.h"
 
 /***********************************************************
- * ROSA_yieldFromISR
+ * _sysTickIncrease
  *
  * Comment:
- * 	Perform a yield from an ISR
- *
+ * Increase the systick by one.
  **********************************************************/
-void ROSA_yieldFromISR(void)
-{
-	contextSaveFromISR();	  //Save the task context
-	scheduler();			  //Find next task to execute
-	contextRestoreFromISR();  //...and switch over to it.
-}
-
+void _sysTickIncrease(void);
 
 /***********************************************************
- * dynInterruptDisable
+ * ROSA_getSysTick
  *
  * Comment:
- * Disable interrupts and return TRUE or FALSE
- * depending on if interrupt was previously enabled or not.
+ * Return the number of systicks passed.
  *
+ * Out:
+ * unsigned int - The value of systick
  **********************************************************/
-void interruptDisableIf(int interruptOnOff)
-{
-	if(interruptOnOff) {
-		interruptDisable();	//Turn interrupt off if onOff is OFF (FALSE)
-	}
-}
+unsigned int ROSA_sysTickGet(void);
 
 /***********************************************************
- * dynInterruptEnable
+ * _resetSysTick
  *
  * Comment:
- * Enable interrupts, if 'interrupt' is TRUE.
+ * Reset the sysTick.
+ **********************************************************/
+void _sysTickReset(void);
+
+/***********************************************************
+ * ROSA_wait
+ *
+ * Comment:
+ * Wait a specific number of system ticks
+ *
+ * In:
+ * unsigned int ticks - the number of ticks to wait.
  *
  **********************************************************/
-void interruptEnableIf(int interruptOnOff)
-{
-	if(interruptOnOff) {
-		interruptEnable();	//Enable interrupt if interruptOnOff == ON (TRUE)
-	}
-}
+void ROSA_wait(unsigned int ticks);
+
+/***********************************************************
+ * ROSA_waitUntil
+ *
+ * Comment:
+ * Wait until the absolute system tick specified by the
+ * parameter.
+ *
+ * In:
+ * unsigned int absoluteTick - the absolute tick to wait for.
+ *
+ **********************************************************/
+void ROSA_waitUntil(unsigned int absoluteTick);
+
+#endif /* _ROSA_SYSTICK_H_ */

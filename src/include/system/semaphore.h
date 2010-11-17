@@ -32,13 +32,26 @@ File creation date: 20101108 15:41:45
 
 */
 #include "kernel/rosa_def.h"
+#include "kernel/rosa_tcb.h"
 #include "kernel/rosa_ker.h"
 #include "kernel/rosa_int.h"
+
+/***********************************************************
+ * The semaphore functions return OK on success.
+ * The semaphore functions return ERROR on failure.
+ **********************************************************/
+
+/***********************************************************
+ * A LOCKED semaphore is already taken by someone.
+ * A UNLOCKED semaphore is free to take.
+ **********************************************************/
+#define LOCKED 1
+#define UNLOCKED 0
 
 typedef struct _sem sem;
 
 struct _sem {
-	tcb * tcbHandle;
+	Tcb * tcbHandle;
 	int value;
 };
 
@@ -46,5 +59,8 @@ void ROSA_semCreate(sem * semaphore);
 int ROSA_semDestroy(sem * semaphore);
 void ROSA_semGive(sem * semaphore);
 int ROSA_semTake(sem * semaphore);
+
+//TODO: This is bad stuff!
+void ROSA_semGiveTo(Tcb * tcbblock, sem * semaphore);
 
 #endif /* _ROSA_SEMAPHORE_H_ */

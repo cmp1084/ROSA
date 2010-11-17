@@ -28,16 +28,7 @@
 #define __ROSA_BUTTON_H_
 
 #include <avr32/io.h>
-
-#define PUSH_BUTTON_0	AVR32_PIN_PX16
-#define PUSH_BUTTON_1	AVR32_PIN_PX19
-#define PUSH_BUTTON_2	AVR32_PIN_PX22
-
-#define JOYSTICK_PRESS	AVR32_PIN_PA20
-#define JOYSTICK_LEFT	AVR32_PIN_PA25
-#define JOYSTICK_RIGHT	AVR32_PIN_PA28
-#define JOYSTICK_UP		AVR32_PIN_PA26
-#define JOYSTICK_DOWN	AVR32_PIN_PA27
+#include "rosa_config.h"
 
 /***********************************************************
  * Button and joystick API

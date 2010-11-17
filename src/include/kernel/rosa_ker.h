@@ -27,21 +27,23 @@
 #ifndef _ROSA_KER_H_
 #define _ROSA_KER_H_
 
-#include "rosa_def.h"
+#include "kernel/rosa_def.h"
+#include "kernel/rosa_tcb.h"
+#include "rosa_config.h"
 
 /***********************************************************
  * Global variables
  ***********************************************************/
-extern tcb * TCBLIST;
-extern tcb * EXECTASK;
+extern Tcb * TCBLIST;
+extern Tcb * EXECTASK;
 
 
 /***********************************************************
  * Kernel low level context switch functions
  ***********************************************************/
-extern void ROSA_contextInit(tcb * tcbTask);
+extern void ROSA_contextInit(Tcb * tcbTask);
 extern void ROSA_yield(void);
-
+extern int ROSA_taskDestroy(void);
 
 /***********************************************************
  * Other kernel functions
@@ -64,10 +66,10 @@ __attribute__((__interrupt__)) extern void timerISR(void);
 
 //Initialize the kernel
 void ROSA_init(void);
-void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, int * tcbStack, int tcbStackSize);
+void ROSA_tcbCreate(Tcb * tcbTask, const char tcbName[CONFIG_NAMESIZE], const void *tcbFunction, unsigned int * tcbStack, const int tcbStackSize);
 
 //Install a new task TCB into ROSA
-extern void ROSA_tcbInstall(tcb *task);
+extern void ROSA_tcbInstall(Tcb *task);
 
 //Start running the ROSA kernel
 //This start running the created and installed tasks.

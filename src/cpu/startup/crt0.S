@@ -67,6 +67,14 @@ xw8:ld.w r11,r12[AVR32_PM_POSCSR]
 	mov r11,MCCTRL_2
 	st.w r12[AVR32_PM_MCCTRL],r11
 
+	mov r0,0x0
+	mov r1,0xdead
+_clrmem:
+	st.w r0[0x0],r1
+	sub r0,-4
+	cp.w r0,0xfffc
+	brne _clrmem
+
 	//Setup initialized data.
 idata_:
 	lda.w r0,_data

@@ -25,9 +25,11 @@
 # Tab size: 4
 
 ##############################################################
-# The name of the program
+# The name of the program, elf and binary
 ##############################################################
 PROGRAM = rosa
+ELF = ../$(PROGRAM).elf
+BINARY = t$(PROGRAM).bin
 
 ##############################################################
 #Sources are located in this dir
@@ -41,9 +43,10 @@ STARTUPDIR = $(SOURCEDIR)/cpu
 KERNELDIR = $(SOURCEDIR)/kernel
 SYSTEMDIR = $(SOURCEDIR)/system
 DRIVERSDIR = $(SOURCEDIR)/drivers
+APPDIR = $(SOURCEDIR)/app
 
 ##############################################################
-#The kernel sources of ROSA
+#The kernel sources of ROSA (as in the student version)
 ##############################################################
 SOURCE =  $(KERNELDIR)/rosa_int.c
 SOURCE += $(KERNELDIR)/rosa_tim.c
@@ -56,10 +59,11 @@ SOURCE += $(DRIVERSDIR)/usart.c
 SOURCE += $(DRIVERSDIR)/delay.c
 
 ##############################################################
-#Add your kernel source files here
+#Put your additional kernel source files here
 ##############################################################
 
-#SOURCE += $(SOURCEDIR)/dynamicTask.c
+SOURCE += $(KERNELDIR)/rosa_dyn.c
+SOURCE += $(KERNELDIR)/rosa_systick.c
 
 ##############################################################
 SOURCE += $(SOURCEDIR)/main.c
@@ -79,6 +83,15 @@ ASMSOURCE= \
 ##############################################################
 SYSTEMSOURCE= \
 	$(SYSTEMDIR)/semaphore.c \
+	$(SYSTEMDIR)/list.c \
+	$(SYSTEMDIR)/queue.c \
+
+##############################################################
+#Application sources that uses ROSA
+##############################################################
+APPSOURCE= \
+	$(APPDIR)/warning.c \
+
 
 ##############################################################
 #Header files are located in these files
@@ -103,8 +116,16 @@ CC = avr32-gcc
 LD = avr32-ld
 AS = avr32-as
 OBJCOPY = avr32-objcopy
+OBJDUMP = avr32-objdump
 TEST = test
 MKDIR = mkdir
+LESS = less
+
+##############################################################
+#JTAG tool which will be used
+##############################################################
+JTAGTOOL = avrdragon
+PROGRAMMER = avr32program
 
 ##############################################################
 #Various compile flags etc
@@ -115,34 +136,69 @@ OPT = -O0
 AFLAGS = -x assembler-with-cpp
 CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
-OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o)
+OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o) $(APPSOURCE:%.c=%.o)
 
+TEXTPRECOMPILE = @echo -n "---  $< "
+TEXTPOSTCOMPILE = @echo -e "\r[OK]"
+err =
+ERR=
 ##############################################################
 #Makefile rules
 ##############################################################
-all: $(OBJ) elf bin$(PROGRAM)
+all: clean $(OBJ) elf $(BINARY)
+
+print:
+	@echo $(OBJ)
 
 %.o: %.S
-	$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
+	$(TEXTPRECOMPILE)
+	@$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
+	$(TEXTPOSTCOMPILE)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o$@
+	$(TEXTPRECOMPILE)
+	@$(CC) $(CFLAGS) $< -o$@
+	$(TEXTPOSTCOMPILE)
 
-bin$(PROGRAM):
-	$(OBJCOPY) -O binary $(BINDIR)/$(PROGRAM).elf $(BINDIR)/bin$(PROGRAM).bin
+$(BINARY):
+	$(OBJCOPY) -O binary $(BINDIR)/$(ELF) $(BINDIR)/$(BINARY)
+	@echo -e "\r[ALL OK]"
+	@echo
 
 elf:
 	@$(TEST) -d $(BINDIR) || $(MKDIR) $(BINDIR)
-	$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(PROGRAM).elf
+	@echo -n "...  Linking $(ELF)"
+	@$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(ELF)
+	$(TEXTPOSTCOMPILE)
 
-program: $(BINDIR)/bin$(PROGRAM).bin
-#erase sectors [-e], program internal flash [-f] at offset [-O] 0x80000000 using the xtal as clock [-cxtal], verify [-v], reset [-R] and run [-r]
-	avr32program program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/bin$(PROGRAM).bin
+program: $(BINDIR)/$(BINARY)
+	#erase sectors [-e], program internal flash [-f] at offset [-O] 0x80000000 using the xtal as clock [-cxtal], verify [-v], reset [-R] and run [-r]
+	$(PROGRAMMER) program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(BINARY)
+
+reset:
+	$(PROGRAMMER) reset
+
+run:
+	$(PROGRAMMER) run
+
+cpuinfo:
+	$(PROGRAMMER) cpuinfo
+
+size:
+	$(SIZE) --target=binary $(BINDIR)/$(BINARY)
 
 gdb:
-	avr32gdbproxy -t localhost:4712 -a localhost:4711 -cUSB -eavrdragon
+	avr32gdbproxy -k -a localhost:4711 -cUSB -e$(JTAGTOOL)
+
+kill:
+	killall avr32gdbproxy
 dump:
-	 avr32-objdump -S -x $(BINDIR)/$(PROGRAM).elf|less
+	$(OBJDUMP) -S -x $(BINDIR)/$(ELF)|$(LESS)
+
 clean:
-	rm -f $(OBJ) $(BINDIR)/$(PROGRAM).elf $(BINDIR)/$(PROGRAM).bin
+	@rm -f $(OBJ) $(BINDIR)/$(ELF) $(BINDIR)/$(BINARY)
+
+test: src/system/list.c src/include/system/list.h src/test/listtest.c
+	gcc -ggdb -Isrc/include src/system/list.c src/test/listtest.c -otest
+
 

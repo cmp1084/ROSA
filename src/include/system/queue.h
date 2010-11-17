@@ -2,7 +2,7 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
+               ///////,  ///,///   '/// ///''//,
              ,///' '///,'/////',/////'  /////'\\,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
@@ -22,34 +22,19 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
-/* Tab size: 4 */
+#ifndef _QUEUE_H_
+#define _QUEUE_H_
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+#include <stdlib.h>
+#include "system/list.h"
 
-#include <avr32/io.h>
-#include "kernel/rosa_systick.h"
+typedef List Queue;
+#define queueCreate listCreate
+#define queueDestroy listDestroy
+#define queueSize listSize
 
-/***********************************************************
- * Kernel timer functions
- ***********************************************************/
-extern void timerInit(unsigned int);
-extern void timerReset(void);
-extern void timerStart(void);
-extern void timerStop(void);
+int queueAdd(Queue * queue, const void * data);
+int queueRemove(Queue * queue, const void ** data);
+void * queuePeek(const Queue * queue);
 
-//The timer interrupt service routine
-void timerISR(void);
-extern void timerClearInterrupt(void);
-
-//Timer period functions
-unsigned int timerPeriodGet(void);
-int timerPeriodSet(unsigned int ms);
-extern void timerPrescaleSet(int);
-extern void timerRCSet(int);
-
-//Timer period variables
-extern int timerPrescale;
-extern int timerRC;
-
-#endif /* _ROSA_TIMER_H_ */
+#endif /* _QUEUE_H_ */

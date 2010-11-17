@@ -27,6 +27,7 @@
 #include "rosa_config.h"
 #include "drivers/delay.h"
 #include "kernel/rosa_int.h"
+#include "kernel/rosa_tim.h"
 
 /***********************************************************
  * timerInterruptHandler
@@ -37,13 +38,15 @@
 __attribute__((__interrupt__))
 void timerISR(void)
 {
-	int sr, a = 0;
+	int sr;
 	volatile avr32_tc_t * tc = &AVR32_TC;
 
 	//Read the timer status register to determine if this is a valid interrupt
-	a = sr = tc->channel[0].sr;
-	if(sr & AVR32_TC_CPCS_MASK)
+	sr = tc->channel[0].sr;
+	if(sr & AVR32_TC_CPCS_MASK) {
+		_sysTickIncrease();
 		ROSA_yieldFromISR();
+	}
 }
 
 
@@ -56,13 +59,17 @@ void timerISR(void)
  **********************************************************/
 int timerPeriodSet(unsigned int ms)
 {
-
 	int rc, prescale;
-	int f[] = { 2, 8, 32, 128 };
+	int f[] = { 2, 8, 32, 128 };					//Prescale factor
 	//FOSC0 / factor_prescale * time[s];
-	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5;
-	rc = FOSC0 / f[prescale - 1] * ms / 1000;
+	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5;	//Set the prescale factor
+	rc = FOSC0 / f[prescale - 1] * ms / 1000;		//Calculate the RC (register C compare value)
 	timerPrescaleSet(prescale);
 	timerRCSet(rc);
-	return rc * prescale / FOSC0;
+	return rc * prescale / FOSC0;					//Return the calculated period [s]
+}
+
+unsigned int timerPeriodGet(void)
+{
+	return timerRC * timerPrescale / FOSC0;
 }

@@ -22,42 +22,59 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
-/* Tab size: 4 */
 
-#ifndef _ROSA_LED_H_
-#define _ROSA_LED_H_
+#include "kernel/rosa_systick.h"
 
-#include <avr32/io.h>
-#include "drivers/gpio.h"
-#include "rosa_config.h"
-
+//Timer tick interrupt routine
+static int sysTick = 0;
 /***********************************************************
- * LED API
- *
- * Comment:
- * 	Various functions for LED control
- *
- * valid 'lednr' parameters are:
- * LED0_GPIO	//Monocolor green, EVK1100 LED1
- * LED1_GPIO	//Monocolor green, EVK1100 LED2
- * LED2_GPIO	//Monocolor green, EVK1100 LED3
- * LED3_GPIO	//Monocolor green, EVK1100 LED4
- * LED4_GPIO	//Bicolor red, EVK1100 LED5
- * LED5_GPIO	//Bicolor green, EVK1100 LED5
- * LED6_GPIO	//Bicolor red, EVK1100 LED6
- * LED7_GPIO	//Bicolor green, EVK1100 LED6
  *
  **********************************************************/
-//Initialize all LEDs, LEDx_GPIO
-void ledInit(void);
+void _sysTickIncrease(void)
+{
+	sysTick++;
+}
 
-//Turn a LED on
-void ledOn(int lednr);
+/***********************************************************
 
-//Turn a LED off
-void ledOff(int lednr);
+ **********************************************************/
+unsigned int ROSA_sysTickGet(void)
+{
+	return sysTick;
+}
 
-//Toggle a LED
-void ledToggle(int lednr);
+/***********************************************************
 
-#endif /* _ROSA_LED_H_ */
+ **********************************************************/
+void _sysTickReset(void)
+{
+	sysTick = 0;
+}
+
+/***********************************************************
+
+ **********************************************************/
+void ROSA_wait(unsigned int ticks)
+{
+	unsigned int now;
+	now = ROSA_sysTickGet();
+	while(ROSA_sysTickGet() < (now + ticks)) {
+		ROSA_yield();
+	}
+}
+
+/***********************************************************
+ * ROSA_timerPrescaleSet
+ *
+ * Comment:
+ * 	Set the prescale value of the timer
+ *
+ * C prototypes:
+ *  extern void ROSA_timerPrescaleSet(void);
+ **********************************************************/
+void ROSA_waitUntil(unsigned int absoluteTick)
+{
+	while(ROSA_sysTickGet() < absoluteTick) {
+		ROSA_yield();
+	}
+}

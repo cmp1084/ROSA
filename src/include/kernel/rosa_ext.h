@@ -27,19 +27,20 @@
 #ifndef rosa_EXT_H_
 #define rosa_EXT_H_
 
-#include "rosa_def.h"
+#include "kernel/rosa_def.h"
+#include "kernel/rosa_tcb.h"
 
 /***********************************************************
  * Global variables
  ***********************************************************/
-extern tcb * TCBLIST;
-extern tcb * EXECTASK;
+extern Tcb * TCBLIST;
+extern Tcb * EXECTASK;
 
 
 /***********************************************************
  * Kernel low level context switch functions
  ***********************************************************/
-extern void contextInit(tcb * tcbTask);
+extern void contextInit(Tcb * tcbTask);
 extern void contextRestore(void);
 extern void contextSave(void);
 extern void contextSaveFromISR(void);

@@ -25,10 +25,6 @@
 /* Tab size: 4 */
 
 #include "drivers/led.h"
-#include "drivers/gpio.h"
-
-//The number of LEDs to control
-#define LEDMAX 7
 
 /**********************************************************
  * ledInit
@@ -57,7 +53,7 @@ void ledInit(void)
 	do {
 		ledOff(leds[nr]);
 		gpioInit(leds[nr], OUTPUT);
-	} while(nr++ != LEDMAX);
+	} while(nr++ != LEDMAX - 1);
 
 }
 

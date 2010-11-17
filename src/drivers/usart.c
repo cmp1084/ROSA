@@ -24,8 +24,6 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#include <avr32/io.h>
-#include "kernel/rosa_ext.h"
 #include "drivers/usart.h"
 
 void usartReset(volatile avr32_usart_t *usart)
@@ -91,8 +89,10 @@ int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pb
 {
 	volatile avr32_gpio_port_t * gpio;
 	gpio = (avr32_gpio_port_t *) &AVR32_GPIO;	//Gives annoying warning, but is correct for our purpose.
-	gpio->gperc = 1 << (USART_RX_PIN & 0x1f);
-	gpio->gperc = 1 << (USART_TX_PIN & 0x1f);
+	gpio->gperc = 1 << (opt->rx_pin & 0x1f);
+	gpio->gperc = 1 << (opt->tx_pin & 0x1f);
+	//~ gpio->gperc = 1 << (USART_RX_PIN & 0x1f);
+	//~ gpio->gperc = 1 << (USART_TX_PIN & 0x1f);
 
 	usartReset(usart);
 
@@ -132,7 +132,7 @@ int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pb
 
 void usartWriteChar(volatile avr32_usart_t * usart, char ch)
 {
-	int timeout = 0x40000;
+	int timeout = 0x400;
 	while((timeout-- != 0) && ((usart->csr & AVR32_USART_CSR_TXRDY_MASK) == 0));
 	usart->thr = ch & AVR32_USART_THR_TXCHR_MASK;
 }
@@ -152,12 +152,12 @@ void usartWriteLine(volatile avr32_usart_t * usart, char * string)
 	}
 }
 
-void usartWriteValue(volatile avr32_usart_t * usart, int i)
+void usartWriteValue(volatile avr32_usart_t * usart, const unsigned int i)
 {
 	unsigned int nyb, shift, mask, val;
-	mask = 0x0f;
-	shift = 0x1c;
-	nyb = mask << shift;
+	mask = 0x0f;	//One nybble mask
+	shift = 0x1c;	//32 bits - 4 bits (which is the nybble)
+	nyb = mask << shift; //Here is the nybble
 
 	usartWriteLine(usart, "0x");
 	while(nyb) {
@@ -170,7 +170,7 @@ void usartWriteValue(volatile avr32_usart_t * usart, int i)
 
 //Output TCB for debugging purpose, the dbgLevel give the amount of output
 //Input: usart - the USART unit to use.
-void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb)
+void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb)
 {
 	int i;
 	int	dbgLevel = DEBUGLEVEL;
@@ -188,7 +188,7 @@ void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb)
 			}
 			//Write all TCB addresses etc. at DEBUGLEVEL2 and DEBUGLEVEL3
 			if(dbgLevel >= DEBUGLEVEL2) {
-				usartWriteLine(usart, "tcb:       ");
+				usartWriteLine(usart, "Tcb:       ");
 				usartWriteValue(usart, (int)dbgtcb);
 				usartWriteLine(usart, "\nnexttcb:   ");
 				usartWriteValue(usart, (int)dbgtcb->nexttcb);

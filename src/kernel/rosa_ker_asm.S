@@ -33,6 +33,7 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
+#include "rosa_config.h"
 
 	//Put the code and data in the executable .text section
 	.section .text, "ax", @progbits
@@ -41,6 +42,10 @@
 	.global contextInit
 	.global ROSA_start
 	.global ROSA_yield
+	//.global contextRestore
+	.global ROSA_taskDestroy
+	.global _SSPGet
+	.global _USPGet
 
 /*********************************************************
 * ROSA_start kernel code
@@ -86,6 +91,13 @@ ROSA_start:
 	ld.w r11,r12[TCB.SAVEREG.R11]
 	ld.w r12,r12[TCB.SAVEREG.R12]
 
+#if(CONFIG_TIMER)
+	pushm lr
+	call timerStart
+	call interruptEnable
+	popm lr
+#endif
+
 	mov pc,lr
 
 
@@ -93,35 +105,34 @@ ROSA_start:
  * contextInit
  *
  * Comment:
- * The initial save of a tasks context to the tcb
+ * The initial save of a tasks context to the Tcb
  * from supervisor mode.
  *
+ * Parameters:
+ * In: r12 = Tcb * tcb, pointer to the TCB block
  ********************************************************/
 contextInit:
+	pushm r11
 	//Initialize lr in the savereg area
-	ld.w r0,r12[TCB.STADDR]
-	st.w r12[TCB.SAVEREG.LR],r0
-
-	//~ pushm lr
-	//~ call timerStart
-	//~ call interruptEnable
-	//~ popm lr
+	ld.w r11,r12[TCB.STADDR]
+	st.w r12[TCB.SAVEREG.LR],r11
 
 	//Initialize regs to zero
-	mov r0,0x0
-	st.w r12[TCB.SAVEREG.R0],r0
-	st.w r12[TCB.SAVEREG.R1],r0
-	st.w r12[TCB.SAVEREG.R2],r0
-	st.w r12[TCB.SAVEREG.R3],r0
-	st.w r12[TCB.SAVEREG.R4],r0
-	st.w r12[TCB.SAVEREG.R5],r0
-	st.w r12[TCB.SAVEREG.R6],r0
-	st.w r12[TCB.SAVEREG.R7],r0
-	st.w r12[TCB.SAVEREG.R8],r0
-	st.w r12[TCB.SAVEREG.R9],r0
-	st.w r12[TCB.SAVEREG.R10],r0
-	st.w r12[TCB.SAVEREG.R11],r0
-	st.w r12[TCB.SAVEREG.R12],r0
+	mov r11,0x0
+	st.w r12[TCB.SAVEREG.R0],r11
+	st.w r12[TCB.SAVEREG.R1],r11
+	st.w r12[TCB.SAVEREG.R2],r11
+	st.w r12[TCB.SAVEREG.R3],r11
+	st.w r12[TCB.SAVEREG.R4],r11
+	st.w r12[TCB.SAVEREG.R5],r11
+	st.w r12[TCB.SAVEREG.R6],r11
+	st.w r12[TCB.SAVEREG.R7],r11
+	st.w r12[TCB.SAVEREG.R8],r11
+	st.w r12[TCB.SAVEREG.R9],r11
+	st.w r12[TCB.SAVEREG.R10],r11
+	st.w r12[TCB.SAVEREG.R11],r11
+	st.w r12[TCB.SAVEREG.R12],r11
+	popm r11
 	mov pc,lr
 
 
@@ -162,6 +173,7 @@ contextInit:
 //User stack frame
 .equ SF_LR_TASK, 0x00 //The link back to the next user task instruction is located here.
 
+
 /*********************************************************
 * contextSave
 *
@@ -173,7 +185,7 @@ contextInit:
 contextSave:
 	pushm r12,lr
 	call interruptDisable
-	call timerStop
+	//call timerStop
 	popm lr
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
@@ -234,7 +246,7 @@ contextRestore:
 	ld.w r1,r12[TCB.SAVEUSP]
 	st.w --sp,r1
 	ldmts sp,sp
-	ld.w r1,sp++
+	ld.w r1,sp++				//Dummy read to correct the stack
 
 	//Restore LR = retaddr
 	ld.w lr,r12[TCB.SAVEREG.LR]
@@ -257,12 +269,12 @@ contextRestore:
 	ld.w r1,r12[TCB.SAVER1]
 	ld.w r12,r12[TCB.SAVEREG.R12]
 
-	pushm lr
-	call timerStart
-	call interruptEnable
-	popm lr
+	//pushm lr
+	//call timerStart
+	//call interruptEnable	//TODO: This is actually not completly correct. Need to know if we really are going to turn interrupt on.
+	//popm lr
 	//We are done, exit from supervisor mode
-	rets
+	rets					//rets will take care of the interrupEnable stuff!!!!
 
 /*********************************************************
 * ROSA_, the users interface to the kernel
@@ -294,3 +306,49 @@ _yield:
 	call scheduler
 	call contextRestore
 	//Execution will not return to here!
+
+ROSA_taskDestroy:
+	call interruptDisable
+	lda.w lr,_ROSA_taskDestroy
+	//Enter supervisor mode
+	scall
+_ROSA_taskDestroy:
+
+	//Remove the current task
+	call _taskDestroy
+
+	//Prepare rescheduling
+	//Set EXECTASK = TCBLIST
+	lda.w r12,TCBLIST
+	lda.w r11,EXECTASK
+	ld.w r12,r12[0x0]
+	st.w r11[0x0],r12
+
+	//Reschedule.
+	call scheduler
+	call contextRestore	//Will enable interrupt!!! TODO: Warning
+	//Execution will not return to here!
+
+//Return the SSP in r12
+_SSPGet:
+	pushm lr
+	lda.w lr,_scallSSPGet
+	scall
+	popm pc
+_scallSSPGet:
+	mov r12,sp
+	rets
+
+//Get the address of the USP
+//Return in r12
+_USPGet:
+	pushm lr
+	lda.w lr,_scallUSPGet
+	scall
+	popm pc
+_scallUSPGet:
+	mov r12,sp
+	st.w --sp,r12
+	stmts sp,sp
+	ld.w r12,sp++					//USP in r12
+	rets

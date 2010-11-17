@@ -27,8 +27,10 @@
 /*
  * rosa_off.h
  *
- * Log:	Date		Ver		History
- * 		20100728 	1.0		First AVR32 version, Marcus Jansson
+ * Log:
+ * Date             Ver     History
+ * 20101113         1.x     Adding prio, priority.
+ * 20100728         1.0     First AVR32 version, Marcus Jansson
  *
  *
  * Tab size: 4
@@ -42,22 +44,22 @@
  *
  * Comment:
  * 	These are the offsets ROSA low level routines uses to
- * 	reach into the tcb struct.
+ * 	reach into the Tcb struct.
  *
  **********************************************************/
 .offset  0
-TCB.NEXTTCB:	.word 0		/* Pointer to next tcb in chain */
-TCB.ID:			.word 0		/* Task identifier, 4 ASCII characters */
-TCB.STADDR:		.word 0		/* Startaddress of taskcode */
-TCB.DATAAREA:	.word 0		/* Startaddress of dataarea (stack) */
-TCB.DATASIZE:	.word 0		/* Size of dataarea, used in initialization */
-TCB.SAVEUSP:	.word 0 	/* User stackpointer. */
-TCB.SAVER0:		.word 0		/* Special register used in kernel. */
-TCB.SAVER1:		.word 0		/* Special register used in kernel. */
-TCB.SAVESR:		.word 0		/* Status register. */
-TCB.RETADDR:	.word 0		/* Return address, i.e. the resume	*/
-							/* address of the task 				*/
-
+TCB.NEXTTCB:    .word 0     /* Pointer to next Tcb in chain        */
+TCB.ID:         .word 0     /* Task identifier, 4 ASCII characters */
+TCB.STADDR:     .word 0     /* Startaddress of taskcode            */
+TCB.DATAAREA:   .word 0     /* Startaddress of dataarea (stack)    */
+TCB.DATASIZE:   .word 0     /* Size of dataarea, used in initialization */
+TCB.SAVEUSP:    .word 0     /* User stackpointer.                  */
+TCB.SAVER0:     .word 0     /* Special register used in kernel.    */
+TCB.SAVER1:     .word 0     /* Special register used in kernel.    */
+TCB.SAVESR:     .word 0     /* Status register.                    */
+TCB.RETADDR:    .word 0     /* Return address, i.e. the resume     */
+                            /* address of the task                 */
+TCB.PRIO:        .word 0    /* Priority */
 TCB.SAVEREG:				/* The 14 registers interesting for context switch */
 TCB.SAVEREG.LR:  .word 0
 TCB.SAVEREG.SP:  .word 0
@@ -75,6 +77,6 @@ TCB.SAVEREG.R2:  .word 0
 TCB.SAVEREG.R1:  .word 0
 TCB.SAVEREG.R0:  .word 0
 
-TCB.TCBSIZE:	.space 1,0	/* Size marker of TCB */
+TCB.TCBSIZE:	.word 0	/* Size marker of TCB */
 
 #endif /* _ROSA_OFF_H_ */

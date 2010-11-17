@@ -24,40 +24,38 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _ROSA_LED_H_
-#define _ROSA_LED_H_
+/*
+File creation date: 20101109 10:15:24
 
-#include <avr32/io.h>
-#include "drivers/gpio.h"
-#include "rosa_config.h"
+*/
+
+#ifndef _ROSA_TCB_H_
+#define _ROSA_TCB_H_
+
+#include "rosa_config.h"	//CONFIG_NAMESIZE
 
 /***********************************************************
- * LED API
+ * TCB block
  *
  * Comment:
- * 	Various functions for LED control
- *
- * valid 'lednr' parameters are:
- * LED0_GPIO	//Monocolor green, EVK1100 LED1
- * LED1_GPIO	//Monocolor green, EVK1100 LED2
- * LED2_GPIO	//Monocolor green, EVK1100 LED3
- * LED3_GPIO	//Monocolor green, EVK1100 LED4
- * LED4_GPIO	//Bicolor red, EVK1100 LED5
- * LED5_GPIO	//Bicolor green, EVK1100 LED5
- * LED6_GPIO	//Bicolor red, EVK1100 LED6
- * LED7_GPIO	//Bicolor green, EVK1100 LED6
+ * 	This struct contain all the necessary information to
+ * 	do a context switch.
  *
  **********************************************************/
-//Initialize all LEDs, LEDx_GPIO
-void ledInit(void);
+typedef struct Tcbrecord_t {
+	struct Tcbrecord_t * nexttcb;
+	char id[CONFIG_NAMESIZE];               //The task id/name
+	void (*staddr)(void);                   //Start address
+	unsigned int * dataarea;                        //The stack data area
+	unsigned int datasize;                  //The stack size
+	unsigned int * saveusp;                 //The current stack position
+	unsigned int SAVER0;                    //Temporary work register
+	unsigned int SAVER1;                    //Temporary work register
+	unsigned int savesr;                    //The current status register
+	unsigned int retaddr;                   //The return address
+	unsigned int prio;                      //The task priority
+	unsigned int savereg[16];               //The CPU registers
 
-//Turn a LED on
-void ledOn(int lednr);
+} Tcb;
 
-//Turn a LED off
-void ledOff(int lednr);
-
-//Toggle a LED
-void ledToggle(int lednr);
-
-#endif /* _ROSA_LED_H_ */
+#endif /*  _ROSA_TCB_H_ */

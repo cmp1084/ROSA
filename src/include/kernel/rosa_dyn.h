@@ -3,7 +3,7 @@
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
                ///////,  ///,///   '/// //;''//,
-             ,///' '///,'/////',/////'  /////'\\,
+             ,///' '///,'/////',/////'  /////'/;,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
 
@@ -24,32 +24,26 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+/*
+File creation date: 20101108 15:41:45
 
-#include <avr32/io.h>
-#include "kernel/rosa_systick.h"
+*/
 
-/***********************************************************
- * Kernel timer functions
- ***********************************************************/
-extern void timerInit(unsigned int);
-extern void timerReset(void);
-extern void timerStart(void);
-extern void timerStop(void);
+#ifndef _ROSA_DYN_H_
+#define _ROSA_DYN_H_
 
-//The timer interrupt service routine
-void timerISR(void);
-extern void timerClearInterrupt(void);
+#include "kernel/rosa_tcb.h"
+#include "kernel/rosa_ker.h"
+#include "kernel/rosa_scheduler.h"
+#include "app/warning.h"
 
-//Timer period functions
-unsigned int timerPeriodGet(void);
-int timerPeriodSet(unsigned int ms);
-extern void timerPrescaleSet(int);
-extern void timerRCSet(int);
+//Create a dynamic task and install it into the ROSA kernel.
+Tcb * ROSA_taskAdd(Tcb * TCB, const char * id, const 	void * taskFunction, int * stack, const int stackSize);
 
-//Timer period variables
-extern int timerPrescale;
-extern int timerRC;
+//Create a dynamic task and install it into the ROSA kernel. Alternative function, shorter parameter list.
+Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio, const int stackSize);
 
-#endif /* _ROSA_TIMER_H_ */
+//Bookkeeping function, returns the number of dynamic tasks in the system
+int ROSA_dynTaskNrGet(void);
+
+#endif /* _ROSA_DYN_H_ */

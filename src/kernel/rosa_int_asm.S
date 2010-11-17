@@ -59,9 +59,114 @@
 	.global _evba
 	.type _evba, @function
 _evba:
-	.org  0x28
+  .org  0x000			//TODO:
+        // Unrecoverable Exception.
+_handle_Unrecoverable_Exception:
+        rjmp $
+
+        .org  0x004
+        // TLB Multiple Hit.
+_handle_TLB_Multiple_Hit:
+        rjmp $
+
+        .org  0x008
+        // Bus Error Data Fetch.
+_handle_Bus_Error_Data_Fetch:
+        rjmp $
+
+        .org  0x00C
+         // Bus Error Instruction Fetch.
+_handle_Bus_Error_Instruction_Fetch:
+        rjmp $
+
+        .org  0x010
+        // NMI.
+_handle_NMI:
+        rjmp $
+
+        .org  0x014
+        // Instruction Address.
+_handle_Instruction_Address:
+        rjmp $
+
+        .org  0x018
+        // ITLB Protection.
+_handle_ITLB_Protection:
+        rjmp $
+
+        .org  0x01C
+        // Breakpoint.
+_handle_Breakpoint:
+        rjmp $
+
+        .org  0x020
+        // Illegal Opcode.
+_handle_Illegal_Opcode:
+        rjmp $
+
+        .org  0x024
+        // Unimplemented Instruction.
+_handle_Unimplemented_Instruction:
+        rjmp $
+
+        .org  0x028
+        // Privilege Violation.
 _handle_Privilege_Violation:
-	rjmp privilegedCalls					//Check for legal priviledged calls.
+        rjmp privilegedCalls
+
+        .org  0x02C
+        // Floating-Point: UNUSED IN AVR32UC and AVR32AP.
+_handle_Floating_Point:
+        rjmp $
+
+        .org  0x030
+        // Coprocessor Absent: UNUSED IN AVR32UC.
+_handle_Coprocessor_Absent:
+        rjmp $
+
+        .org  0x034
+        // Data Address (Read).
+_handle_Data_Address_Read:
+        rjmp $
+
+        .org  0x038
+        // Data Address (Write).
+_handle_Data_Address_Write:
+        rjmp $
+
+        .org  0x03C
+        // DTLB Protection (Read).
+_handle_DTLB_Protection_Read:
+        rjmp $
+
+        .org  0x040
+        // DTLB Protection (Write).
+_handle_DTLB_Protection_Write:
+        rjmp $
+
+        .org  0x044
+        // DTLB Modified: UNUSED IN AVR32UC.
+_handle_DTLB_Modified:
+        rjmp $
+
+        .org  0x050
+        // ITLB Miss.
+_handle_ITLB_Miss:
+        rjmp $
+
+        .org  0x060
+        // DTLB Miss (Read).
+_handle_DTLB_Miss_Read:
+        rjmp $
+
+        .org  0x070
+        // DTLB Miss (Write).
+_handle_DTLB_Miss_Write:
+        rjmp $
+
+	//~ .org  0x28
+//~ _handle_Privilege_Violation:
+	//~ rjmp privilegedCalls					//Check for legal priviledged calls.
 
 	.org  0x100
 _handle_Supervisor_Call:
@@ -102,6 +207,13 @@ _int0_exit:
 .equ USERPC,0x04+PRIV_STACKOFFSET
 .equ USERR12,0x00
 
+//TODO: make a jumptable out of this, if it is ever worth it
+//~ privilegedCallsJumptable:
+	//~ dc.w interruptDisable, priv_interruptdisable
+	//~ dc.w interruptEnable, priv_interruptenable
+	//~ dc.w isInterruptEnabled, priv_isinterruptenable
+	//~ dc.w -1,-1
+
 privilegedCalls:
 //Stack frame at this point in time:
 //------------------------------------
@@ -130,7 +242,7 @@ priv_interruptdisable:
 priv_interruptenable:
 	lda.w r12,interruptEnable
 	cp.w r11,r12
-	brne priv_isinterruptenable
+	brne priv_isinterruptenabled
 	ld.w r12,sp[USERSR]
 	cbr r12,AVR32_SR_GM						//Ok, enable interrupts
 	st.w sp[USERSR],r12
@@ -138,7 +250,7 @@ priv_interruptenable:
 	rete
 
 	//Look for isInterruptEnable
-priv_isinterruptenable:
+priv_isinterruptenabled:
 	lda.w r12,isInterruptEnabled
 	cp.w r11,r12
 	brne privexception
@@ -161,7 +273,7 @@ privexception:								//Not ok.
  * 	extern void interruptInit(void);
  **********************************************************/
 interruptInit:
-	pushm r11,r12,lr
+	pushm r11,r12	//,lr
 	//Get autovector offset to _int0
 	lda.w r11,_int0
 	lda.w r12,_evba
@@ -175,9 +287,11 @@ interruptInit:
 	mov r12,lo(AVR32_INTC_ADDRESS+GRP14)
 	orh r12,hi(AVR32_INTC_ADDRESS+GRP14)
 	st.w r12,r11
-	popm r11,r12,lr
+	//popm r11,r12,lr	//TODO: clean up
+	//mov pc,lr
+	popm r11,r12
 	mov pc,lr
-
+	//popm r11,r12,pc	//TODO: hej hopp!
 
 /*********************************************************
  * interruptDisable
@@ -364,9 +478,9 @@ contextRestoreFromISR:
 	ld.w r0,r12[TCB.SAVER0]
 
 	//Restart timer 0, necessary as timer is stopped by the irq event.
-	pushm lr
-	call timerStart
-	popm lr
+	//~ pushm lr
+	//~ call timerStart	//TODO: Verify!!! Today 20101110 this is not the case
+	//~ popm lr
 
 	//Return back to the ISR handler
 	mov pc,lr

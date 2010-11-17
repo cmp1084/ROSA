@@ -2,7 +2,7 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
+               ///////,  ///,///   '/// ///''//,
              ,///' '///,'/////',/////'  /////'\\,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
@@ -24,32 +24,50 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+#ifndef _LIST_H_
+#define _LIST_H_
 
-#include <avr32/io.h>
-#include "kernel/rosa_systick.h"
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef NULL
+#define NULL 0
+#endif
+
+//List definition
+typedef struct s_item {
+	void * data;
+	struct s_item * next;
+} Item;
+
+typedef struct list_ {
+	int size;
+	void (*destroy)(void * data);
+	Item * head;
+	Item * tail;
+} List;
 
 /***********************************************************
- * Kernel timer functions
- ***********************************************************/
-extern void timerInit(unsigned int);
-extern void timerReset(void);
-extern void timerStart(void);
-extern void timerStop(void);
+ * listCreate
+ *
+ * Comment:
+ * Return FALSE upon failure
+ **********************************************************/
+//Create a list
+void listCreate(List * list, void (*destroy)(void * data));
 
-//The timer interrupt service routine
-void timerISR(void);
-extern void timerClearInterrupt(void);
+//Destroy list
+void listDestroy(List * list);
 
-//Timer period functions
-unsigned int timerPeriodGet(void);
-int timerPeriodSet(unsigned int ms);
-extern void timerPrescaleSet(int);
-extern void timerRCSet(int);
+//Insert an element after the listelement 'element'
+int listInsert(List * list, Item * item, const void * data);
 
-//Timer period variables
-extern int timerPrescale;
-extern int timerRC;
+//Remove an element after the item 'item'
+int listRemove(List * list, Item * item, void ** data);
 
-#endif /* _ROSA_TIMER_H_ */
+//Get the list size
+int listSize(List * list);
+Item * listHead(List * list);
+Item * listTail(List * list);
+
+#endif /* _LIST_H_ */

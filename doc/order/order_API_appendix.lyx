@@ -178,8 +178,8 @@ tcb * TCB - A pointer to the TCB block to be created.
 \end_layout
 
 \begin_layout Itemize
-char * id - A identification for the TCB block of length NAMESIZE (default
- NAMESIZE = 4)
+char * id - A identification for the TCB block of length CONFIG_NAMESIZE
+ (default CONFIG_NAMESIZE = 4)
 \end_layout
 
 \begin_layout Itemize
@@ -290,7 +290,7 @@ Parameters:
 \begin_inset Text
 
 \begin_layout Plain Layout
-tcb *TCB - A pointer to the TCB to destroy.
+None.
 \end_layout
 
 \end_inset

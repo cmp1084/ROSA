@@ -2,7 +2,7 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
+               ///////,  ///,///   '/// ///''//,
              ,///' '///,'/////',/////'  /////'\\,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
@@ -24,32 +24,12 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
+#ifndef _APP_WARNING_H_
+#define _APP_WARNING_H_
 
-#include <avr32/io.h>
-#include "kernel/rosa_systick.h"
+#include "drivers/led.h"
 
-/***********************************************************
- * Kernel timer functions
- ***********************************************************/
-extern void timerInit(unsigned int);
-extern void timerReset(void);
-extern void timerStart(void);
-extern void timerStop(void);
+void warningInit(void);
+void warning(int nr, int holdTime);
 
-//The timer interrupt service routine
-void timerISR(void);
-extern void timerClearInterrupt(void);
-
-//Timer period functions
-unsigned int timerPeriodGet(void);
-int timerPeriodSet(unsigned int ms);
-extern void timerPrescaleSet(int);
-extern void timerRCSet(int);
-
-//Timer period variables
-extern int timerPrescale;
-extern int timerRC;
-
-#endif /* _ROSA_TIMER_H_ */
+#endif /*  _APP_WARNING_H_ */

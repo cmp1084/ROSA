@@ -44,6 +44,20 @@ extern void interruptEnable(void);
 //Check if interrupts are enabled.
 extern int isInterruptEnabled(void);
 
+//Disable interrupt if interruptOnOff is TRUE
+void interruptDisableIf(int interruptOnOff);
+
+//Enable interrupt if interruptOnOff is TRUE
+void interruptEnableIf(int interruptOnOff);
+
+//Example of use:
+//	...
+//	int onOff = isInterruptEnabled()
+//	interruptDisableIf(onOff)
+//	...
+//	interruptEnableIf(onOff);
+//	....
+
 void ROSA_yieldFromISR(void);
 
 #endif /* _ROSA_INT_H_ */

@@ -24,18 +24,24 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
+#include <stdlib.h>
+
 //Kernel includes
 #include "kernel/rosa_def.h"
+#include "kernel/rosa_tcb.h"
 #include "kernel/rosa_ext.h"
 #include "kernel/rosa_ker.h"
 #include "kernel/rosa_tim.h"
+#include "kernel/rosa_dyn.h"
 #include "kernel/rosa_scheduler.h"
+#include "rosa_config.h"
 
 //Driver includes
 #include "drivers/button.h"
 #include "drivers/led.h"
 #include "drivers/pot.h"
 #include "drivers/usart.h"
+
 
 /***********************************************************
  * TCBLIST
@@ -44,7 +50,7 @@
  * 	Global variables that contain the list of TCB's that
  * 	have been installed into the kernel with ROSA_tcbInstall()
  **********************************************************/
-tcb * TCBLIST;
+Tcb * TCBLIST;
 
 /***********************************************************
  * EXECTASK
@@ -52,7 +58,42 @@ tcb * TCBLIST;
  * Comment:
  * 	Global variables that contain the current running TCB.
  **********************************************************/
-tcb * EXECTASK;
+Tcb * EXECTASK;
+
+//task priority, increments to higher priority for every task installed into the kernel
+//This is not really a good way to set priorities. :/
+//But since ROSA_tcbCreate() and ROSA_tcbInstall lack prio in the parameter list this simple solution was tested.
+//See ROSA_taskCreate() for alternative how it can be done.
+static int incrementalPrio = TASKINITIALPRIORITY;
+int incrementPrio(void)
+{
+	return incrementalPrio++;
+}
+
+/***********************************************************
+ * ROSA_prioSet
+ *
+ * Comment:
+ * Set the priority of a task.
+ * Changes the Tcb.
+ *
+ **********************************************************/
+void prioSet(Tcb * tcb, int newPrio)
+{
+	tcb->prio = newPrio;
+}
+
+
+/*************************************************************
+ * The idle task
+ ************************************************************/
+void idle(void)
+{
+	ledOn(LED4_GPIO);
+	while(1) {
+		//Sleep
+	}
+}
 
 /***********************************************************
  * ROSA_init
@@ -64,26 +105,37 @@ tcb * EXECTASK;
 void ROSA_init(void)
 {
 	//Do initialization of I/O drivers
+#if(CONFIG_LED)
 	ledInit();									//LEDs
+#endif
+#if(CONFIG_BUTTON)
 	buttonInit();								//Buttons
+#endif
+#if(CONFIG_JOYSTICK)
 	joystickInit();								//Joystick
+#endif
+#if(CONFIG_POT)
 	potInit();									//Potentiometer
-	usartInit(USART, &usart_options, FOSC0);	//Serial communication
+#endif
+#if(CONFIG_USART0)
+	usartInit(USART0, &usart0_options, FOSC0);	//Serial communication
+#endif
+#if(CONFIG_USART1)
+	usartInit(USART1, &usart1_options, FOSC0);	//Serial communication
+#endif
 
 	//Start with empty TCBLIST and no EXECTASK.
 	TCBLIST = NULL;
 	EXECTASK = NULL;
 
-	//Initialize the timer to 100 ms period.
-	//...
-	//timerInit(100);
-	//...
-
+#if(CONFIG_TIMER)
 	interruptDisable();
 	interruptInit();
-	timerInit(1);
-	timerStart();
-	interruptEnable();
+	timerInit(PERIODTIME_MS);
+#endif
+
+	//Idle task
+//	prioSet(ROSA_taskAdd(NULL, "idle", idle, NULL, 50), IDLEPRIORITY);
 }
 
 /***********************************************************
@@ -93,33 +145,33 @@ void ROSA_init(void)
  * 	Create the TCB with correct values.
  *
  **********************************************************/
-void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, int * tcbStack, int tcbStackSize)
+void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void * tcbFunction, unsigned int * tcbStack, const int tcbStackSize)
 {
 	int i;
 
-	//Initialize the tcb with the correct values
-	for(i = 0; i < NAMESIZE; i++) {
-		//Copy the id/name
-		tcbTask->id[i] = tcbName[i];
+	//Initialize the Tcb with the correct values
+	//Copy the id/name
+	for(i = 0; i < CONFIG_NAMESIZE; i++) {
+		tcb->id[i] = tcbName[i];
 	}
 
 	//Dont link this TCB anywhere yet.
-	tcbTask->nexttcb = NULL;
+	tcb->nexttcb = NULL;
 
 	//Set the task function start and return address.
-	tcbTask->staddr = tcbFunction;
-	tcbTask->retaddr = (int)tcbFunction;
+	tcb->staddr = tcbFunction;
+	tcb->retaddr = (int)tcbFunction;
 
 	//Set up the stack.
-	tcbTask->datasize = tcbStackSize;
-	tcbTask->dataarea = tcbStack + tcbStackSize;
-	tcbTask->saveusp = tcbTask->dataarea;
+	tcb->datasize = tcbStackSize;
+	tcb->dataarea = tcbStack + tcbStackSize;
+	tcb->saveusp = tcb->dataarea;
 
 	//Set the initial SR.
-	tcbTask->savesr = ROSA_INITIALSR;
+	tcb->savesr = ROSA_INITIALSR;
 
 	//Initialize context.
-	contextInit(tcbTask);
+	contextInit(tcb);
 }
 
 
@@ -130,22 +182,27 @@ void ROSA_tcbCreate(tcb * tcbTask, char tcbName[NAMESIZE], void *tcbFunction, in
  * 	Install the TCB into the TCBLIST.
  *
  **********************************************************/
-void ROSA_tcbInstall(tcb * tcbTask)
+void ROSA_tcbInstall(Tcb * tcb)
 {
-	tcb * tcbTmp;
+	Tcb * tcbTmp;
 
-	/* Is this the first tcb installed? */
+	/* Is this the first Tcb installed? */
 	if(TCBLIST == NULL) {
-		TCBLIST = tcbTask;
-		TCBLIST->nexttcb = tcbTask;			//Install the first tcb
-		tcbTask->nexttcb = TCBLIST;			//Make the list circular
+		TCBLIST = tcb;
+		TCBLIST->nexttcb = tcb;			//Install the first Tcb
+		tcb->nexttcb = TCBLIST;			//Make the list circular
 	}
 	else {
-		tcbTmp = TCBLIST;					//Find last tcb in the list
+		tcbTmp = TCBLIST;				//Find last Tcb in the list
 		while(tcbTmp->nexttcb != TCBLIST) {
 			tcbTmp = tcbTmp->nexttcb;
 		}
-		tcbTmp->nexttcb = tcbTask;			//Install tcb last in the list
-		tcbTask->nexttcb = TCBLIST;			//Make the list circular
+		tcbTmp->nexttcb = tcb;			//Install Tcb last in the list
+		tcb->nexttcb = TCBLIST;			//Make the list circular
 	}
+
+	//Set the initial priority
+	prioSet(tcb, incrementalPrio);
 }
+
+

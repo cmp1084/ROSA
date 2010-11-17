@@ -28,6 +28,7 @@
 #define _USART_H_
 
 #include <avr32/io.h>
+#include "kernel/rosa_ext.h"
 #include "kernel/rosa_int.h"
 #include "rosa_config.h"
 
@@ -66,16 +67,31 @@ typedef struct
 	unsigned char paritytype;
 	unsigned short stopbits;
 	unsigned char channelmode;
+	unsigned int rx_pin;
+	unsigned int tx_pin;
 } usart_options_t;
 
 //USART options.
-static const usart_options_t usart_options = {
-	.baudrate    = USART_BAUDRATE,
-	.charlength  = USART_CHARLEN,
+static const usart_options_t usart0_options = {
+	.baudrate    = USART0_BAUDRATE,
+	.charlength  = USART0_CHARLEN,
 	.paritytype  = USART_NO_PARITY,
 	.stopbits    = USART_1_STOPBIT,
 	.channelmode = USART_NORMAL_CHMODE,
+	.rx_pin      = USART0_RX_PIN,
+	.tx_pin      = USART0_TX_PIN
 };
+
+static const usart_options_t usart1_options = {
+	.baudrate    = USART1_BAUDRATE,
+	.charlength  = USART1_CHARLEN,
+	.paritytype  = USART_NO_PARITY,
+	.stopbits    = USART_1_STOPBIT,
+	.channelmode = USART_NORMAL_CHMODE,
+	.rx_pin      = USART1_RX_PIN,
+	.tx_pin      = USART1_TX_PIN
+};
+
 
 void usartReset(volatile avr32_usart_t *usart);
 int usartSetBaudrate(volatile avr32_usart_t *usart, unsigned int baudrate, unsigned long pba_hz);
@@ -84,6 +100,7 @@ void usartGetLine(volatile avr32_usart_t * usart, char * buf);
 char usartGetChar(volatile avr32_usart_t * usart);
 void usartWriteLine(volatile avr32_usart_t * usart, char * string);
 void usartWriteChar(volatile avr32_usart_t * usart, char ch);
-void usartWriteTcb(volatile avr32_usart_t * usart, tcb * dbgtcb);
+void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb);
+void usartWriteValue(volatile avr32_usart_t * usart, const unsigned int i);
 
 #endif /* _USART_H_ */
