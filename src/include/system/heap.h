@@ -24,32 +24,23 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _scheduler_H_
-#define _scheduler_H_
+#ifndef _HEAP_H_
+#define _HEAP_H_
 
-#include <stdlib.h>
-#include "kernel/rosa_ker.h"
-#include "kernel/rosa_systick.h"
-#include "system/heap.h"
+typedef struct Heap_ {
+	int size;
+	int (*compare)(const void * key1, const void * key2);
+	void (*destroy)(void * data);
+	void ** tree;
+} Heap;
 
-#define DESTROYED 2
-//Global variable to communicate from ROSA_wait() and _waitUntil() to the prioscheduler()
-//If moveTaskToWaitingHeap = FALSE a task go to readyHeap at task switch
-//If moveTaskToWaitingHeap = TRUE a task go to waitingHeap at task switch
-//If moveTaskToWaitingHeap = DESTROYED the task is never reinserted into any state. It vanish into the void.
-extern int moveTaskToWaitingHeap;
-extern Heap * readyHeap;
-extern Heap * waitingHeap;
-/***********************************************************
- * scheduler
- *
- * Comment:
- * 	Minimalistic scheduler for round robin task switch.
- * 	This scheduler choose the next task to execute by looking
- * 	at the nexttcb of the current running task.
- **********************************************************/
-void scheduler(void);
-void prioscheduler(void);
-void prioschedulerInit(void);
+void heapInit(Heap * heap, int (*compare)(const void * key1, const void * key2), void (*destroy)(void * data));
+void heapDestroy(Heap * heap);
+int heapInsert(Heap * heap, const void * data);
+int heapExtract(Heap * heap, void ** data);
+#define heapSize(heap) ((heap)->size)
 
-#endif /* _scheduler_H_ */
+#define heapPeek(heap) ((heap)->tree == NULL ? NULL : (heap)->tree[0])
+
+#endif /* _HEAP_H_ */
+

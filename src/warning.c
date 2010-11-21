@@ -2,8 +2,8 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
-             ,///' '///,'/////',/////'  /////'/;,
+               ///////,  ///,///   '/// ///''\\,
+             ,///' '///,'/////',/////'  /////'\\,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
 
@@ -22,63 +22,61 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+/* Tab size: 4 */
 
-#include "kernel/rosa_systick.h"
+#include "app/warning.h"
 
-//Timer tick interrupt routine
-static int sysTick = 0;
+static int warningLedNr;
+static int warningHoldTime
+static sem_warning;
+
 /***********************************************************
+ * warning
+ *
+ * Comment:
+ * Create a semaphore. Initiate it to be unlocked.
+ *
  *
  **********************************************************/
-void _sysTickIncrease(void)
+void warning(int lednr, int holdTime)
 {
-	sysTick++;
+	warningLedNr = lednr;
+	warningHoldTime = holdTime;
+	ROSA_taskAdd(NULL, "warn", taskWarning, NULL, 20);
 }
 
-/***********************************************************
-
- **********************************************************/
-unsigned int ROSA_sysTickGet(void)
-{
-	return sysTick;
-}
-
-/***********************************************************
-
- **********************************************************/
-void _sysTickReset(void)
-{
-	sysTick = 0;
-}
-
-/***********************************************************
-
- **********************************************************/
-void ROSA_wait(unsigned int ticks)
+void warningWait(unsigned int ticks, led)
 {
 	unsigned int now;
 	now = ROSA_sysTickGet();
-	//while(ROSA_sysTickGet() < (now + ticks)) {
-		EXECTASK->waitUntil = now + ticks;
-		moveTaskToWaitingHeap = TRUE;
+	while(ROSA_sysTickGet() <= (now + ticks)) {
+		ledOn(
 		ROSA_yield();
-	//}
+	}
 }
 
+
 /***********************************************************
- * ROSA_timerPrescaleSet
+ * taskWarning
  *
  * Comment:
- * 	Set the prescale value of the timer
+ * This is the task that display the warning.
  *
- * C prototypes:
- *  extern void ROSA_timerPrescaleSet(void);
+ * TODO:
+ * No other warnings are allowed to run while this warning
+ * is running. This might case delays in later warnings.
+ *
  **********************************************************/
-void ROSA_waitUntil(unsigned int absoluteTick)
+void taskWarning(void)
 {
-//	while(ROSA_sysTickGet() < absoluteTick) {
-		EXECTASK->waitUntil = absoluteTick;
-		moveTaskToWaitingHeap = TRUE;
+	unsigned int now;
+
+	while(!ROSA_semTake(&sem_warning));
+	now = ROSA_sysTickGet();
+	while(ROSA_sysTickGet() <= (now + warningHoldTime)) {
+		ledOn(warningLedNr);
 		ROSA_yield();
-	//}
+	}
+	ROSA_semGive(&sem_warning);
+	ROSA_taskDestroy();
 }

@@ -25,13 +25,11 @@
 /* Tab size: 4 */
 
 #include "kernel/rosa_scheduler.h"
-//#include "system/list.h"
-#include "system/queue.h"
 
-Queue * readyQueue = NULL;
-Queue * waitingQueue = NULL;
-Queue * prioList = NULL;
+Heap * waitingHeap = NULL;
+Heap * readyHeap = NULL;
 
+int moveTaskToWaitingHeap = FALSE;
 /***********************************************************
  * scheduler
  *
@@ -45,125 +43,85 @@ void scheduler(void)
 	prioscheduler();
 	return;
 	//Find the next task to execute
-	EXECTASK = EXECTASK->nexttcb;
+	//EXECTASK = EXECTASK->nexttcb;
 }
-//~
 
-//~
-//~ void schedulerPrintPrioList(void)
-//~ {
-	//~ Tcb * tmp, * tmp2;
-	//~ tmp = TCBLIST;
-//~
-	//~ if(!prioList) {
-		//~ return;
-	//~ }
-//~
-	//~ do {
-		//~ tmp2 = (Tcb *) prioList->head->data;
-		//~ usartWriteLine(USART, tmp2->id);
-//~
-//~
-	//~ }
-//~
-//~ }
 
-void schedulderInit(void)
+int waitingcmp(const void * key1, const void * key2)
 {
-	//First make sure the readyQueue exist
-	if(!readyQueue) {
-		if((readyQueue = malloc(sizeof(Queue)))) {
-			listCreate(readyQueue, NULL);
-		}
-	}
-	//Then make sure the waitingQueue exist
-	if(!waitingQueue) {
-		if((waitingQueue = malloc(sizeof(Queue)))) {
-			listCreate(waitingQueue, NULL);
-		}
-	}
-
+	int waitUntil1 = ((Tcb *)key1)->waitUntil;
+	int waitUntil2 = ((Tcb *)key2)->waitUntil;
+	if(waitUntil1 > waitUntil2) return -1;
+	if(waitUntil1 == waitUntil2) return 0;
+	return 1;
 }
 
-
-void taskWakeUp(Item * task)
+int readycmp(const void * key1, const void * key2)
 {
-	//Delete from waitingQueue
-	queueRemove(waitingQueue, task);
-	//Insert into readyQueue
-	queueAdd(readyQueue, task);
-	//~ queueSortPrio(readyQueue);	//Not implemented yet.
+	int prio1 = ((Tcb *)key1)->prio;
+	int prio2 = ((Tcb *)key2)->prio;
+	if(prio1 > prio2) return 1;
+	if(prio1 == prio2) return 0;
+	return -1;
 }
 
-void taskCheckWakeUp()
+void prioschedulerInit(void)
 {
-	Queue * queue;
-	Item * waitingTask;
-	unsigned int now;
-
-	taskWakeUp();
-	//First look for any tasks in the waitingQueue that are
-	//done waiting and want to run (at thier priority)
-	queue = waitingQueue;
-
-	now = ROSA_sysTickGet();
-
-	if(queue) {
-		waitingTask = queue->data;
-		while(waitingTask) {
-			if(waitingTask->data->wakeTime == now) {
-				//Wake this task up.
-				//Move to readyQueue
-				taskWakeUp(waitingTask);
-			}
-
-			//Continue with next task in the waitingQueue.
-			waitingTask = waitingTask->next;
-		}
+	waitingHeap = malloc(sizeof(Heap));
+	readyHeap = malloc(sizeof(Heap));
+	if(!waitingHeap && !readyHeap) {
+		while(1); //Error
 	}
+	heapInit(waitingHeap, &waitingcmp, NULL);
+	heapInit(readyHeap, &readycmp, NULL);
 }
 
-/***********************************************************
- * scheduler
- *
- * Comment:
- * Priority based scheduler.
- *
-	//List definition
-	typedef struct s_item {
-		void * data;
-		struct s_item * next;
-	} Item;
+void moveToReadyHeap(void)
+{
+	Tcb * tcb;
+	heapExtract(waitingHeap, (void **)&tcb);
+	heapInsert(readyHeap, tcb);
+}
 
-	typedef struct list_ {
-		int size;
-		void (*destroy)(void * data);
-		Item * head;
-		Item * tail;
-	} List;
- *
- **********************************************************/
 void prioscheduler(void)
 {
-	taskCheckWakeUp();
-}
+	unsigned int now;
 
-void oldprioscheduler(void)
-{
-	Tcb * tmp, * tmp2;
-	tmp = TCBLIST;
-
-
-	//Sort according to the priority
-	do {
-		tmp2 = (Tcb *)prioList->head->data;
-		if(tmp->prio >= tmp2->prio) {
-			queueAdd(prioList, tmp);
+	//Look for waiting tasks that are ready to be moved to ready queue
+	now = ROSA_sysTickGet();
+	while(waitingHeap->tree) {
+		if(((Tcb *)heapPeek(waitingHeap))->waitUntil <= now) {
+			moveToReadyHeap();
 		}
 		else {
-			queueAdd(prioList, tmp);
-		tmp = tmp->nexttcb;
+			break;
 		}
-	} while(tmp != TCBLIST);
-	//~ schedulerPrintPrioList();
+	}
+
+	//If moveTaskToWaitingHeap = FALSE a task go to readyHeap at task switch
+	//If moveTaskToWaitingHeap = TRUE a task go to waitingHeap at task switch
+	//If moveTaskToWaitingHeap = DESTROYED a task doesnt go to any state at all.
+	switch(moveTaskToWaitingHeap) {
+		case FALSE:
+			if(heapInsert(readyHeap, EXECTASK) != 0) {
+				while(1); //Error
+			}
+			break;
+		case TRUE:
+			if(heapInsert(waitingHeap, EXECTASK) != 0) {
+				while(1); //Error
+			}
+			moveTaskToWaitingHeap = FALSE;
+			break;
+		case DESTROYED:
+			moveTaskToWaitingHeap = FALSE;
+			break;
+		default:
+			moveTaskToWaitingHeap = FALSE;
+			break;
+	}
+	if(heapExtract(readyHeap, (void **)&EXECTASK) != 0) {
+		//EXECTASK = idle;
+	}
 }
+

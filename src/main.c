@@ -63,12 +63,12 @@ sem sem_usart;
 
 //Data blocks for the tasks
 #define T1_STACK_SIZE 0x40
-static int t1_stack[T1_STACK_SIZE];
-static Tcb t1_tcb;
+//~ static int t1_stack[T1_STACK_SIZE];
+//~ static Tcb t1_tcb;
 
 #define T2_STACK_SIZE 0x40
-static int t2_stack[T2_STACK_SIZE];
-static Tcb t2_tcb;
+//~ static int t2_stack[T2_STACK_SIZE];
+//~ static Tcb t2_tcb;
 
 /*************************************************************
  * Task1
@@ -79,8 +79,8 @@ void task1(void)
 {
 	ROSA_wait(500);
 	while(1) {
-		ledOn(LED1_GPIO);
-		ledOff(LED0_GPIO);
+		ledOn(LED0_GPIO);
+		ledOff(LED1_GPIO);
 		ROSA_wait(1001);
 	}
 }
@@ -91,8 +91,8 @@ void task1(void)
 void task2(void)
 {
 	while(1) {
-		ledOff(LED1_GPIO);
-		ledOn(LED0_GPIO);
+		ledOff(LED0_GPIO);
+		ledOn(LED1_GPIO);
 		ROSA_wait(1000);
 	}
 }
@@ -104,8 +104,8 @@ void task3(void)
 {
 	while(1) {
 		ledToggle(LED2_GPIO);
-		ledOff(LED0_GPIO);
-		ledOff(LED1_GPIO);
+		//~ ledOff(LED0_GPIO);
+		//~ ledOff(LED1_GPIO);
 
 		if(isButton(PUSH_BUTTON_0)) {
 			//ROSA_taskCreate("but0", but0, 2, 0x40);
@@ -121,7 +121,7 @@ void task3(void)
 			//~ ROSA_taskCreate("dynH", stat3, 2, 0x10);
 			ROSA_taskCreate("dynI", stat3, 2, 0x10);
 		}
-		ROSA_wait(400);
+		ROSA_wait(500);
 	}
 }
 
@@ -239,15 +239,15 @@ int main(void)
 	usartWriteLine(USART0, "\nROSA starting...\n");
 
 	//Create tasks and install them into the ROSA kernel
-	ROSA_tcbCreate(&t1_tcb, "tsk1", task1, t1_stack, T1_STACK_SIZE);
-	ROSA_tcbInstall(&t1_tcb);
-	ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
-	ROSA_tcbInstall(&t2_tcb);
+	//~ ROSA_tcbCreate(&t1_tcb, "tsk1", task1, t1_stack, T1_STACK_SIZE);
+	//~ ROSA_tcbInstall(&t1_tcb);
+	//~ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
+	//~ ROSA_tcbInstall(&t2_tcb);
 
-	//~ ROSA_taskCreate("tsk1", task1, 1, 0x20);
-	//~ ROSA_taskCreate("tsk2", task2, 1, 0x20);
-	ROSA_taskCreate("tsk3", task3, 1, 0x20);
-	ROSA_taskCreate("stat", stat, 1, 0x20);
+	ROSA_taskCreate("tsk1", task1, 2, 0x30);
+	ROSA_taskCreate("tsk2", task2, 3, 0x30);
+	ROSA_taskCreate("tsk3", task3, 4, 0x30);
+	//ROSA_taskCreate("stat", stat, 3, 0x20);
 	//~ ROSA_taskCreate("tskC", stat, 2, 0x40);
 	//ROSA_taskAdd(NULL, "dyns", stat2, NULL, 0x40);	//This task will not persist
 	//~ ROSA_taskCreate("dynC", stat2, 2, 0x40);

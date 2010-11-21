@@ -27,6 +27,8 @@
 
 #include "kernel/rosa_ext.h"
 #include "kernel/rosa_ker.h"
+#include "kernel/rosa_scheduler.h"
+#include "system/heap.h"
 
 /***********************************************************
  * _sysTickIncrease

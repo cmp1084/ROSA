@@ -78,20 +78,20 @@ int incrementPrio(void)
  * Changes the Tcb.
  *
  **********************************************************/
-void prioSet(Tcb * tcb, int newPrio)
-{
-	tcb->prio = newPrio;
-}
+void prioSet(Tcb * tcb, int newPrio) { tcb->prio = newPrio; }
 
 
 /*************************************************************
  * The idle task
+ *
+ * Comment:
+ * Idle task run when no other task are ready to run.
+ * Idle task may not ROSA_wait() or _waitUntil();
  ************************************************************/
 void idle(void)
 {
-	ledOn(LED4_GPIO);
 	while(1) {
-		//Sleep
+		ledToggle(LED4_GPIO);
 	}
 }
 
@@ -104,6 +104,11 @@ void idle(void)
  **********************************************************/
 void ROSA_init(void)
 {
+	//Start with empty TCBLIST and no EXECTASK.
+	TCBLIST = NULL;
+	EXECTASK = NULL;
+	prioschedulerInit();
+
 	//Do initialization of I/O drivers
 #if(CONFIG_LED)
 	ledInit();									//LEDs
@@ -123,19 +128,11 @@ void ROSA_init(void)
 #if(CONFIG_USART1)
 	usartInit(USART1, &usart1_options, FOSC0);	//Serial communication
 #endif
-
-	//Start with empty TCBLIST and no EXECTASK.
-	TCBLIST = NULL;
-	EXECTASK = NULL;
-
 #if(CONFIG_TIMER)
 	interruptDisable();
 	interruptInit();
 	timerInit(PERIODTIME_MS);
 #endif
-
-	//Idle task
-//	prioSet(ROSA_taskAdd(NULL, "idle", idle, NULL, 50), IDLEPRIORITY);
 }
 
 /***********************************************************
@@ -170,6 +167,13 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	//Set the initial SR.
 	tcb->savesr = ROSA_INITIALSR;
 
+	//Set waitUntil. At which sysTick the task should go into ready state.
+	//Set the task to be ready at system start, i.e. sysTick = 0.
+	tcb->waitUntil = 0;
+
+	//Set priority (this should be passed as a parameter, the API is crippled)
+	prioSet(tcb, DEFAULTLOWPRIO);
+
 	//Initialize context.
 	contextInit(tcb);
 }
@@ -203,6 +207,17 @@ void ROSA_tcbInstall(Tcb * tcb)
 
 	//Set the initial priority
 	prioSet(tcb, incrementalPrio);
+
+	heapInsert(readyHeap, tcb);
 }
 
-
+extern void _ROSA_start(void);
+void ROSA_start(void)
+{
+	//Idle task
+	//prioSet(ROSA_taskAdd(NULL, "idle", idle, NULL, 50), IDLEPRIORITY);
+	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x20);
+	//Get the highest prio task that is ready to run
+	heapExtract(waitingHeap, (void **)&EXECTASK);
+	_ROSA_start();
+}

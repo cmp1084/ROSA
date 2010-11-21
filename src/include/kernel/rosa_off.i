@@ -59,7 +59,8 @@ TCB.SAVER1:     .word 0     /* Special register used in kernel.    */
 TCB.SAVESR:     .word 0     /* Status register.                    */
 TCB.RETADDR:    .word 0     /* Return address, i.e. the resume     */
                             /* address of the task                 */
-TCB.PRIO:        .word 0    /* Priority */
+TCB.PRIO:       .word 0     /* Priority */
+TCB.WAITUNTIL:  .word 0     /* Wait until this sysTick before moving into ready state */
 TCB.SAVEREG:				/* The 14 registers interesting for context switch */
 TCB.SAVEREG.LR:  .word 0
 TCB.SAVEREG.SP:  .word 0

@@ -46,7 +46,7 @@ typedef struct Tcbrecord_t {
 	struct Tcbrecord_t * nexttcb;
 	char id[CONFIG_NAMESIZE];               //The task id/name
 	void (*staddr)(void);                   //Start address
-	unsigned int * dataarea;                        //The stack data area
+	unsigned int * dataarea;                //The stack data area
 	unsigned int datasize;                  //The stack size
 	unsigned int * saveusp;                 //The current stack position
 	unsigned int SAVER0;                    //Temporary work register
@@ -54,8 +54,8 @@ typedef struct Tcbrecord_t {
 	unsigned int savesr;                    //The current status register
 	unsigned int retaddr;                   //The return address
 	unsigned int prio;                      //The task priority
+	unsigned int waitUntil;                 //The sysTick on which the task should go from waiting state to ready state
 	unsigned int savereg[16];               //The CPU registers
-
 } Tcb;
 
 #endif /*  _ROSA_TCB_H_ */

@@ -31,17 +31,19 @@ File creation date: 20101108 15:41:45
 
 #include "kernel/rosa_dyn.h"
 #include "kernel/rosa_int.h"
+#include "kernel/rosa_scheduler.h"
 #include <stdlib.h>				//malloc, free
 
 //Only used during debug
 //Driver includes
-#include "drivers/led.h"
-//Include application files
-#include "app/warning.h"	//ALso only used during debug, TODO: remove
+//~ #include "drivers/led.h" TODO: REMOVE
 
-extern void contextRestore(void);
-extern void taskDestroyed(void);
-extern void prioSet(Tcb * tcb, int prio);
+
+#include "rosa_config.h"
+
+extern void contextRestore(void);			//rosa_ker_asm.S
+extern void taskDestroyed(void);			//rosa_ker_asm.S
+extern void prioSet(Tcb * tcb, int prio);	//rosa_ker.c
 
 /***********************************************************
  * Comment:
@@ -94,6 +96,10 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 
 	//Set the task priority
 	prioSet(tcb, prio);
+
+	//Insert in the ready state
+	heapInsert(waitingHeap, tcb);
+
 	_dynTaskNrInc();
 	interruptEnableIf(interruptOnOff);
 	return tcb;
@@ -110,7 +116,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
  **********************************************************/
 Tcb * ROSA_taskAdd(Tcb * tcbDONTCARE, const char * id, const void * task, int * stackDONTCARE, const int stackSize)
 {
-	int prio = 1;
+	int prio = DEFAULTLOWPRIO;
 	return ROSA_taskCreate(id, task, prio, stackSize);
 }
 
@@ -132,13 +138,29 @@ void _taskDestroy(void)
 	unsigned int * stack;
 	Tcb * tcb, * tcbtmp;
 
-	tcb = TCBLIST;
+	tcb = EXECTASK;
+
+	moveTaskToWaitingHeap = DESTROYED;
+
+	//Find the stack
+	stack = tcb->dataarea - tcb->datasize;
+
+	//Free all resources	//TODO: go through semaphore list and free resources.
+	free(stack);
+	free(tcb);
+
+	//Bookkeeping
+	_dynTaskNrDec();
+	return;
+
+
 
 	//Are we removing the first element?
 	if(EXECTASK == TCBLIST) {
 		TCBLIST = TCBLIST->nexttcb;	//Link out the first element
 	}
 	else {
+		tcb = TCBLIST;
 		do {
 			tcbtmp = tcb;
 			tcb = tcb->nexttcb;

@@ -83,15 +83,15 @@ ASMSOURCE= \
 ##############################################################
 SYSTEMSOURCE= \
 	$(SYSTEMDIR)/semaphore.c \
-	$(SYSTEMDIR)/list.c \
-	$(SYSTEMDIR)/queue.c \
+	$(SYSTEMDIR)/heap.c
+#	$(SYSTEMDIR)/list.c \
+#	$(SYSTEMDIR)/queue.c \
 
 ##############################################################
 #Application sources that uses ROSA
 ##############################################################
 APPSOURCE= \
 	$(APPDIR)/warning.c \
-
 
 ##############################################################
 #Header files are located in these files
@@ -140,8 +140,7 @@ OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o) $(APPSOURCE
 
 TEXTPRECOMPILE = @echo -n "---  $< "
 TEXTPOSTCOMPILE = @echo -e "\r[OK]"
-err =
-ERR=
+
 ##############################################################
 #Makefile rules
 ##############################################################

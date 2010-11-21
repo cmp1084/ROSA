@@ -42,11 +42,10 @@
 	.global contextInit
 	.global ROSA_start
 	.global ROSA_yield
-	//.global contextRestore
 	.global ROSA_taskDestroy
 	.global _SSPGet
 	.global _USPGet
-
+	.global _ROSA_start
 /*********************************************************
 * ROSA_start kernel code
 *
@@ -56,12 +55,15 @@
 * the TCBLIST.
 *
 *********************************************************/
-ROSA_start:
+_ROSA_start:
 	//Put the first task from TCBLIST into EXECTASK
-	lda.w r12,TCBLIST
-	lda.w r11,EXECTASK
-	ld.w r12,r12[0x0]
-	st.w r11[0x0],r12
+	//~ lda.w r12,TCBLIST
+	//~ lda.w r11,EXECTASK
+	//~ ld.w r12,r12[0x0]
+	//~ st.w r11[0x0],r12
+
+	lda.w r12,EXECTASK
+	ld.w r12,r12[0]
 
 	//Set up start USP
 	ld.w r0,r12[TCB.SAVEUSP]
@@ -77,19 +79,9 @@ ROSA_start:
 	mtsr 0x0,r0
 
 	//Load start registers
-	ld.w r0,r12[TCB.SAVEREG.R0]
-	ld.w r1,r12[TCB.SAVEREG.R1]
-	ld.w r2,r12[TCB.SAVEREG.R2]
-	ld.w r3,r12[TCB.SAVEREG.R3]
-	ld.w r4,r12[TCB.SAVEREG.R4]
-	ld.w r5,r12[TCB.SAVEREG.R5]
-	ld.w r6,r12[TCB.SAVEREG.R6]
-	ld.w r7,r12[TCB.SAVEREG.R7]
-	ld.w r8,r12[TCB.SAVEREG.R8]
-	ld.w r9,r12[TCB.SAVEREG.R9]
-	ld.w r10,r12[TCB.SAVEREG.R10]
-	ld.w r11,r12[TCB.SAVEREG.R11]
-	ld.w r12,r12[TCB.SAVEREG.R12]
+	//~ ld.w r0,r12[TCB.SAVEREG.R0]
+	//~ ...
+	//~ ld.w r12,r12[TCB.SAVEREG.R12]
 
 #if(CONFIG_TIMER)
 	pushm lr
@@ -118,20 +110,10 @@ contextInit:
 	st.w r12[TCB.SAVEREG.LR],r11
 
 	//Initialize regs to zero
-	mov r11,0x0
-	st.w r12[TCB.SAVEREG.R0],r11
-	st.w r12[TCB.SAVEREG.R1],r11
-	st.w r12[TCB.SAVEREG.R2],r11
-	st.w r12[TCB.SAVEREG.R3],r11
-	st.w r12[TCB.SAVEREG.R4],r11
-	st.w r12[TCB.SAVEREG.R5],r11
-	st.w r12[TCB.SAVEREG.R6],r11
-	st.w r12[TCB.SAVEREG.R7],r11
-	st.w r12[TCB.SAVEREG.R8],r11
-	st.w r12[TCB.SAVEREG.R9],r11
-	st.w r12[TCB.SAVEREG.R10],r11
-	st.w r12[TCB.SAVEREG.R11],r11
-	st.w r12[TCB.SAVEREG.R12],r11
+	//~ mov r11,0x0
+	//~ st.w r12[TCB.SAVEREG.R0],r11
+	//~ ...
+	//~ st.w r12[TCB.SAVEREG.R12],r11
 	popm r11
 	mov pc,lr
 
@@ -319,10 +301,10 @@ _ROSA_taskDestroy:
 
 	//Prepare rescheduling
 	//Set EXECTASK = TCBLIST
-	lda.w r12,TCBLIST
-	lda.w r11,EXECTASK
-	ld.w r12,r12[0x0]
-	st.w r11[0x0],r12
+	//~ lda.w r12,TCBLIST
+	//~ lda.w r11,EXECTASK
+	//~ ld.w r12,r12[0x0]
+	//~ st.w r11[0x0],r12
 
 	//Reschedule.
 	call scheduler
@@ -350,5 +332,5 @@ _scallUSPGet:
 	mov r12,sp
 	st.w --sp,r12
 	stmts sp,sp
-	ld.w r12,sp++					//USP in r12
+	ld.w r12,sp++                  //USP in r12
 	rets

@@ -134,6 +134,8 @@
  * Task default priority configures
  **********************************************************/
 #define IDLEPRIORITY 0
+#define DEFAULTLOWPRIO 1
 #define TASKINITIALPRIORITY 1
+
 
 #endif /* _ROSA_CONFIG_H_ */
