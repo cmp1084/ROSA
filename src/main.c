@@ -48,7 +48,7 @@
 //Include application files
 #include "app/warning.h"
 
-#define OUTPUTTIME 0x10
+#define OUTPUTTIME 0x100
 
 
 void stat2(void);
@@ -77,11 +77,11 @@ sem sem_usart;
  ************************************************************/
 void task1(void)
 {
-	ROSA_wait(500);
+	ROSA_wait(50);
 	while(1) {
 		ledOn(LED0_GPIO);
 		ledOff(LED1_GPIO);
-		ROSA_wait(1001);
+		ROSA_wait(101);
 	}
 }
 
@@ -93,7 +93,7 @@ void task2(void)
 	while(1) {
 		ledOff(LED0_GPIO);
 		ledOn(LED1_GPIO);
-		ROSA_wait(1000);
+		ROSA_wait(100);
 	}
 }
 
@@ -109,19 +109,14 @@ void task3(void)
 
 		if(isButton(PUSH_BUTTON_0)) {
 			//ROSA_taskCreate("but0", but0, 2, 0x40);
-			ROSA_taskCreate("---K", stat2, 2, 0x30);
+			ROSA_taskCreate("---K", stat2, 2, 0x40);
 			ledToggle(LED3_GPIO);
 		}
 		if(isButton(PUSH_BUTTON_1)) {
-			ROSA_taskCreate("---C", stat2, 2, 0x30);
-			ROSA_taskCreate("dynD", stat3, 2, 0x30);
-			//~ ROSA_taskCreate("dynE", stat2, 2, 0x10);
-			//~ ROSA_taskCreate("dynF", stat2, 2, 0x10);
-			//~ ROSA_taskCreate("dynG", stat3, 2, 0x10);
-			//~ ROSA_taskCreate("dynH", stat3, 2, 0x10);
-			//ROSA_taskCreate("dynI", stat3, 2, 0x10);
+			ROSA_taskCreate("---C", stat2, 2, 0x40);
+			ROSA_taskCreate("dynD", stat3, 1, 0x40);
 		}
-		ROSA_wait(1002);
+		ROSA_wait(52);
 	}
 }
 
@@ -131,13 +126,18 @@ extern int _SSPGet(void);
 extern int _USPGet(void);
 void printStatus(void)
 {
-	int usp;
+	int usp, now;
 
 	//Wait until USART is free
-	while(!ROSA_semTake(&sem_usart));
+	while(!ROSA_semTake(&sem_usart)) {
+		now = ROSA_sysTickGet();
+		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		taskState = WAITING;
+		ROSA_yield();
+	}
 
 	//usartWriteLine(USART, "\f");
-	usartWriteLine(USART0, "\e[0;0H");
+//	usartWriteLine(USART0, "\e[0;0H");
 	usartWriteLine(USART0, "SysTick: ");
 	usartWriteValue(USART0, ROSA_sysTickGet());
 
@@ -150,13 +150,14 @@ void printStatus(void)
 	usartWriteLine(USART0, "\nUSP: ");
 	usartWriteValue(USART0, usp);
 
-	//~ usartWriteLine(USART0, "\n\n");
+	usartWriteLine(USART0, "\n");
 	//Give the USART back
 	ROSA_semGive(&sem_usart);
 
 	//ledOff(LED3_GPIO);
 	ROSA_taskDestroy();
-	//~ while(1);	//TODO: Does this help?
+	//ROSA_wait(10000);
+	while(1);	//TODO: Does this help?
 }
 
 void stat(void)
@@ -173,13 +174,19 @@ void stat(void)
 void stat2(void)
 {
 	char taskname[] = "dyn-\n";
+	int now;
 
 	while(1) {
-		while(!ROSA_semTake(&sem_usart));
+		while(!ROSA_semTake(&sem_usart)) {
+		now = ROSA_sysTickGet();
+		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		taskState = WAITING;
+			ROSA_yield();
+		}
 		taskname[3] = EXECTASK->id[3];
 		usartWriteLine(USART0, taskname);
 		ROSA_semGive(&sem_usart);
-		ROSA_wait(10000);
+		ROSA_wait(1000);
 		ROSA_taskDestroy();
 	}
 }
@@ -188,18 +195,24 @@ void stat2(void)
 void stat3(void)
 {
 	char taskname[] = "dyn-\n";
-
+	int now;
 	while(1) {
-		//while(!ROSA_semTake(&sem_usart));
+		while(!ROSA_semTake(&sem_usart)) {
+		now = ROSA_sysTickGet();
+		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		taskState = WAITING;
+			ROSA_yield();
+		};
 		//ROSA_taskAdd(NULL, "dyns", printStatus, NULL, 40);	//This task will not persist
 		taskname[3] = EXECTASK->id[3];
-		//usartWriteLine(USART0, taskname);
-		//ROSA_semGive(&sem_usart);
-		ROSA_wait(500);
+		usartWriteLine(USART0, taskname);
+		ROSA_semGive(&sem_usart);
+		ROSA_wait(50);
 		if(isButton(PUSH_BUTTON_2)) {
 			ROSA_taskDestroy();
-			ROSA_wait(500);
+			ROSA_wait(50);
 		}
+		ROSA_wait(5);
 	}
 }
 
@@ -222,9 +235,9 @@ int main(void)
 	//~ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 	//~ ROSA_tcbInstall(&t2_tcb);
 
-	ROSA_taskCreate("tsk1", task1, 2, 0x40);
-	ROSA_taskCreate("tsk2", task2, 3, 0x40);
-	ROSA_taskCreate("tsk3", task3, 4, 0x40);
+	ROSA_taskCreate("tsk1", task1, 1, 0x40);
+	ROSA_taskCreate("tsk2", task2, 2, 0x40);
+	ROSA_taskCreate("tsk3", task3, 3, 0x40);
 	ROSA_taskCreate("stat", stat, 6, 0x40);
 	//~ ROSA_taskCreate("tskC", stat, 2, 0x40);
 	//ROSA_taskAdd(NULL, "dyns", stat2, NULL, 0x40);	//This task will not persist

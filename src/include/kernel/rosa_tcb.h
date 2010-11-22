@@ -43,7 +43,7 @@ File creation date: 20101109 10:15:24
  *
  **********************************************************/
 typedef struct Tcbrecord_t {
-	struct Tcbrecord_t * nexttcb;
+	//struct Tcbrecord_t * nexttcb;
 	char id[CONFIG_NAMESIZE];               //The task id/name
 	void (*staddr)(void);                   //Start address
 	unsigned int * dataarea;                //The stack data area

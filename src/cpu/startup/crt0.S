@@ -68,7 +68,7 @@ xw8:ld.w r11,r12[AVR32_PM_POSCSR]
 	st.w r12[AVR32_PM_MCCTRL],r11
 
 	mov r0,0x0
-	mov r1,0xdead
+	mov r1,0xdead	//TODO:
 _clrmem:
 	st.w r0[0x0],r1
 	sub r0,-4

@@ -29,7 +29,11 @@ File creation date: 20101108 15:41:45
 
 */
 
+#include "kernel/rosa_systick.h"
 #include "system/semaphore.h"
+
+//Debugging //TODO: Remove
+#include "drivers/led.h"
 
 /***********************************************************
  * ROSA_semCreate
@@ -91,6 +95,8 @@ void ROSA_semGive(sem * semaphore)
 
 	int interruptOnOff = isInterruptEnabled();
 	if(semaphore->tcbHandle != EXECTASK) {	//Only the owner may return a semaphore. Oh! How bad!!!
+		ledOn(LED7_GPIO);
+		while(1);
 		interruptEnableIf(interruptOnOff);
 		return;
 	}
@@ -128,10 +134,10 @@ int ROSA_semTake(sem * semaphore)
 	return OK;
 }
 
-void ROSA_semGiveTo(Tcb * tcbblock, sem * semaphore)
-{
-	//If current task own the semaphore, give it to another task
-	if(semaphore->tcbHandle == EXECTASK) {
-		semaphore->tcbHandle = tcbblock;
-	}
-}
+//~ void ROSA_semGiveTo(Tcb * tcbblock, sem * semaphore) TODO: Remove
+//~ {
+	//~ //If current task own the semaphore, give it to another task
+	//~ if(semaphore->tcbHandle == EXECTASK) {
+		//~ semaphore->tcbHandle = tcbblock;
+	//~ }
+//~ }

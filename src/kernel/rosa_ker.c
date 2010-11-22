@@ -153,7 +153,7 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	}
 
 	//Dont link this TCB anywhere yet.
-	tcb->nexttcb = NULL;
+	//~ tcb->nexttcb = NULL;
 
 	//Set the task function start and return address.
 	tcb->staddr = tcbFunction;
@@ -169,10 +169,10 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 
 	//Set waitUntil. At which sysTick the task should go into ready state.
 	//Set the task to be ready at system start, i.e. sysTick = 0.
-	tcb->waitUntil = 0;
+	tcb->waitUntil = DEFAULTRELEASETIME;
 
 	//Set priority (this should be passed as a parameter, the API is crippled)
-	prioSet(tcb, DEFAULTLOWPRIO);
+	//prioSet(tcb, DEFAULTLOWPRIO); TODO: Someone else does this (ROSA_taskCreate as of today)
 
 	//Initialize context.
 	contextInit(tcb);
@@ -188,9 +188,16 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
  **********************************************************/
 void ROSA_tcbInstall(Tcb * tcb)
 {
+	/***********/
+	return;
+	/***********/
+}
+
+/*
+	//This function never run
 	Tcb * tcbTmp;
 
-	/* Is this the first Tcb installed? */
+	// Is this the first Tcb installed?
 	if(TCBLIST == NULL) {
 		TCBLIST = tcb;
 		TCBLIST->nexttcb = tcb;			//Install the first Tcb
@@ -210,13 +217,11 @@ void ROSA_tcbInstall(Tcb * tcb)
 
 	heapInsert(readyHeap, tcb);
 }
-
+*/
 extern void _ROSA_start(void);
 void ROSA_start(void)
 {
-	//Idle task
-	//prioSet(ROSA_taskAdd(NULL, "idle", idle, NULL, 50), IDLEPRIORITY);
-	//~ ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x20);
+	//~ ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
 	//Get the highest prio task that is ready to run
 	heapExtract(waitingHeap, (void **)&EXECTASK);
 	_ROSA_start();

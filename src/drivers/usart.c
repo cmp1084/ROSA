@@ -190,8 +190,8 @@ void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb)
 			if(dbgLevel >= DEBUGLEVEL2) {
 				usartWriteLine(usart, "Tcb:       ");
 				usartWriteValue(usart, (int)dbgtcb);
-				usartWriteLine(usart, "\nnexttcb:   ");
-				usartWriteValue(usart, (int)dbgtcb->nexttcb);
+				//~ usartWriteLine(usart, "\nnexttcb:   ");
+				//~ usartWriteValue(usart, (int)dbgtcb->nexttcb);
 				usartWriteLine(usart, "\nstaddr:    ");
 				usartWriteValue(usart, (int)dbgtcb->staddr);
 				usartWriteLine(usart, "\ndataarea:  ");

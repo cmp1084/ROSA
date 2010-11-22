@@ -56,12 +56,6 @@
 *
 *********************************************************/
 _ROSA_start:
-	//Put the first task from TCBLIST into EXECTASK
-	//~ lda.w r12,TCBLIST
-	//~ lda.w r11,EXECTASK
-	//~ ld.w r12,r12[0x0]
-	//~ st.w r11[0x0],r12
-
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0]
 
@@ -167,7 +161,6 @@ contextInit:
 contextSave:
 	pushm r12,lr
 	call interruptDisable
-	//call timerStop
 	popm lr
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
@@ -251,12 +244,8 @@ contextRestore:
 	ld.w r1,r12[TCB.SAVER1]
 	ld.w r12,r12[TCB.SAVEREG.R12]
 
-	//pushm lr
-	//call timerStart
-	//call interruptEnable	//TODO: This is actually not completly correct. Need to know if we really are going to turn interrupt on.
-	//popm lr
 	//We are done, exit from supervisor mode
-	rets					//rets will take care of the interrupEnable stuff!!!!
+	rets										//TODO: rets will take care of the interrupEnable stuff!!!!
 
 /*********************************************************
 * ROSA_, the users interface to the kernel
@@ -295,16 +284,9 @@ ROSA_taskDestroy:
 	//Enter supervisor mode
 	scall
 _ROSA_taskDestroy:
+	call interruptDisable
 	//Remove the current task
 	call _taskDestroy
-
-	//Prepare rescheduling
-	//Set EXECTASK = TCBLIST
-	//~ lda.w r12,TCBLIST
-	//~ lda.w r11,EXECTASK
-	//~ ld.w r12,r12[0x0]
-	//~ st.w r11[0x0],r12
-
 	//Reschedule.
 	call scheduler
 	call contextRestore	//Will enable interrupt!!! TODO: Warning

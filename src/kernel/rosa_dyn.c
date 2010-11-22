@@ -137,24 +137,20 @@ Tcb * ROSA_taskAdd(Tcb * tcbDONTCARE, const char * id, const void * task, int * 
 void _taskDestroy(void)
 {
 	unsigned int * stack;
-	Tcb * tcb; //, * tcbtmp;
-
-	tcb = EXECTASK;
 
 	//Find the stack
-	stack = tcb->dataarea - tcb->datasize;
+	stack = EXECTASK->dataarea - EXECTASK->datasize;
 
 	//Free all resources	//TODO: go through semaphore list and free resources.
 	free(stack);
-	free(tcb);
+	free(EXECTASK);
 
 	//EXECTASK doesnt exist any longer
-	//EXECTASK = NULL;
+	EXECTASK = NULL;
 	taskState = DESTROYED;
 
 	//Bookkeeping
-	_dynTaskNrDec();
-	return;
+	_dynTaskNrDec();	//TODO: Remove
 }
 
 /*

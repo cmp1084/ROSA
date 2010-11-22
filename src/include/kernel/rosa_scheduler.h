@@ -49,15 +49,17 @@ extern Heap * waitingHeap;
 //Global variable for setting the state of the currently running task.
 extern int taskState;
 /***********************************************************
- * scheduler
+ * rrscheduler
  *
  * Comment:
  * 	Minimalistic scheduler for round robin task switch.
  * 	This scheduler choose the next task to execute by looking
  * 	at the nexttcb of the current running task.
  **********************************************************/
+void rrscheduler(void);
+
+//Prioscheduler
 void scheduler(void);
-void prioscheduler(void);
 void prioschedulerInit(void);
 
 #endif /* _ROSA_SCHEDULER_H_ */

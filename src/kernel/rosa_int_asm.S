@@ -273,7 +273,7 @@ privexception:								//Not ok.
  * 	extern void interruptInit(void);
  **********************************************************/
 interruptInit:
-	pushm r11,r12	//,lr
+	pushm r11,r12
 	//Get autovector offset to _int0
 	lda.w r11,_int0
 	lda.w r12,_evba
@@ -287,11 +287,10 @@ interruptInit:
 	mov r12,lo(AVR32_INTC_ADDRESS+GRP14)
 	orh r12,hi(AVR32_INTC_ADDRESS+GRP14)
 	st.w r12,r11
-	//popm r11,r12,lr	//TODO: clean up
-	//mov pc,lr
+
 	popm r11,r12
 	mov pc,lr
-	//popm r11,r12,pc	//TODO: hej hopp!
+
 
 /*********************************************************
  * interruptDisable
@@ -476,11 +475,6 @@ contextRestoreFromISR:
 
 	//Restore work registers
 	ld.w r0,r12[TCB.SAVER0]
-
-	//Restart timer 0, necessary as timer is stopped by the irq event.
-	//~ pushm lr
-	//~ call timerStart	//TODO: Verify!!! Today 20101110 this is not the case
-	//~ popm lr
 
 	//Return back to the ISR handler
 	mov pc,lr

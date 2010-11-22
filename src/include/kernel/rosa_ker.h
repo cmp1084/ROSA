@@ -69,7 +69,7 @@ void ROSA_init(void);
 void ROSA_tcbCreate(Tcb * tcbTask, const char tcbName[CONFIG_NAMESIZE], const void *tcbFunction, unsigned int * tcbStack, const int tcbStackSize);
 
 //Install a new task TCB into ROSA
-extern void ROSA_tcbInstall(Tcb *task);
+//~ extern void ROSA_tcbInstall(Tcb *task); TODO: Remove
 
 //Start running the ROSA kernel
 //This start running the created and installed tasks.

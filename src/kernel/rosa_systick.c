@@ -24,9 +24,10 @@
 *****************************************************************************/
 
 #include "kernel/rosa_systick.h"
+#include "drivers/usart.h"
 
 //Timer tick interrupt routine
-static int sysTick = 0;
+int sysTick = 0;
 /***********************************************************
  *
  **********************************************************/
@@ -58,11 +59,17 @@ void ROSA_wait(unsigned int ticks)
 {
 	unsigned int now;
 	now = ROSA_sysTickGet();
+	int overyield = 0;
 	while(ROSA_sysTickGet() < (now + ticks)) {
 		EXECTASK->waitUntil = now + ticks;
-		//~ moveTaskToWaitingHeap = TRUE;
 		taskState = WAITING;
+		overyield++;
 		ROSA_yield();
+	}
+	if(overyield != 1) {
+		usartWriteLine(USART0, " overyield: ");
+		usartWriteValue(USART0, overyield);
+		usartWriteLine(USART0, "\n");
 	}
 }
 
@@ -79,7 +86,6 @@ void ROSA_waitUntil(unsigned int absoluteTick)
 {
 	while(ROSA_sysTickGet() < absoluteTick) {
 		EXECTASK->waitUntil = absoluteTick;
-		//~ moveTaskToWaitingHeap = TRUE;
 		taskState = WAITING;
 		ROSA_yield();
 	}

@@ -25,25 +25,15 @@
 /* Tab size: 4 */
 
 #include "kernel/rosa_scheduler.h"
+#include "kernel/rosa_tim.h"
+#include "drivers/usart.h"
 
+//The queues for tasks in waiting and ready state.
 Heap * waitingHeap = NULL;
 Heap * readyHeap = NULL;
 
-//~ int moveTaskToWaitingHeap = FALSE;
+//Global variable for setting the state of the currently running task.
 int taskState = READY;
-/***********************************************************
- * rrscheduler
- *
- * Comment:
- * 	Minimalistic scheduler for round robin task switch.
- * 	This scheduler choose the next task to execute by looking
- * 	at the nexttcb of the current running task.
- **********************************************************/
-void rrscheduler(void)
-{
-	//Find the next task to execute
-	EXECTASK = EXECTASK->nexttcb;
-}
 
 /***********************************************************
  * Functions for prioscheduler
@@ -51,10 +41,9 @@ void rrscheduler(void)
  * Comment:
  * Priority scheduler
  * This scheduler choose the next task to execute by
- * choosing the task with the higest priority from the
+ * extracting the task with the higest priority from the
  * ready heap.
  **********************************************************/
-
 int waitingcmp(const void * key1, const void * key2)
 {
 	int waitUntil1 = ((Tcb *)key1)->waitUntil;
@@ -121,7 +110,7 @@ void scheduler(void)
 	//Look for waiting tasks that are ready to be moved to ready state
 	now = ROSA_sysTickGet();
 	while(waitingHeap->tree) {
-		if(((Tcb *)heapPeek(waitingHeap))->waitUntil < now) {
+		if(((Tcb *)heapPeek(waitingHeap))->waitUntil <= now) {
 			moveToReadyHeap();
 		}
 		else {
@@ -129,5 +118,16 @@ void scheduler(void)
 		}
 	}
 	heapExtract(readyHeap, (void **)&EXECTASK);
+
+	//~ extern void idle(void); TODO:
+	//~ //Print debug info
+	//~ if(EXECTASK->staddr != idle) {
+		//~ usartWriteValue(USART0, ROSA_sysTickGet());
+		//~ usartWriteLine(USART0, ": ");
+		//~ usartWriteLine(USART0, EXECTASK->id);
+		//~ usartWriteLine(USART0, "\n");
+	//~ }
+
+
 }
 
