@@ -29,23 +29,31 @@
 Heap * waitingHeap = NULL;
 Heap * readyHeap = NULL;
 
-int moveTaskToWaitingHeap = FALSE;
+//~ int moveTaskToWaitingHeap = FALSE;
+int taskState = READY;
 /***********************************************************
- * scheduler
+ * rrscheduler
  *
  * Comment:
  * 	Minimalistic scheduler for round robin task switch.
  * 	This scheduler choose the next task to execute by looking
  * 	at the nexttcb of the current running task.
  **********************************************************/
-void scheduler(void)
+void rrscheduler(void)
 {
-	prioscheduler();
-	return;
 	//Find the next task to execute
-	//EXECTASK = EXECTASK->nexttcb;
+	EXECTASK = EXECTASK->nexttcb;
 }
 
+/***********************************************************
+ * Functions for prioscheduler
+ *
+ * Comment:
+ * Priority scheduler
+ * This scheduler choose the next task to execute by
+ * choosing the task with the higest priority from the
+ * ready heap.
+ **********************************************************/
 
 int waitingcmp(const void * key1, const void * key2)
 {
@@ -83,45 +91,43 @@ void moveToReadyHeap(void)
 	heapInsert(readyHeap, tcb);
 }
 
-void prioscheduler(void)
+void scheduler(void)
 {
 	unsigned int now;
 
-	//Look for waiting tasks that are ready to be moved to ready queue
+	//Do various operations depending on the task state
+	switch(taskState) {
+		case READY:
+			if(heapInsert(readyHeap, EXECTASK) != 0) {
+				while(1); //Error (probably out of mem)
+			}
+			break;
+		case WAITING:
+			if(heapInsert(waitingHeap, EXECTASK) != 0) {
+				while(1); //Error (probably out of mem)
+			}
+			taskState = READY;	//Go back to the default state = READY
+			break;
+		case DESTROYED:
+			//Do not move the previously running task back to any state
+			//as it already have been destroyed.
+			taskState = READY;	//Go back to the default state
+			break;
+		default:
+			while(1);	//Error
+			break;
+	}
+
+	//Look for waiting tasks that are ready to be moved to ready state
 	now = ROSA_sysTickGet();
 	while(waitingHeap->tree) {
-		if(((Tcb *)heapPeek(waitingHeap))->waitUntil <= now) {
+		if(((Tcb *)heapPeek(waitingHeap))->waitUntil < now) {
 			moveToReadyHeap();
 		}
 		else {
 			break;
 		}
 	}
-
-	//If moveTaskToWaitingHeap = FALSE a task go to readyHeap at task switch
-	//If moveTaskToWaitingHeap = TRUE a task go to waitingHeap at task switch
-	//If moveTaskToWaitingHeap = DESTROYED a task doesnt go to any state at all.
-	switch(moveTaskToWaitingHeap) {
-		case FALSE:
-			if(heapInsert(readyHeap, EXECTASK) != 0) {
-				while(1); //Error
-			}
-			break;
-		case TRUE:
-			if(heapInsert(waitingHeap, EXECTASK) != 0) {
-				while(1); //Error
-			}
-			moveTaskToWaitingHeap = FALSE;
-			break;
-		case DESTROYED:
-			moveTaskToWaitingHeap = FALSE;
-			break;
-		default:
-			moveTaskToWaitingHeap = FALSE;
-			break;
-	}
-	if(heapExtract(readyHeap, (void **)&EXECTASK) != 0) {
-		//EXECTASK = idle;
-	}
+	heapExtract(readyHeap, (void **)&EXECTASK);
 }
 

@@ -58,11 +58,12 @@ void ROSA_wait(unsigned int ticks)
 {
 	unsigned int now;
 	now = ROSA_sysTickGet();
-	//while(ROSA_sysTickGet() < (now + ticks)) {
+	while(ROSA_sysTickGet() < (now + ticks)) {
 		EXECTASK->waitUntil = now + ticks;
-		moveTaskToWaitingHeap = TRUE;
+		//~ moveTaskToWaitingHeap = TRUE;
+		taskState = WAITING;
 		ROSA_yield();
-	//}
+	}
 }
 
 /***********************************************************
@@ -76,9 +77,10 @@ void ROSA_wait(unsigned int ticks)
  **********************************************************/
 void ROSA_waitUntil(unsigned int absoluteTick)
 {
-//	while(ROSA_sysTickGet() < absoluteTick) {
+	while(ROSA_sysTickGet() < absoluteTick) {
 		EXECTASK->waitUntil = absoluteTick;
-		moveTaskToWaitingHeap = TRUE;
+		//~ moveTaskToWaitingHeap = TRUE;
+		taskState = WAITING;
 		ROSA_yield();
-	//}
+	}
 }

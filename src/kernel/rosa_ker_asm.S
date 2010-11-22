@@ -290,12 +290,11 @@ _yield:
 	//Execution will not return to here!
 
 ROSA_taskDestroy:
-	call interruptDisable
+	//call interruptDisable
 	lda.w lr,_ROSA_taskDestroy
 	//Enter supervisor mode
 	scall
 _ROSA_taskDestroy:
-
 	//Remove the current task
 	call _taskDestroy
 

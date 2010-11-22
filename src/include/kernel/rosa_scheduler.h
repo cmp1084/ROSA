@@ -24,22 +24,30 @@
 *****************************************************************************/
 /* Tab size: 4 */
 
-#ifndef _scheduler_H_
-#define _scheduler_H_
+#ifndef _ROSA_SCHEDULER_H_
+#define _ROSA_SCHEDULER_H_
 
 #include <stdlib.h>
 #include "kernel/rosa_ker.h"
 #include "kernel/rosa_systick.h"
 #include "system/heap.h"
 
+/***********************************************************
+ * Task States
+ *
+ * Comment:
+ * The various states a task can be in.
+ **********************************************************/
+#define READY 0
+#define WAITING 1
 #define DESTROYED 2
-//Global variable to communicate from ROSA_wait() and _waitUntil() to the prioscheduler()
-//If moveTaskToWaitingHeap = FALSE a task go to readyHeap at task switch
-//If moveTaskToWaitingHeap = TRUE a task go to waitingHeap at task switch
-//If moveTaskToWaitingHeap = DESTROYED the task is never reinserted into any state. It vanish into the void.
-extern int moveTaskToWaitingHeap;
+
+//The queues for tasks in waiting and ready state.
 extern Heap * readyHeap;
 extern Heap * waitingHeap;
+
+//Global variable for setting the state of the currently running task.
+extern int taskState;
 /***********************************************************
  * scheduler
  *
@@ -52,4 +60,4 @@ void scheduler(void);
 void prioscheduler(void);
 void prioschedulerInit(void);
 
-#endif /* _scheduler_H_ */
+#endif /* _ROSA_SCHEDULER_H_ */

@@ -65,10 +65,10 @@ int heapInsert(Heap * heap, const void * data)
 	else {
 		heap->tree = temp;
 	}
-	heap->tree[heapSize(heap)] = (void *) data;
+	heap->tree[heapSize(heap)] = (void *)data;
 	ipos = heapSize(heap);
 	ppos = heapParent(ipos);
-	while(ipos > 0 && heap->compare(heap->tree[ppos], heap->tree[ipos]) < 0) {
+	while((ipos > 0) && (heap->compare(heap->tree[ppos], heap->tree[ipos]) < 0)) {
 		temp = heap->tree[ppos];
 		heap->tree[ppos] = heap->tree[ipos];
 		heap->tree[ipos] = temp;
@@ -90,7 +90,7 @@ int heapExtract(Heap * heap, void ** data)
 
 	*data = heap->tree[0];
 	save = heap->tree[heapSize(heap) - 1];
-	if(heapSize(heap) -1 > 0) {
+	if((heapSize(heap) - 1) > 0) {
 		if((temp = (void **)realloc(heap->tree, (heapSize(heap) - 1) * sizeof(void *))) == NULL) {
 			return -1;
 		}
@@ -113,14 +113,14 @@ int heapExtract(Heap * heap, void ** data)
 	while(1) {
 		lpos = heapLeft(ipos);
 		rpos = heapRight(ipos);
-		if(lpos < heapSize(heap) && heap->compare(heap->tree[lpos], heap->tree[ipos]) > 0) {
+		if((lpos < heapSize(heap)) && (heap->compare(heap->tree[lpos], heap->tree[ipos]) > 0)) {
 			mpos = lpos;
 		}
 		else {
 			mpos = ipos;
 		}
 
-		if(rpos < heapSize(heap) && heap->compare(heap->tree[rpos], heap->tree[mpos]) > 0) {
+		if((rpos < heapSize(heap)) && (heap->compare(heap->tree[rpos], heap->tree[mpos]) > 0)) {
 			mpos = rpos;
 		}
 

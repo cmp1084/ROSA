@@ -108,7 +108,7 @@ void ROSA_init(void)
 	TCBLIST = NULL;
 	EXECTASK = NULL;
 	prioschedulerInit();
-
+	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
 	//Do initialization of I/O drivers
 #if(CONFIG_LED)
 	ledInit();									//LEDs
@@ -216,7 +216,7 @@ void ROSA_start(void)
 {
 	//Idle task
 	//prioSet(ROSA_taskAdd(NULL, "idle", idle, NULL, 50), IDLEPRIORITY);
-	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x20);
+	//~ ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x20);
 	//Get the highest prio task that is ready to run
 	heapExtract(waitingHeap, (void **)&EXECTASK);
 	_ROSA_start();

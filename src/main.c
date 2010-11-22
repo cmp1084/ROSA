@@ -48,7 +48,7 @@
 //Include application files
 #include "app/warning.h"
 
-#define OUTPUTTIME 0x08
+#define OUTPUTTIME 0x10
 
 
 void stat2(void);
@@ -109,38 +109,23 @@ void task3(void)
 
 		if(isButton(PUSH_BUTTON_0)) {
 			//ROSA_taskCreate("but0", but0, 2, 0x40);
-			ROSA_taskCreate("dynK", stat2, 2, 0x10);
+			ROSA_taskCreate("---K", stat2, 2, 0x30);
 			ledToggle(LED3_GPIO);
 		}
 		if(isButton(PUSH_BUTTON_1)) {
-			ROSA_taskCreate("dynC", stat2, 2, 0x10);
-			//~ ROSA_taskCreate("dynD", stat2, 2, 0x10);
+			ROSA_taskCreate("---C", stat2, 2, 0x30);
+			ROSA_taskCreate("dynD", stat3, 2, 0x30);
 			//~ ROSA_taskCreate("dynE", stat2, 2, 0x10);
 			//~ ROSA_taskCreate("dynF", stat2, 2, 0x10);
 			//~ ROSA_taskCreate("dynG", stat3, 2, 0x10);
 			//~ ROSA_taskCreate("dynH", stat3, 2, 0x10);
-			ROSA_taskCreate("dynI", stat3, 2, 0x10);
+			//ROSA_taskCreate("dynI", stat3, 2, 0x10);
 		}
-		ROSA_wait(500);
+		ROSA_wait(1002);
 	}
 }
 
 
-void oldtask2(void)
-{
-	while(1) {
-		ledOn(LED1_GPIO);
-		ledOff(LED0_GPIO);
-
-		ROSA_wait(200);
-
-		while(!ROSA_semTake(&sem_usart));
-		usartWriteLine(USART0, "task2\n");
-		ROSA_semGive(&sem_usart);
-
-		ROSA_yield();
-	}
-}
 
 extern int _SSPGet(void);
 extern int _USPGet(void);
@@ -165,42 +150,36 @@ void printStatus(void)
 	usartWriteLine(USART0, "\nUSP: ");
 	usartWriteValue(USART0, usp);
 
-	usartWriteLine(USART0, "\n\n");
+	//~ usartWriteLine(USART0, "\n\n");
 	//Give the USART back
 	ROSA_semGive(&sem_usart);
 
 	//ledOff(LED3_GPIO);
 	ROSA_taskDestroy();
+	//~ while(1);	//TODO: Does this help?
 }
 
 void stat(void)
 {
-
-
 	while(1) {
-
-		while(!ROSA_semTake(&sem_usart));
+		//while(!ROSA_semTake(&sem_usart));
 		ROSA_taskCreate("prin", printStatus, 1, 0x40);
-		ROSA_semGive(&sem_usart);
+		//ROSA_semGive(&sem_usart);
 		ROSA_wait(OUTPUTTIME);
-		//~ ROSA_taskDestroy();
 	}
 }
 
 
 void stat2(void)
 {
-
 	char taskname[] = "dyn-\n";
 
 	while(1) {
-
 		while(!ROSA_semTake(&sem_usart));
-	//	ROSA_taskAdd(NULL, "dyns", printStatus, NULL, 40);	//This task will not persist
 		taskname[3] = EXECTASK->id[3];
 		usartWriteLine(USART0, taskname);
 		ROSA_semGive(&sem_usart);
-		ROSA_wait(OUTPUTTIME*10);
+		ROSA_wait(10000);
 		ROSA_taskDestroy();
 	}
 }
@@ -211,7 +190,6 @@ void stat3(void)
 	char taskname[] = "dyn-\n";
 
 	while(1) {
-
 		//while(!ROSA_semTake(&sem_usart));
 		//ROSA_taskAdd(NULL, "dyns", printStatus, NULL, 40);	//This task will not persist
 		taskname[3] = EXECTASK->id[3];
@@ -244,10 +222,10 @@ int main(void)
 	//~ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 	//~ ROSA_tcbInstall(&t2_tcb);
 
-	ROSA_taskCreate("tsk1", task1, 2, 0x30);
-	ROSA_taskCreate("tsk2", task2, 3, 0x30);
-	ROSA_taskCreate("tsk3", task3, 4, 0x30);
-	//ROSA_taskCreate("stat", stat, 3, 0x20);
+	ROSA_taskCreate("tsk1", task1, 2, 0x40);
+	ROSA_taskCreate("tsk2", task2, 3, 0x40);
+	ROSA_taskCreate("tsk3", task3, 4, 0x40);
+	ROSA_taskCreate("stat", stat, 6, 0x40);
 	//~ ROSA_taskCreate("tskC", stat, 2, 0x40);
 	//ROSA_taskAdd(NULL, "dyns", stat2, NULL, 0x40);	//This task will not persist
 	//~ ROSA_taskCreate("dynC", stat2, 2, 0x40);

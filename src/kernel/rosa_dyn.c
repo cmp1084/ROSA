@@ -29,10 +29,11 @@ File creation date: 20101108 15:41:45
 
 */
 
+#include <stdlib.h>				//malloc, free
 #include "kernel/rosa_dyn.h"
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_scheduler.h"
-#include <stdlib.h>				//malloc, free
+
 
 //Only used during debug
 //Driver includes
@@ -41,9 +42,9 @@ File creation date: 20101108 15:41:45
 
 #include "rosa_config.h"
 
-extern void contextRestore(void);			//rosa_ker_asm.S
-extern void taskDestroyed(void);			//rosa_ker_asm.S
-extern void prioSet(Tcb * tcb, int prio);	//rosa_ker.c
+extern void contextRestore(void);           //rosa_ker_asm.S
+extern void taskDestroyed(void);            //rosa_ker_asm.S
+extern void prioSet(Tcb * tcb, int prio);   //rosa_ker.c
 
 /***********************************************************
  * Comment:
@@ -92,7 +93,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 
 	//Create and install the dynamic tcb
 	ROSA_tcbCreate(tcb, id, taskFunction, stack, stackSize);
-	ROSA_tcbInstall(tcb);
+	//ROSA_tcbInstall(tcb);
 
 	//Set the task priority
 	prioSet(tcb, prio);
@@ -136,11 +137,9 @@ Tcb * ROSA_taskAdd(Tcb * tcbDONTCARE, const char * id, const void * task, int * 
 void _taskDestroy(void)
 {
 	unsigned int * stack;
-	Tcb * tcb, * tcbtmp;
+	Tcb * tcb; //, * tcbtmp;
 
 	tcb = EXECTASK;
-
-	moveTaskToWaitingHeap = DESTROYED;
 
 	//Find the stack
 	stack = tcb->dataarea - tcb->datasize;
@@ -149,11 +148,16 @@ void _taskDestroy(void)
 	free(stack);
 	free(tcb);
 
+	//EXECTASK doesnt exist any longer
+	//EXECTASK = NULL;
+	taskState = DESTROYED;
+
 	//Bookkeeping
 	_dynTaskNrDec();
 	return;
+}
 
-
+/*
 
 	//Are we removing the first element?
 	if(EXECTASK == TCBLIST) {
@@ -182,4 +186,5 @@ void _taskDestroy(void)
 
 	//Bookkeeping
 	_dynTaskNrDec();
-}
+*/
+
