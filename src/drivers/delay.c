@@ -26,6 +26,7 @@
 
 #include "drivers/delay.h"
 
+// TODO: This should not be used. Because it is ugly.
 // The following code produce a inner loop with six assembler instructions,
 // corresponding to a 11 cycle loop, Which give approx. 12000000 / 1000 / 11 cycles per ms.
 // Accuracy is low. We dont care about the fractions of 12000 / 11.

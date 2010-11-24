@@ -30,6 +30,7 @@
 #include "kernel/rosa_tim.h"
 #include "rosa_config.h"
 
+//Delay approximately 'ms' milliseconds
 void delay_ms(unsigned int ms);
 
 #endif /* __ROSA_DELAY_H_ */

@@ -49,10 +49,10 @@ void ROSA_semCreate(sem * semaphore)
 {
 	int interruptOnOff = isInterruptEnabled();
 	interruptDisableIf(interruptOnOff); //Make the semaphore operation atomic.
-	while(semaphore == NULL);			//Jam here if a NULL semaphore is detected
-	semaphore->tcbHandle = NULL;		//No one uses the semaphore
-	semaphore->value = UNLOCKED;		//The semaphore is not locked
-	interruptEnableIf(interruptOnOff);	//Enable interrupts if they was _enabled_ previously too. Otherwise, keep them disabled.
+	while(semaphore == NULL);            //Jam here if a NULL semaphore is detected
+	semaphore->tcbHandle = NULL;        //No one uses the semaphore
+	semaphore->value = UNLOCKED;        //The semaphore is not locked
+	interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously too. Otherwise, keep them disabled.
 }
 
 /***********************************************************
@@ -94,9 +94,9 @@ void ROSA_semGive(sem * semaphore)
 {
 
 	int interruptOnOff = isInterruptEnabled();
-	if(semaphore->tcbHandle != EXECTASK) {	//Only the owner may return a semaphore. Oh! How bad!!!
-		ledOn(LED7_GPIO);
-		while(1);
+	if(semaphore->tcbHandle != EXECTASK) {    //Only the owner may return a semaphore. Oh! How bad!!! :(
+		//ledOn(LED7_GPIO);
+		//while(1);	//Error, we didnt own the semaphore
 		interruptEnableIf(interruptOnOff);
 		return;
 	}
@@ -109,10 +109,18 @@ void ROSA_semGive(sem * semaphore)
 }
 
 /***********************************************************
- *
+ * ROSA_semTake
  *
  * Comment:
+ * Take a binary semaphore if it have been created
+ * and no one else have taken it.
  *
+ * Parameters:
+ * sem * semaphore - A pointer to the semaphore to take.
+ *
+ * Return values:
+ * ERROR on failure to take the semaphore
+ * OK when semaphore have been taken.
  **********************************************************/
 int ROSA_semTake(sem * semaphore)
 {
@@ -120,7 +128,7 @@ int ROSA_semTake(sem * semaphore)
 
 	if(!semaphore) {
 		return ERROR;
-		//~ while(1);		//Error, The semaphore does not exist
+		//~ while(1);    //Error, The semaphore does not exist
 	}
 
 	interruptOnOff = isInterruptEnabled();

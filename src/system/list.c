@@ -81,7 +81,6 @@ int listInsert(List * list, Item * item, const void * data)
 }
 
 
-
 //Remove an element after the item 'item'
 int listRemove(List * list, Item * item, void ** data)
 {

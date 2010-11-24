@@ -42,15 +42,17 @@
 #include "drivers/pot.h"
 #include "drivers/usart.h"
 
+extern void _ROSA_start(void);
 
-/***********************************************************
- * TCBLIST
- *
- * Comment:
- * 	Global variables that contain the list of TCB's that
- * 	have been installed into the kernel with ROSA_tcbInstall()
- **********************************************************/
-Tcb * TCBLIST;
+//~ /***********************************************************
+ //~ * TCBLIST
+ //~ *
+ //~ * Comment:
+ //~ * 	Global variables that contain the list of TCB's that
+ //~ * 	have been installed into the kernel with ROSA_tcbInstall()
+ //~ **********************************************************/
+//~ TCBLIST IS NOT USED ANY LONGER!!!
+//~ Tcb * TCBLIST; //
 
 /***********************************************************
  * EXECTASK
@@ -64,11 +66,11 @@ Tcb * EXECTASK;
 //This is not really a good way to set priorities. :/
 //But since ROSA_tcbCreate() and ROSA_tcbInstall lack prio in the parameter list this simple solution was tested.
 //See ROSA_taskCreate() for alternative how it can be done.
-static int incrementalPrio = TASKINITIALPRIORITY;
-int incrementPrio(void)
-{
-	return incrementalPrio++;
-}
+//~ static int incrementalPrio = TASKINITIALPRIORITY;
+//~ int incrementPrio(void)			//TODO: Not in use
+//~ {
+	//~ return incrementalPrio++;
+//~ }
 
 /***********************************************************
  * ROSA_prioSet
@@ -91,7 +93,7 @@ void prioSet(Tcb * tcb, int newPrio) { tcb->prio = newPrio; }
 void idle(void)
 {
 	while(1) {
-		ledToggle(LED4_GPIO);
+		ledToggle(LED7_GPIO);
 	}
 }
 
@@ -105,7 +107,7 @@ void idle(void)
 void ROSA_init(void)
 {
 	//Start with empty TCBLIST and no EXECTASK.
-	TCBLIST = NULL;
+	//~ TCBLIST = NULL;
 	EXECTASK = NULL;
 	prioschedulerInit();
 	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
@@ -153,7 +155,7 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	}
 
 	//Dont link this TCB anywhere yet.
-	//~ tcb->nexttcb = NULL;
+	//~ tcb->nexttcb = NULL;			//NOT USED ANY LONGER! TODO:
 
 	//Set the task function start and return address.
 	tcb->staddr = tcbFunction;
@@ -178,21 +180,24 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	contextInit(tcb);
 }
 
+//~  TODO: remove
+//~ void foo(void * stack, int size)
+//~ {
+	//~ int * da = stack + size;
+//~ }
 
-/***********************************************************
- * ROSA_tcbInstall
- *
- * Comment:
- * 	Install the TCB into the TCBLIST.
- *
- **********************************************************/
+//~ /***********************************************************
+ //~ * ROSA_tcbInstall
+ //~ *
+ //~ * Comment:
+ //~ * 	Install the TCB into the TCBLIST.
+ //~ *
+ //~ **********************************************************/
 void ROSA_tcbInstall(Tcb * tcb)
 {
-	/***********/
 	return;
-	/***********/
 }
-
+//~ {
 /*
 	//This function never run
 	Tcb * tcbTmp;
@@ -218,11 +223,11 @@ void ROSA_tcbInstall(Tcb * tcb)
 	heapInsert(readyHeap, tcb);
 }
 */
-extern void _ROSA_start(void);
+
 void ROSA_start(void)
 {
-	//~ ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
-	//Get the highest prio task that is ready to run
-	heapExtract(waitingHeap, (void **)&EXECTASK);
+	//Get the highest prio task that is ready to run.
+	heapExtract(readyHeap, (void **)&EXECTASK);
 	_ROSA_start();
+	//Execution never continue here
 }

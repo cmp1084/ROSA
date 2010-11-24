@@ -54,7 +54,6 @@ void ledInit(void)
 		ledOff(leds[nr]);
 		gpioInit(leds[nr], OUTPUT);
 	} while(nr++ != LEDMAX - 1);
-
 }
 
 
@@ -68,10 +67,7 @@ void ledInit(void)
  * 	Nothing
  *
  *********************************************************/
-void ledOn(int lednr)
-{
-	gpioClear(lednr);
-}
+void ledOn(int lednr) { gpioClear(lednr); }
 
 
 /**********************************************************
@@ -84,10 +80,7 @@ void ledOn(int lednr)
  * 	Nothing
  *
  *********************************************************/
-void ledOff(int lednr)
-{
-	gpioSet(lednr);
-}
+void ledOff(int lednr) { gpioSet(lednr); }
 
 
 /**********************************************************
@@ -101,7 +94,4 @@ void ledOff(int lednr)
  * 	Nothing
  *
  *********************************************************/
-void ledToggle(int lednr)
-{
-	gpioToggle(lednr);
-}
+void ledToggle(int lednr) { gpioToggle(lednr); }

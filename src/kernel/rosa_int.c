@@ -37,10 +37,12 @@ void contextRestoreFromISR(void);
  * 	Perform a yield from an ISR
  *
  **********************************************************/
+//TODO: Consider to move this function back to rosa_ker_asm.S, as it makes sense to consolidate the yield functions.
+//E.g. have ROSA_yield() decide if we are yielding from ISR or from user mode.
 void ROSA_yieldFromISR(void)
 {
-	contextSaveFromISR();	  //Save the task context
-	scheduler();			  //Find next task to execute
+	contextSaveFromISR();     //Save the task context
+	scheduler();              //Find next task to execute
 	contextRestoreFromISR();  //...and switch over to it.
 }
 
@@ -56,7 +58,7 @@ void ROSA_yieldFromISR(void)
 void interruptDisableIf(int interruptOnOff)
 {
 	if(interruptOnOff) {
-		interruptDisable();	//Turn interrupt off if onOff is OFF (FALSE)
+		interruptDisable(); //Turn interrupt off if onOff is OFF (FALSE)
 	}
 }
 
@@ -71,6 +73,6 @@ void interruptDisableIf(int interruptOnOff)
 void interruptEnableIf(int interruptOnOff)
 {
 	if(interruptOnOff) {
-		interruptEnable();	//Enable interrupt if interruptOnOff == ON (TRUE)
+		interruptEnable();  //Enable interrupt if interruptOnOff == ON (TRUE)
 	}
 }

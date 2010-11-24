@@ -48,7 +48,7 @@
  *
  **********************************************************/
 .offset  0
-/* TCB.NEXTTCB:    .word 0 */     /* Pointer to next Tcb in chain        */
+/* TCB.NEXTTCB:    .word 0 NOT NEEDED ANY LONGER */     /* Pointer to next Tcb in chain        */
 TCB.ID:         .word 0     /* Task identifier, 4 ASCII characters */
 TCB.STADDR:     .word 0     /* Startaddress of taskcode            */
 TCB.DATAAREA:   .word 0     /* Startaddress of dataarea (stack)    */

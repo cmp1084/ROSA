@@ -99,7 +99,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 	prioSet(tcb, prio);
 
 	//Insert in the ready state
-	heapInsert(waitingHeap, tcb);
+	heapInsert(readyHeap, tcb);
 
 	_dynTaskNrInc();
 	interruptEnableIf(interruptOnOff);
@@ -153,7 +153,7 @@ void _taskDestroy(void)
 	_dynTaskNrDec();	//TODO: Remove
 }
 
-/*
+/*  The old way to kill tasks:
 
 	//Are we removing the first element?
 	if(EXECTASK == TCBLIST) {

@@ -45,9 +45,6 @@
 //Include system files
 #include "system/semaphore.h"
 
-//Include application files
-#include "app/warning.h"
-
 #define OUTPUTTIME 0x100
 
 
@@ -62,13 +59,31 @@ sem sem_test;
 sem sem_usart;
 
 //Data blocks for the tasks
-#define T1_STACK_SIZE 0x40
+//~ #define T1_STACK_SIZE 0x40
 //~ static int t1_stack[T1_STACK_SIZE];
 //~ static Tcb t1_tcb;
 
-#define T2_STACK_SIZE 0x40
+//~ #define T2_STACK_SIZE 0x40
 //~ static int t2_stack[T2_STACK_SIZE];
 //~ static Tcb t2_tcb;
+
+
+void opttask1(void)
+{
+	while(1) {
+		ledToggle(LED0_GPIO);
+		ROSA_yield();
+	}
+}
+
+void opttask2(void)
+{
+	while(1) {
+		ledToggle(LED1_GPIO);
+		delay_ms(500);
+		ROSA_yield();
+	}
+}
 
 /*************************************************************
  * Task1
@@ -104,11 +119,8 @@ void task3(void)
 {
 	while(1) {
 		ledToggle(LED2_GPIO);
-		//~ ledOff(LED0_GPIO);
-		//~ ledOff(LED1_GPIO);
 
 		if(isButton(PUSH_BUTTON_0)) {
-			//ROSA_taskCreate("but0", but0, 2, 0x40);
 			ROSA_taskCreate("---K", stat2, 2, 0x40);
 			ledToggle(LED3_GPIO);
 		}
@@ -131,13 +143,13 @@ void printStatus(void)
 	//Wait until USART is free
 	while(!ROSA_semTake(&sem_usart)) {
 		now = ROSA_sysTickGet();
-		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		EXECTASK->waitUntil = now + 1;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
 		taskState = WAITING;
 		ROSA_yield();
 	}
 
 	//usartWriteLine(USART, "\f");
-//	usartWriteLine(USART0, "\e[0;0H");
+	usartWriteLine(USART0, "\e[0;0H");
 	usartWriteLine(USART0, "SysTick: ");
 	usartWriteValue(USART0, ROSA_sysTickGet());
 
@@ -156,16 +168,12 @@ void printStatus(void)
 
 	//ledOff(LED3_GPIO);
 	ROSA_taskDestroy();
-	//ROSA_wait(10000);
-	while(1);	//TODO: Does this help?
 }
 
 void stat(void)
 {
 	while(1) {
-		//while(!ROSA_semTake(&sem_usart));
 		ROSA_taskCreate("prin", printStatus, 1, 0x40);
-		//ROSA_semGive(&sem_usart);
 		ROSA_wait(OUTPUTTIME);
 	}
 }
@@ -179,7 +187,7 @@ void stat2(void)
 	while(1) {
 		while(!ROSA_semTake(&sem_usart)) {
 		now = ROSA_sysTickGet();
-		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		EXECTASK->waitUntil = now + 1;
 		taskState = WAITING;
 			ROSA_yield();
 		}
@@ -196,14 +204,14 @@ void stat3(void)
 {
 	char taskname[] = "dyn-\n";
 	int now;
+
 	while(1) {
 		while(!ROSA_semTake(&sem_usart)) {
 		now = ROSA_sysTickGet();
-		EXECTASK->waitUntil = now + 2;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
+		EXECTASK->waitUntil = now + 1;
 		taskState = WAITING;
 			ROSA_yield();
 		};
-		//ROSA_taskAdd(NULL, "dyns", printStatus, NULL, 40);	//This task will not persist
 		taskname[3] = EXECTASK->id[3];
 		usartWriteLine(USART0, taskname);
 		ROSA_semGive(&sem_usart);
@@ -212,7 +220,7 @@ void stat3(void)
 			ROSA_taskDestroy();
 			ROSA_wait(50);
 		}
-		ROSA_wait(5);
+		ROSA_wait(50);
 	}
 }
 
@@ -221,41 +229,32 @@ void stat3(void)
  ************************************************************/
 int main(void)
 {
-
 	//Initialize the ROSA kernel
 	ROSA_init();
-	//~ warningInit();
-	//ledOn(LED6_GPIO);
-	//~ usartWriteLine(USART0, "\e[2JROSA starting...\n");
+	//~ usartWriteLine(USART0, "\e[2JROSA starting...\n"); //TODO
 	usartWriteLine(USART0, "\nROSA starting...\n");
 
 	//Create tasks and install them into the ROSA kernel
+	//The old way is no longer needed
 	//~ ROSA_tcbCreate(&t1_tcb, "tsk1", task1, t1_stack, T1_STACK_SIZE);
 	//~ ROSA_tcbInstall(&t1_tcb);
 	//~ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
 	//~ ROSA_tcbInstall(&t2_tcb);
+	//~ ...
+	//The new way to create tasks.
+	//I left the old API since this way of creating tasks are much sweeter.
+	//ROSA_taskCreate(char * id, void * taskFunc, int prio, int stackSize);
+	//~ ROSA_taskCreate("tsk1", task1, 1, 0x40);
+	//~ ROSA_taskCreate("tsk2", task2, 2, 0x40);
+	//~ ROSA_taskCreate("tsk3", task3, 3, 0x40);
+	//~ ROSA_taskCreate("stat", stat, 6, 0x40);
 
-	ROSA_taskCreate("tsk1", task1, 1, 0x40);
-	ROSA_taskCreate("tsk2", task2, 2, 0x40);
-	ROSA_taskCreate("tsk3", task3, 3, 0x40);
-	ROSA_taskCreate("stat", stat, 6, 0x40);
-	//~ ROSA_taskCreate("tskC", stat, 2, 0x40);
-	//ROSA_taskAdd(NULL, "dyns", stat2, NULL, 0x40);	//This task will not persist
-	//~ ROSA_taskCreate("dynC", stat2, 2, 0x40);
-	//~ ROSA_taskCreate("dynD", stat2, 2, 0x40);
-	//~ ROSA_taskCreate("dynE", stat2, 2, 0x40);
-	//~ ROSA_taskCreate("dynF", stat2, 2, 0x40);
+	ROSA_taskCreate("tsk1", opttask1, 1, 0x40);
+	ROSA_taskCreate("tsk2", opttask2, 1, 0x40);
 
-	//It would have been sweeter with Tcb * ROSA_taskAdd(char * name, void * func, int stackSize); or passing params
-	//~ ROSA_taskAdd(NULL, "dyn0", dyntask0, NULL, 40);	//This task will destroy itself
-	//~ ROSA_taskAdd(NULL, "dyn1", task3, NULL, 40);	//This task will persist
-	//~ ROSA_taskAdd(NULL, "dyn2", task4, NULL, 40);	//This task will destroy itself, buy be created again by task3
-	//~ ROSA_taskAdd(NULL, "stat", stat, NULL, 40);	//This task will persist
-
-	//Create sem_test semaphore
-	//~ ROSA_semCreate(&sem_test);
+	//Create semaphores
+	ROSA_semCreate(&sem_test);
 	ROSA_semCreate(&sem_usart);
-
 
 	//Start the ROSA kernel
 	ROSA_start();

@@ -30,6 +30,9 @@
 #include <avr32/io.h>
 #include "drivers/debug.h"
 
+/***********************************************************
+ * "Nice-to-have" defines
+ **********************************************************/
 #define YES 1
 #define NO 0
 
@@ -52,9 +55,9 @@
 #define CONFIG_BUTTON YES
 
 #if(CONFIG_BUTTON)
-#define PUSH_BUTTON_0	AVR32_PIN_PX16
-#define PUSH_BUTTON_1	AVR32_PIN_PX19
-#define PUSH_BUTTON_2	AVR32_PIN_PX22
+#define PUSH_BUTTON_0   AVR32_PIN_PX16
+#define PUSH_BUTTON_1   AVR32_PIN_PX19
+#define PUSH_BUTTON_2   AVR32_PIN_PX22
 #endif
 
 /***********************************************************
@@ -63,11 +66,11 @@
 #define CONFIG_JOYSTICK YES
 
 #if(CONFIG_JOYSTICK)
-#define JOYSTICK_PRESS	AVR32_PIN_PA20
-#define JOYSTICK_LEFT	AVR32_PIN_PA25
-#define JOYSTICK_RIGHT	AVR32_PIN_PA28
-#define JOYSTICK_UP		AVR32_PIN_PA26
-#define JOYSTICK_DOWN	AVR32_PIN_PA27
+#define JOYSTICK_PRESS  AVR32_PIN_PA20
+#define JOYSTICK_LEFT   AVR32_PIN_PA25
+#define JOYSTICK_RIGHT  AVR32_PIN_PA28
+#define JOYSTICK_UP     AVR32_PIN_PA26
+#define JOYSTICK_DOWN   AVR32_PIN_PA27
 #endif
 
 /***********************************************************
@@ -77,15 +80,15 @@
 
 #if(CONFIG_LED)
 //The number of LEDs to control
-#define LEDMAX 8					//The number of LEDs on the EVK1100
-#define LED0_GPIO	AVR32_PIN_PB27	//LED1 on the EVK1100
-#define LED1_GPIO	AVR32_PIN_PB28	//LED2
-#define LED2_GPIO	AVR32_PIN_PB29	//...and so on
-#define LED3_GPIO	AVR32_PIN_PB30
-#define LED4_GPIO	AVR32_PIN_PB19
-#define LED5_GPIO	AVR32_PIN_PB20
-#define LED6_GPIO	AVR32_PIN_PB21
-#define LED7_GPIO	AVR32_PIN_PB22
+#define LEDMAX 8                    //The number of LEDs on the EVK1100
+#define LED0_GPIO   AVR32_PIN_PB27  //LED1 on the EVK1100
+#define LED1_GPIO   AVR32_PIN_PB28  //LED2
+#define LED2_GPIO   AVR32_PIN_PB29  //...and so on
+#define LED3_GPIO   AVR32_PIN_PB30
+#define LED4_GPIO   AVR32_PIN_PB19
+#define LED5_GPIO   AVR32_PIN_PB20
+#define LED6_GPIO   AVR32_PIN_PB21
+#define LED7_GPIO   AVR32_PIN_PB22
 #endif
 
 /***********************************************************
@@ -101,7 +104,7 @@
 #define CONFIG_TIMER YES
 
 #if(CONFIG_TIMER)
-#define PERIODTIME_MS 10
+#define PERIODTIME_MS 1
 #endif
 
 /***********************************************************

@@ -32,7 +32,7 @@ File creation date: 20101109 10:15:24
 #ifndef _ROSA_TCB_H_
 #define _ROSA_TCB_H_
 
-#include "rosa_config.h"	//CONFIG_NAMESIZE
+#include "rosa_config.h"    //CONFIG_NAMESIZE
 
 /***********************************************************
  * TCB block
@@ -43,7 +43,7 @@ File creation date: 20101109 10:15:24
  *
  **********************************************************/
 typedef struct Tcbrecord_t {
-	//struct Tcbrecord_t * nexttcb;
+	//struct Tcbrecord_t * nexttcb;	//Not needed any longer
 	char id[CONFIG_NAMESIZE];               //The task id/name
 	void (*staddr)(void);                   //Start address
 	unsigned int * dataarea;                //The stack data area

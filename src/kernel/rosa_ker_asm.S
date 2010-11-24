@@ -40,12 +40,11 @@
 
 	//Global Kernel functions
 	.global contextInit
-	.global ROSA_start
 	.global ROSA_yield
 	.global ROSA_taskDestroy
-	.global _SSPGet
+	.global _SSPGet		//TODO: Remove
 	.global _USPGet
-	.global _ROSA_start
+	.global _ROSA_start	//Should only be accessed from ROSA_start()
 /*********************************************************
 * ROSA_start kernel code
 *
@@ -159,9 +158,8 @@ contextInit:
 *
 *********************************************************/
 contextSave:
-	pushm r12,lr
-	call interruptDisable
-	popm lr
+	pushm r12
+
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
@@ -269,6 +267,7 @@ contextRestore:
 *********************************************************/
 ROSA_yield:
 	pushm lr
+	call interruptDisable
 	lda.w lr,_yield
 	//Enter supervisor mode
 	scall
@@ -278,6 +277,15 @@ _yield:
 	call contextRestore
 	//Execution will not return to here!
 
+/*********************************************************
+* ROSA_taskDestroy
+*
+* Comment:
+* Remove the currently running task from the ROSA system.
+* After the task is removed, rescheduling is done to
+* continue execution of the remaining tasks in the ROSA
+* system.
+*********************************************************/
 ROSA_taskDestroy:
 	//call interruptDisable
 	lda.w lr,_ROSA_taskDestroy
@@ -292,7 +300,7 @@ _ROSA_taskDestroy:
 	call contextRestore	//Will enable interrupt!!! TODO: Warning
 	//Execution will not return to here!
 
-//Return the SSP in r12
+//Return the SSP in r12	TODO: remove
 _SSPGet:
 	pushm lr
 	lda.w lr,_scallSSPGet
@@ -302,7 +310,7 @@ _scallSSPGet:
 	mov r12,sp
 	rets
 
-//Get the address of the USP
+//Get the address of the USP TODO: REMOVE
 //Return in r12
 _USPGet:
 	pushm lr

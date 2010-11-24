@@ -36,7 +36,7 @@
  * 	This is the basic timer interrupt service routine.
  **********************************************************/
 __attribute__((__interrupt__))
-void timerISR(void)
+void handler_timerISR(void)
 {
 	int sr;
 	volatile avr32_tc_t * tc = &AVR32_TC;
@@ -60,13 +60,13 @@ void timerISR(void)
 int timerPeriodSet(unsigned int ms)
 {
 	int rc, prescale;
-	int f[] = { 2, 8, 32, 128 };					//Prescale factor
+	int f[] = { 2, 8, 32, 128 };                    //Prescale factor
 	//FOSC0 / factor_prescale * time[s];
-	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5;	//Set the prescale factor
-	rc = FOSC0 / f[prescale - 1] * ms / 1000;		//Calculate the RC (register C compare value)
+	prescale = AVR32_TC_CMR0_TCCLKS_TIMER_CLOCK5;   //Set the prescale factor
+	rc = FOSC0 / f[prescale - 1] * ms / 1000;       //Calculate the RC (register C compare value)
 	timerPrescaleSet(prescale);
 	timerRCSet(rc);
-	return rc * prescale / FOSC0;					//Return the calculated period [s]
+	return rc * prescale / FOSC0;                   //Return the calculated period [s]
 }
 
 unsigned int timerPeriodGet(void)

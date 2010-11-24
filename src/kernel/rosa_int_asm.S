@@ -59,7 +59,7 @@
 	.global _evba
 	.type _evba, @function
 _evba:
-  .org  0x000			//TODO:
+  .org  0x000			//TODO: clean up
         // Unrecoverable Exception.
 _handle_Unrecoverable_Exception:
         rjmp $
@@ -188,7 +188,7 @@ _int0:
 	andl r12,LINE0							//TC0 irq is at line 0
 	cp.w r12,LINE0							//Is line 0 sending interrupt signal?
 	brne _int0_exit							//No, exit
-	lda.w r12,timerISR						//Pointer to the timer ISR
+	lda.w r12,handler_timerISR						//Pointer to the timer ISR
 	mov pc,r12								//Yes, go to the ISR.
 _int0_exit:
 	rete
@@ -365,8 +365,13 @@ isInterruptEnabled:
 * Context of the TCB referenced by EXECTASK will be saved.
 *
 *********************************************************/
+//OBS: There is two versions of contextSaveFromISR and contextRestoreFromISR
+//The first one is used when optimization is -O0
+//The second one is used when optimization is -Os (and can be used with -O3 as well)
 //SFINT0 = Supervisor Stack Frame for interrupt 0
+#if(O0)
 .equ SFINT0OFFSET,0x06*0x04
+
 
 .equ SFINT0_R7_TASK,-0x01*0x04+SFINT0OFFSET
 .equ SFINT0_SR, 0x00*0x04+SFINT0OFFSET
@@ -478,3 +483,102 @@ contextRestoreFromISR:
 
 	//Return back to the ISR handler
 	mov pc,lr
+#endif
+
+//This is the second version for optimized compilation
+#if(O3)
+.equ SFINT0OFFSET,0x02*0x04
+
+.equ SFINT0_SR, 0x00*0x04+SFINT0OFFSET
+.equ SFINT0_PC, 0x01*0x04+SFINT0OFFSET
+.equ SFINT0_LR, 0x02*0x04+SFINT0OFFSET
+.equ SFINT0_R12,0x03*0x04+SFINT0OFFSET
+.equ SFINT0_R11,0x04*0x04+SFINT0OFFSET
+.equ SFINT0_R10,0x05*0x04+SFINT0OFFSET
+.equ SFINT0_R9, 0x06*0x04+SFINT0OFFSET
+.equ SFINT0_R8, 0x07*0x04+SFINT0OFFSET
+
+contextSaveFromISR:
+	//Fetch the current executing task
+	lda.w r12,EXECTASK
+	ld.w r12,r12[0x0]
+
+	//Save working registers
+	st.w r12[TCB.SAVER0],r0
+	ld.w r0,sp[SFINT0_R12]
+	st.w r12[TCB.SAVEREG.R12],r0
+
+	//Save SR
+	ld.w r0,sp[SFINT0_SR]
+	st.w r12[TCB.SAVESR],r0
+
+	//Read register from the stack
+	ld.w r8,sp[SFINT0_R8]
+	ld.w r9,sp[SFINT0_R9]
+	ld.w r10,sp[SFINT0_R10]
+	ld.w r11,sp[SFINT0_R11]
+
+	//Save registers
+	mov r0,TCB.SAVEREG.R11
+	add r0,r12
+	stmts r0,r0-r11
+	//Save RETADDR
+	ld.w r0,sp[SFINT0_PC]
+	st.w r12[TCB.RETADDR],r0
+
+	//Save LR
+	ld.w r0,sp[SFINT0_LR]			//This points back to the task
+	st.w r12[TCB.SAVEREG.LR],r0
+
+	//Save USP
+	mov r0,sp
+	st.w --sp,r0
+	stmts sp,sp
+	ld.w r0,sp++
+	st.w r12[TCB.SAVEUSP],r0
+
+	mov pc,lr
+
+
+contextRestoreFromISR:
+	//Fetch the current executing task
+	lda.w r12,EXECTASK
+	ld.w r12,r12[0x0]
+
+	//Restore USP
+	ld.w r0,r12[TCB.SAVEUSP]
+	st.w --sp,r0
+	ldmts sp,sp
+	ld.w r0,sp++							//USP is in r0
+
+	//Restore LR
+	ld.w r0,r12[TCB.SAVEREG.LR]
+	st.w sp[SFINT0_LR],r0					//Restore lr on the stack
+
+	//Restore RETADDR
+	ld.w r0,r12[TCB.RETADDR]
+	st.w sp[SFINT0_PC],r0					//Restore return address on stack
+
+	//Restore registers
+	mov r0,TCB.SAVEREG.R11
+	add r0,r12
+	ldmts r0,r0-r11
+
+	//Restore SR
+	ld.w r0,r12[TCB.SAVESR]
+	st.w sp[SFINT0_SR],r0					//Put the new SR on the stack
+
+	//Restore of R8-R12
+	ld.w r0,r12[TCB.SAVEREG.R12]
+	st.w sp[SFINT0_R12],r0
+	st.w sp[SFINT0_R11],r11
+	st.w sp[SFINT0_R10],r10
+	st.w sp[SFINT0_R9],r9
+	st.w sp[SFINT0_R8],r8
+
+	//Restore work registers
+	ld.w r0,r12[TCB.SAVER0]
+
+	//Return back to the ISR handler
+	mov pc,lr
+#endif

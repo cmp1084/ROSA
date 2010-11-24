@@ -67,7 +67,7 @@ typedef struct
 	unsigned char paritytype;
 	unsigned short stopbits;
 	unsigned char channelmode;
-	unsigned int rx_pin;
+	unsigned int rx_pin;		//TODO:!!
 	unsigned int tx_pin;
 } usart_options_t;
 
