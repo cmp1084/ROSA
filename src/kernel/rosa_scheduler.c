@@ -29,11 +29,22 @@
 #include "drivers/usart.h"
 
 //The queues for tasks in waiting and ready state.
-Heap * waitingHeap = NULL;
-Heap * readyHeap = NULL;
+static Heap * waitingHeap = NULL;
+static Heap * readyHeap = NULL;
 
 //Global variable for setting the state of the currently running task.
 int taskState = READY;
+
+int addToScheduler(Tcb * tcb)
+{
+	return heapInsert(readyHeap, tcb);
+}
+
+int getFromScheduler(Tcb * tcb)
+{
+	return heapExtract(waitingHeap, (void *)&tcb);
+
+}
 
 /***********************************************************
  * Functions for prioscheduler
@@ -44,7 +55,7 @@ int taskState = READY;
  * extracting the task with the higest priority from the
  * ready heap.
  **********************************************************/
-int waitingcmp(const void * key1, const void * key2)
+static int waitingcmp(const void * key1, const void * key2)
 {
 	int waitUntil1 = ((Tcb *)key1)->waitUntil;
 	int waitUntil2 = ((Tcb *)key2)->waitUntil;
@@ -53,7 +64,7 @@ int waitingcmp(const void * key1, const void * key2)
 	return 1;
 }
 
-int readycmp(const void * key1, const void * key2)
+static int readycmp(const void * key1, const void * key2)
 {
 	int prio1 = ((Tcb *)key1)->prio;
 	int prio2 = ((Tcb *)key2)->prio;
@@ -73,7 +84,7 @@ void prioschedulerInit(void)
 	heapInit(readyHeap, &readycmp, NULL);
 }
 
-void moveToReadyHeap(void)
+static void moveToReadyHeap(void)
 {
 	Tcb * tcb;
 	heapExtract(waitingHeap, (void **)&tcb);

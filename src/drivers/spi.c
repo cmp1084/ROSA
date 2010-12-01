@@ -2,7 +2,7 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// //;''//,
+               ///////,  ///,///   '/// ///''//,
              ,///' '///,'/////',/////'  /////'\\,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
@@ -22,34 +22,8 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
-/* Tab size: 4 */
 
-#ifndef _ROSA_TIMER_H_
-#define _ROSA_TIMER_H_
-
-#include <avr32/io.h>
-#include "kernel/rosa_systick.h"
-
-/***********************************************************
- * Kernel timer functions
- ***********************************************************/
-extern void timerInit(unsigned int);
-extern void timerReset(void);
-extern void timerStart(void);
-extern void timerStop(void);
-
-//The timer interrupt service routine
-void handler_timerISR(void);
-extern void timerClearInterrupt(void);
-
-//Timer period functions
-unsigned int timerPeriodGet(void);
-int timerPeriodSet(unsigned int ms);
-extern void timerPrescaleSet(int);
-extern void timerRCSet(int);
-
-//Timer period variables
-extern int timerPrescale;
-extern int timerRC;
-
-#endif /* _ROSA_TIMER_H_ */
+void spiEnable(...)
+{
+	pmSpiEnable();
+}

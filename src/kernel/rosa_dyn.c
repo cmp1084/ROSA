@@ -99,7 +99,8 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 	prioSet(tcb, prio);
 
 	//Insert in the ready state
-	heapInsert(readyHeap, tcb);
+	//~ heapInsert(readyHeap, tcb);
+	addToScheduler(tcb);
 
 	_dynTaskNrInc();
 	interruptEnableIf(interruptOnOff);

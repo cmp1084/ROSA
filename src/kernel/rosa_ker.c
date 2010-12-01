@@ -227,7 +227,8 @@ void ROSA_tcbInstall(Tcb * tcb)
 void ROSA_start(void)
 {
 	//Get the highest prio task that is ready to run.
-	heapExtract(readyHeap, (void **)&EXECTASK);
+	getFromScheduler(EXECTASK);
+	//~ heapExtract(readyHeap, (void **)&EXECTASK);
 	_ROSA_start();
 	//Execution never continue here
 }

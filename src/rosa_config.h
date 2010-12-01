@@ -101,7 +101,7 @@
  **********************************************************/
 #define FOSC0 12000000		//CPU clock frequencey
 
-#define CONFIG_TIMER YES
+#define CONFIG_TIMER NO
 
 #if(CONFIG_TIMER)
 #define PERIODTIME_MS 1

@@ -29,32 +29,74 @@ File creation date: 20101108 15:41:45
 
 */
 
-#include "kernel/rosa_systick.h"
-#include "system/semaphore.h"
+#include <stdlib.h>
+//~ #include "kernel/rosa_systick.h"
+#include "include/system/semaphore.h"
 
-//Debugging //TODO: Remove
-#include "drivers/led.h"
 
 /***********************************************************
  * ROSA_semCreate
  *
  * Comment:
- * Create a semaphore. Initiate it to be unlocked.
+ * Create a dynamic semaphore. Initiate it to be unlocked.
  *
- * Backdraw:
- * void function, can not signal errors in a good way.
+ * Parameters:
+ * In: sem ** semaphore - pointer to semaphore pointer, semaphore must be NULL when this function is called.
+ *
+ * Returns:
+ * SEMOK if the semaphore was created successfully
+ * SEMERROR if the semaphore was not created sucessfully
  *
  **********************************************************/
-void ROSA_semCreate(sem * semaphore)
+int ROSA_semCreate(sem ** semaphore)
 {
 	int interruptOnOff = isInterruptEnabled();
-	interruptDisableIf(interruptOnOff); //Make the semaphore operation atomic.
-	while(semaphore == NULL);            //Jam here if a NULL semaphore is detected
-	semaphore->tcbHandle = NULL;        //No one uses the semaphore
-	semaphore->value = UNLOCKED;        //The semaphore is not locked
-	interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously too. Otherwise, keep them disabled.
+	interruptDisableIf(interruptOnOff);     //Make the semaphore operation atomic.
+
+	if(*semaphore) {
+		interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
+		return SEMERROR;
+	}
+
+	*semaphore = malloc(sizeof(sem));
+	if(!*semaphore) {
+		interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
+		return SEMERROR;
+	}
+	(*semaphore)->tcbHandle = NULL;        //No one uses the semaphore
+	(*semaphore)->value = SEMUNLOCKED;     //The semaphore is not locked
+	interruptEnableIf(interruptOnOff);     //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
+	return SEMOK;
 }
 
+/***********************************************************
+ * ROSA_semCreateGlobal
+ *
+ * Comment:
+ * Create a global semaphore. Initiate it to be unlocked.
+ *
+ * Parameters:
+ * In: sem * semaphore - pointer to semaphore
+ *
+ * Returns:
+ * SEMOK if the semaphore was created successfully
+ * SEMERROR if the semaphore was not created sucessfully
+ *
+ **********************************************************/
+int ROSA_semCreateGlobal(sem * semaphore)
+{
+	int interruptOnOff = isInterruptEnabled();
+	interruptDisableIf(interruptOnOff);     //Make the semaphore operation atomic.
+
+	if(!semaphore) {
+		interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
+		return SEMERROR;
+	}
+	(semaphore)->tcbHandle = NULL;        //No one uses the semaphore
+	(semaphore)->value = SEMUNLOCKED;     //The semaphore is not locked
+	interruptEnableIf(interruptOnOff);    //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
+	return SEMOK;
+}
 /***********************************************************
  * ROSA_semDestroy
  *
@@ -62,23 +104,30 @@ void ROSA_semCreate(sem * semaphore)
  * sem * semaphore - A pointer to the semaphore to destroy
  *
  **********************************************************/
-int ROSA_semDestroy(sem * semaphore)
+int ROSA_semDestroy(sem ** semaphore)
 {
 	int interruptOnOff = isInterruptEnabled();
-	if(semaphore == NULL) {
-		return ERROR;
-	}
-	if(semaphore->value != UNLOCKED) {
+
+	interruptDisableIf(interruptOnOff);
+	if(*semaphore == NULL) {
 		interruptEnableIf(interruptOnOff);
-		return ERROR;
+		return SEMERROR;
 	}
-	if(semaphore->tcbHandle == EXECTASK) {
+	if((*semaphore)->value != SEMUNLOCKED) {
 		interruptEnableIf(interruptOnOff);
-		return OK;
+		return SEMLOCKED;
 	}
+	if((*semaphore)->tcbHandle == EXECTASK) {
+		free(*semaphore);
+		*semaphore = NULL;
+		interruptEnableIf(interruptOnOff);
+		return SEMOK;
+	}
+
 	interruptEnableIf(interruptOnOff);
-	return ERROR;
+	return SEMERROR;
 }
+
 
 /***********************************************************
  * ROSA_semGive
@@ -90,22 +139,27 @@ int ROSA_semDestroy(sem * semaphore)
  * sem * semaphore - A pointer to the semaphore to give back.
  *
  **********************************************************/
-void ROSA_semGive(sem * semaphore)
+int ROSA_semGive(sem * semaphore)
 {
-
 	int interruptOnOff = isInterruptEnabled();
-	if(semaphore->tcbHandle != EXECTASK) {    //Only the owner may return a semaphore. Oh! How bad!!! :(
-		//ledOn(LED7_GPIO);
-		//while(1);	//Error, we didnt own the semaphore
-		interruptEnableIf(interruptOnOff);
-		return;
+
+	if(!semaphore) {
+		return SEMERROR;    //SEMERROR the semaphore does not exist
 	}
-	semaphore->value = UNLOCKED;
-	if(semaphore->value == UNLOCKED) {
+
+	interruptDisableIf(interruptOnOff);
+	if(semaphore->tcbHandle != EXECTASK) {    //Only the owner may return a s/emaphore. Oh! How bad!!! >:/
+		interruptEnableIf(interruptOnOff);
+		return SEMERROR;
+	}
+
+	semaphore->value = SEMUNLOCKED;
+	if(semaphore->value == SEMUNLOCKED) {
 		semaphore->tcbHandle = NULL;
 	}
+
 	interruptEnableIf(interruptOnOff);
-	return;
+	return SEMOK;
 }
 
 /***********************************************************
@@ -119,28 +173,28 @@ void ROSA_semGive(sem * semaphore)
  * sem * semaphore - A pointer to the semaphore to take.
  *
  * Return values:
- * ERROR on failure to take the semaphore
- * OK when semaphore have been taken.
+ * SEMERROR on failure to take the semaphore
+ * SEMOK when semaphore have been taken.
  **********************************************************/
 int ROSA_semTake(sem * semaphore)
 {
 	int interruptOnOff;
 
 	if(!semaphore) {
-		return ERROR;
-		//~ while(1);    //Error, The semaphore does not exist
+		return SEMERROR;    //SEMERROR, The semaphore does not exist
 	}
 
 	interruptOnOff = isInterruptEnabled();
 	if(semaphore->tcbHandle != NULL) {
 		interruptEnableIf(interruptOnOff);
-		return ERROR;
+		return SEMERROR;
 	}
 	semaphore->tcbHandle = EXECTASK;
-	semaphore->value = LOCKED;
+	semaphore->value = SEMLOCKED;
 	interruptEnableIf(interruptOnOff);
-	return OK;
+	return SEMOK;
 }
+
 
 //~ void ROSA_semGiveTo(Tcb * tcbblock, sem * semaphore) TODO: Remove
 //~ {

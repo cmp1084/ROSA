@@ -41,6 +41,7 @@
 #endif
 
 //TODO: Reconsider OK and ERROR
+//~ enum { OK, ERROR }
 #ifndef OK
 #define OK TRUE
 #endif

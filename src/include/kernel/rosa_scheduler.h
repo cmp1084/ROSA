@@ -43,8 +43,8 @@
 #define DESTROYED 2
 
 //The queues for tasks in waiting and ready state.
-extern Heap * readyHeap;
-extern Heap * waitingHeap;
+//~ extern Heap * readyHeap;
+//~ extern Heap * waitingHeap;
 
 //Global variable for setting the state of the currently running task.
 extern int taskState;
@@ -61,5 +61,6 @@ void rrscheduler(void);
 //Prioscheduler
 void scheduler(void);
 void prioschedulerInit(void);
-
+int addToScheduler(Tcb * tcb);
+int getFromScheduler(Tcb * tcb);
 #endif /* _ROSA_SCHEDULER_H_ */

@@ -365,11 +365,39 @@ isInterruptEnabled:
 * Context of the TCB referenced by EXECTASK will be saved.
 *
 *********************************************************/
-//OBS: There is two versions of contextSaveFromISR and contextRestoreFromISR
+//NOTE: There is two versions of contextSaveFromISR and contextRestoreFromISR
 //The first one is used when optimization is -O0
-//The second one is used when optimization is -Os (and can be used with -O3 as well)
+//The second one is used when optimization is -Os (and hopefully can be used with -O1, 2, 3 as well)
+//This work with gcc --version 4.3.2
+
 //SFINT0 = Supervisor Stack Frame for interrupt 0
 #if(O0)
+
+//At this point the supervisor stack look like this:
+//+------------------------+
+//| # Local variables * 4  |
+//|   handler_timerISR     |
+//+------------------------+
+//| LR   ROSA_yieldFromISR |
+//| R7   ROSA_yieldFromISR |
+//+------------------------+
+//| LR   handler_timerISR  |
+//| R7   handler_timerISR  |
+//+------------------------|
+//| SR   From the          |
+//| PC   interrupt event   |
+//| LR                     |
+//| R12                    |
+//| R11                    |
+//| R10                    |
+//| R9                     |
+//| R8                     |
+//+------------------------+
+//| ...                    |
+//+------------------------+
+//
+//The only interesting thing about the user stack is the USP, which is saved into the TCB.
+
 .equ SFINT0OFFSET,0x06*0x04
 
 
@@ -388,7 +416,7 @@ contextSaveFromISR:
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Save working registers
+	//Save work registers
 	st.w r12[TCB.SAVER0],r0
 	ld.w r0,sp[SFINT0_R12]
 	st.w r12[TCB.SAVEREG.R12],r0
@@ -483,10 +511,34 @@ contextRestoreFromISR:
 
 	//Return back to the ISR handler
 	mov pc,lr
-#endif
+//#endif
+#else
+
 
 //This is the second version for optimized compilation
-#if(O3)
+//#if(Os)
+
+//At this point the supervisor stack look like this:
+//
+//+------------------------+
+//| LR   ROSA_yieldFromISR |
+//+------------------------+
+//| LR   handler_timerISR  |
+//+------------------------|
+//| SR   From the          |
+//| PC   interrupt event   |
+//| LR                     |
+//| R12                    |
+//| R11                    |
+//| R10                    |
+//| R9                     |
+//| R8                     |
+//+------------------------+
+//| ...                    |
+//+------------------------+
+//
+//The only interesting thing about the user stack is the USP, which is saved into the TCB.
+
 .equ SFINT0OFFSET,0x02*0x04
 
 .equ SFINT0_SR, 0x00*0x04+SFINT0OFFSET
@@ -503,7 +555,7 @@ contextSaveFromISR:
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Save working registers
+	//Save work registers
 	st.w r12[TCB.SAVER0],r0
 	ld.w r0,sp[SFINT0_R12]
 	st.w r12[TCB.SAVEREG.R12],r0

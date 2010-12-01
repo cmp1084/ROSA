@@ -56,7 +56,8 @@ void stat3(void);
  * Semaphores
  ************************************************************/
 sem sem_test;
-sem sem_usart;
+sem * sem_test2;
+sem * sem_usart;
 
 //Data blocks for the tasks
 //~ #define T1_STACK_SIZE 0x40
@@ -141,7 +142,7 @@ void printStatus(void)
 	int usp, now;
 
 	//Wait until USART is free
-	while(!ROSA_semTake(&sem_usart)) {
+	while(!ROSA_semTake(sem_usart)) {
 		now = ROSA_sysTickGet();
 		EXECTASK->waitUntil = now + 1;	//+2 since sysTick+1 at next contextSwitch, and we want to sleep atleast 1 tick, hence +1+1.
 		taskState = WAITING;
@@ -164,7 +165,7 @@ void printStatus(void)
 
 	usartWriteLine(USART0, "\n");
 	//Give the USART back
-	ROSA_semGive(&sem_usart);
+	ROSA_semGive(sem_usart);
 
 	//ledOff(LED3_GPIO);
 	ROSA_taskDestroy();
@@ -185,7 +186,7 @@ void stat2(void)
 	int now;
 
 	while(1) {
-		while(!ROSA_semTake(&sem_usart)) {
+		while(!ROSA_semTake(sem_usart)) {
 		now = ROSA_sysTickGet();
 		EXECTASK->waitUntil = now + 1;
 		taskState = WAITING;
@@ -193,7 +194,7 @@ void stat2(void)
 		}
 		taskname[3] = EXECTASK->id[3];
 		usartWriteLine(USART0, taskname);
-		ROSA_semGive(&sem_usart);
+		ROSA_semGive(sem_usart);
 		ROSA_wait(1000);
 		ROSA_taskDestroy();
 	}
@@ -206,7 +207,7 @@ void stat3(void)
 	int now;
 
 	while(1) {
-		while(!ROSA_semTake(&sem_usart)) {
+		while(!ROSA_semTake(sem_usart)) {
 		now = ROSA_sysTickGet();
 		EXECTASK->waitUntil = now + 1;
 		taskState = WAITING;
@@ -214,7 +215,7 @@ void stat3(void)
 		};
 		taskname[3] = EXECTASK->id[3];
 		usartWriteLine(USART0, taskname);
-		ROSA_semGive(&sem_usart);
+		ROSA_semGive(sem_usart);
 		ROSA_wait(50);
 		if(isButton(PUSH_BUTTON_2)) {
 			ROSA_taskDestroy();
@@ -252,8 +253,10 @@ int main(void)
 	ROSA_taskCreate("tsk1", opttask1, 1, 0x40);
 	ROSA_taskCreate("tsk2", opttask2, 1, 0x40);
 
+	sem_test2 = malloc(sizeof(sem));
 	//Create semaphores
-	ROSA_semCreate(&sem_test);
+	ROSA_semCreateGlobal(&sem_test);
+	ROSA_semCreate(&sem_test2);
 	ROSA_semCreate(&sem_usart);
 
 	//Start the ROSA kernel

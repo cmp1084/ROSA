@@ -35,6 +35,10 @@
  * Comment:
  * 	This is the basic timer interrupt service routine.
  **********************************************************/
+//TODO: Having a lot of local variables here WILL mess up the ROSA_yieldFromISR, contextSaveFromISR and contextRestoreFromISR
+//Global variables are ofcourse ok.
+//
+//It would be better to have the _int0 routine call an assembler routine that call a C function, to get rid of these ridiculous problems.
 __attribute__((__interrupt__))
 void handler_timerISR(void)
 {
@@ -43,6 +47,7 @@ void handler_timerISR(void)
 
 	//Read the timer status register to determine if this is a valid interrupt
 	sr = tc->channel[0].sr;
+
 	if(sr & AVR32_TC_CPCS_MASK) {
 		_sysTickIncrease();
 		ROSA_yieldFromISR();
