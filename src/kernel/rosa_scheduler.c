@@ -40,10 +40,9 @@ int addToScheduler(Tcb * tcb)
 	return heapInsert(readyHeap, tcb);
 }
 
-int getFromScheduler(Tcb * tcb)
+int getFromScheduler(Tcb ** tcb)
 {
-	return heapExtract(waitingHeap, (void *)&tcb);
-
+	return heapExtract(readyHeap, (void *)tcb);
 }
 
 /***********************************************************
@@ -73,7 +72,7 @@ static int readycmp(const void * key1, const void * key2)
 	return -1;
 }
 
-void prioschedulerInit(void)
+void schedulerInit(void)
 {
 	waitingHeap = malloc(sizeof(Heap));
 	readyHeap = malloc(sizeof(Heap));

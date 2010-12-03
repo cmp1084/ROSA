@@ -193,6 +193,7 @@ _int0:
 _int0_exit:
 	rete
 
+	.section .text, "ax", @progbits
 /***********************************************************
  * Privileged Calls
  *

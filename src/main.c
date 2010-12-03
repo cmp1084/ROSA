@@ -71,9 +71,10 @@ sem * sem_usart;
 
 void opttask1(void)
 {
+	ROSA_wait(250);
 	while(1) {
 		ledToggle(LED0_GPIO);
-		ROSA_yield();
+		ROSA_wait(501);
 	}
 }
 
@@ -81,8 +82,7 @@ void opttask2(void)
 {
 	while(1) {
 		ledToggle(LED1_GPIO);
-		delay_ms(500);
-		ROSA_yield();
+		ROSA_wait(500);
 	}
 }
 
@@ -247,16 +247,16 @@ int main(void)
 	//ROSA_taskCreate(char * id, void * taskFunc, int prio, int stackSize);
 	//~ ROSA_taskCreate("tsk1", task1, 1, 0x40);
 	//~ ROSA_taskCreate("tsk2", task2, 2, 0x40);
-	//~ ROSA_taskCreate("tsk3", task3, 3, 0x40);
-	//~ ROSA_taskCreate("stat", stat, 6, 0x40);
+	ROSA_taskCreate("tsk3", task3, 3, 0x40);
+	ROSA_taskCreate("stat", stat, 6, 0x40);
 
 	ROSA_taskCreate("tsk1", opttask1, 1, 0x40);
 	ROSA_taskCreate("tsk2", opttask2, 1, 0x40);
 
-	sem_test2 = malloc(sizeof(sem));
+	//~ sem_test2 = malloc(sizeof(sem));
 	//Create semaphores
-	ROSA_semCreateGlobal(&sem_test);
-	ROSA_semCreate(&sem_test2);
+	//~ ROSA_semCreateGlobal(&sem_test);
+	//~ ROSA_semCreate(&sem_test2);
 	ROSA_semCreate(&sem_usart);
 
 	//Start the ROSA kernel

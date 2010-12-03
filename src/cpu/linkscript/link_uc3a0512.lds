@@ -197,7 +197,7 @@ SECTIONS
   .dynamic        : { *(.dynamic) } >INTRAM AT>FLASH :INTRAM_AT_FLASH
   .got            : { *(.got.plt) *(.got) } >INTRAM AT>FLASH :INTRAM_AT_FLASH
   .ramtext        : { *(.ramtext .ramtext.*) } >INTRAM AT>FLASH :INTRAM_AT_FLASH
-  .ddalign	: { . = ALIGN(8); } >INTRAM AT>FLASH :INTRAM_AT_FLASH
+  /*.ddalign	: { . = ALIGN(8); } >INTRAM AT>FLASH :INTRAM_AT_FLASH */
   .data           :
   {
     *(.data .data.* .gnu.linkonce.d.*)

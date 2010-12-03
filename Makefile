@@ -28,8 +28,8 @@
 # The name of the program, elf and binary
 ##############################################################
 PROGRAM = rosa
-ELF = ../$(PROGRAM).elf
-BINARY = t$(PROGRAM).bin
+ELF = $(PROGRAM).elf
+BINARY = $(PROGRAM).bin
 
 ##############################################################
 #Sources are located in this dir
@@ -72,8 +72,8 @@ SOURCE += $(SOURCEDIR)/main.c
 #The kernel assembler sources of ROSA
 ##############################################################
 ASMSOURCE= \
-	$(STARTUPDIR)/startup/crt0.S \
 	$(KERNELDIR)/rosa_int_asm.S \
+	$(STARTUPDIR)/startup/crt0.S \
 	$(KERNELDIR)/rosa_tim_asm.S \
 	$(KERNELDIR)/rosa_ker_asm.S \
 	$(DRIVERSDIR)/pot.S \
@@ -84,14 +84,13 @@ ASMSOURCE= \
 SYSTEMSOURCE= \
 	$(SYSTEMDIR)/semaphore.c \
 	$(SYSTEMDIR)/heap.c
-#	$(SYSTEMDIR)/list.c \
-#	$(SYSTEMDIR)/queue.c \
+
 
 ##############################################################
 #Application sources that uses ROSA
 ##############################################################
 APPSOURCE= \
-	$(APPDIR)/warning.c \
+#	$(APPDIR)/warning.c \ todo:
 
 ##############################################################
 #Header files are located in these files
@@ -102,6 +101,7 @@ INCDIRS = -Isrc -Isrc/include
 #Binaries are located in this dir
 ##############################################################
 BINDIR = bin
+ELFDIR = .
 
 ##############################################################
 #The target board and MCU
@@ -120,6 +120,7 @@ OBJDUMP = avr32-objdump
 TEST = test
 MKDIR = mkdir
 LESS = less
+SIZE = avr32-size
 
 ##############################################################
 #JTAG tool which will be used
@@ -132,42 +133,81 @@ PROGRAMMER = avr32program
 ##############################################################
 LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
 DEBUG = -ggdb
-OPT = -O0
+OPT = s
 AFLAGS = -x assembler-with-cpp
-CFLAGS = $(DEBUG) $(OPT) -Wall -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
-LDFLAGS = --gc-sections --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
+#~ CFLAGS = $(DEBUG) -DO$(OPT) -Wall -Wa,-R -mrelax -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
+#~ LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
+
+CFLAGS  = -c
+CFLAGS += -mpart=$(PART) -DBOARD=$(BOARD)
+CFLAGS += $(INCDIRS)
+CFLAGS += $(DEBUG) -DO$(OPT)
+CFLAGS += -Wall -Wa,-R
+CFLAGS += -msoft-float
+CFLAGS += -nostartfiles
+CFLAGS += -fomit-frame-pointer
+CFLAGS += -mrelax
+CFLAGS += -fno-common
+CFLAGS += -fsection-anchors
+#~ CFLAGS += -fdata-sections
+CFLAGS += -ffunction-sections
+CFLAGS += -mno-use-rodata-section
+#~ CFLAGS += -Wa,--linkrelax
+#~ CFLAGS += -Wa,--pic
+#~ CFLAGS += -Wl,--pic
+
+LDFLAGS = --gc-sections --relax --data-sections -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
+
 OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o) $(APPSOURCE:%.c=%.o)
 
 TEXTPRECOMPILE = @echo -n "---  $< "
 TEXTPOSTCOMPILE = @echo -e "\r[OK]"
 
+BUILDDIR = .
+
 ##############################################################
 #Makefile rules
 ##############################################################
-all: clean $(OBJ) elf $(BINARY)
+all: $(OBJ) elf $(BINARY) ok size crlf
 
 print:
 	@echo $(OBJ)
 
+ok:
+	@echo -e "\r[ALL OK]"
+
+crlf:
+	@echo
+
+#Never optimiz the delay_ms function in src/drivers/delay.c
+$(DRIVERSDIR)/delay.o: $(DRIVERSDIR)/delay.c
+	@$(TEST) -d $(BUILDDIR)/$(@D) || $(MKDIR) $(BUILDDIR)/$(@D)
+	@$(CC) $(CFLAGS) -O0 $< -o$(BUILDDIR)/$@
+
 %.o: %.S
 	$(TEXTPRECOMPILE)
-	@$(CC) $(CFLAGS) $(AFLAGS)  $< -o$@
+	@$(TEST) -d $(BUILDDIR)/$(@D) || $(MKDIR) -p $(BUILDDIR)/$(@D)
+	@$(CC) $(CFLAGS) $(AFLAGS) -O$(OPT) $< -o$(BUILDDIR)/$@
 	$(TEXTPOSTCOMPILE)
+
+#~ %.c: $(DEPS)
+#~ @echo AHH, SOMEONE THOUGHT THEY WERE CLEVER
+#~ %.o
 
 %.o: %.c
 	$(TEXTPRECOMPILE)
-	@$(CC) $(CFLAGS) $< -o$@
+	@$(TEST) -d $(BUILDDIR)/$(@D) || $(MKDIR) -p $(BUILDDIR)/$(@D)
+	@$(CC) $(CFLAGS) -O$(OPT) $< -o$(BUILDDIR)/$@
 	$(TEXTPOSTCOMPILE)
 
 $(BINARY):
-	$(OBJCOPY) -O binary $(BINDIR)/$(ELF) $(BINDIR)/$(BINARY)
-	@echo -e "\r[ALL OK]"
-	@echo
+	$(OBJCOPY) -O binary $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
+
 
 elf:
-	@$(TEST) -d $(BINDIR) || $(MKDIR) $(BINDIR)
+	@$(TEST) -d $(ELFDIR) || $(MKDIR) -p $(ELFDIR)
 	@echo -n "...  Linking $(ELF)"
-	@$(CC) $(LDFLAGS)  $(OBJ) -o $(BINDIR)/$(ELF)
+	@$(CC) $(LDFLAGS) $(OBJ:%=$(BUILDDIR)/%) -o $(ELFDIR)/$(ELF)
 	$(TEXTPOSTCOMPILE)
 
 program: $(BINDIR)/$(BINARY)
@@ -184,18 +224,19 @@ cpuinfo:
 	$(PROGRAMMER) cpuinfo
 
 size:
-	$(SIZE) --target=binary $(BINDIR)/$(BINARY)
+	@$(SIZE) --target=binary $(BINDIR)/$(BINARY)
 
 gdb:
 	avr32gdbproxy -k -a localhost:4711 -cUSB -e$(JTAGTOOL)
 
 kill:
 	killall avr32gdbproxy
+
 dump:
-	$(OBJDUMP) -S -x $(BINDIR)/$(ELF)|$(LESS)
+	$(OBJDUMP) -S -x $(ELFDIR)/$(ELF)|$(LESS)
 
 clean:
-	@rm -f $(OBJ) $(BINDIR)/$(ELF) $(BINDIR)/$(BINARY)
+	rm -f $(OBJ) $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
 
 test: src/system/list.c src/include/system/list.h src/test/listtest.c
 	gcc -ggdb -Isrc/include src/system/list.c src/test/listtest.c -otest

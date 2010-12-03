@@ -26,15 +26,44 @@
 #ifndef _ROSA_PM_H_
 #define _ROSA_PM_H_
 
-#include "avr32/pm.h"
+#include <avr32/pm.h>
 
-void pmCpuMaskSet(int mask);
-int pmCpuMaskGet(void);
-void pmHsbMaskSet(int mask);
-int pmHsbMaskGet(void);
-void pmPbaMaskSet(int mask);
-int pmPbaMaskGet(void);
-void pmPbbMaskSet(int mask);
-int pmPbbMaskGet(void);
+enum {
+	PM_CPUMASK_OCD_OFFSET = 1
+}
+
+enum {
+	PM_PBAMASK_INTC_OFFSET = 0,
+	PM_PBAMASK_GPIO_OFFSET,
+	PM_PBAMASK_PDCA_OFFSET,
+	PM_PBAMASK_PM_RTC_EIC_OFFSET,
+	PM_PBAMASK_ADC_OFFSET,
+	PM_PBAMASK_SPI0_OFFSET,
+	PM_PBAMASK_SPI1_OFFSET,
+	PM_PBAMASK_TWI_OFFSET,
+	PM_PBAMASK_USART0_OFFSET,
+	PM_PBAMASK_USART1_OFFSET,
+	PM_PBAMASK_PWM_OFFSET,
+	PM_PBAMASK_SSC_OFFSET
+}
+
+enum {
+	PM_PBBMASK_HMATRIX_OFFSET = 0,
+	PM_PBBMASK_USBB_OFFSET,
+	PM_PBBMASK_FLASHC_OFFSET,
+	PM_PBBMASK_MACB_OFFSET,
+	PM_PBBMASK_SMC_OFFSET,
+	PM_PBBMASK_SDRAMC_OFFSET,
+}
+
+
+//~ void pmCpuMaskSet(unsigned int mask);
+//~ unsigned int pmCpuMaskGet(void);
+void pmHsbMaskSet(unsigned int mask);
+unsigned int pmHsbMaskGet(void);
+void pmPbaMaskSet(unsigned int mask);
+unsigned int pmPbaMaskGet(void);
+void pmPbbMaskSet(unsigned int mask);
+unsigned int pmPbbMaskGet(void);
 
 #endif /* _ROSA_PM_H_ */

@@ -287,12 +287,12 @@ _yield:
 * system.
 *********************************************************/
 ROSA_taskDestroy:
-	//call interruptDisable
+	call interruptDisable
 	lda.w lr,_ROSA_taskDestroy
 	//Enter supervisor mode
 	scall
 _ROSA_taskDestroy:
-	call interruptDisable
+	//call interruptDisable
 	//Remove the current task
 	call _taskDestroy
 	//Reschedule.
@@ -309,7 +309,7 @@ _SSPGet:
 _scallSSPGet:
 	mov r12,sp
 	rets
-
+//~ //~
 //Get the address of the USP TODO: REMOVE
 //Return in r12
 _USPGet:

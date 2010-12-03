@@ -109,7 +109,7 @@ void ROSA_init(void)
 	//Start with empty TCBLIST and no EXECTASK.
 	//~ TCBLIST = NULL;
 	EXECTASK = NULL;
-	prioschedulerInit();
+	schedulerInit();
 	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
 	//Do initialization of I/O drivers
 #if(CONFIG_LED)
@@ -227,7 +227,7 @@ void ROSA_tcbInstall(Tcb * tcb)
 void ROSA_start(void)
 {
 	//Get the highest prio task that is ready to run.
-	getFromScheduler(EXECTASK);
+	getFromScheduler(&EXECTASK);
 	//~ heapExtract(readyHeap, (void **)&EXECTASK);
 	_ROSA_start();
 	//Execution never continue here

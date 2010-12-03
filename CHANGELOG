@@ -26,9 +26,21 @@
 ROSA Changelog
 ----------------
 
+Version 0.5.1
+20101128
+Made some static functions and variables. Added addToScheduler() etc functions in rosa_scheduler.c.
+Made build directory, which contain all the .o after a compile. The ROSA src directory is now untouched by a compile.
+
+Version 0.5
+20101124
+Christmas comes early!
+Fixed the contextSwitchFromISR to cope with compiler optimization,
+now -O0, 1, 2, 3 and -Os work.
+
 Verison 0.4
 20101112
-Moved some driver defines into rosa_config.h for better consolidation of user defines.
+Moved some driver defines into rosa_config.h for better consolidation
+of user defines.
 Added:
  /src/system/semaphore.c	- semaphore functions
  /src/system/list.c			- linked list functions

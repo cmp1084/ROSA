@@ -62,6 +62,25 @@ TCB.RETADDR:    .word 0     /* Return address, i.e. the resume     */
 TCB.PRIO:       .word 0     /* Priority */
 TCB.WAITUNTIL:  .word 0     /* Wait until this sysTick before moving into ready state */
 TCB.SAVEREG:				/* The 14 registers interesting for context switch */
+
+/*
+TCB.SAVEREG.R0:  .word 0
+TCB.SAVEREG.R1:  .word 0
+TCB.SAVEREG.R2:  .word 0
+TCB.SAVEREG.R3:  .word 0
+TCB.SAVEREG.R4:  .word 0
+TCB.SAVEREG.R5:  .word 0
+TCB.SAVEREG.R6:  .word 0
+TCB.SAVEREG.R7:  .word 0
+TCB.SAVEREG.R8:  .word 0
+TCB.SAVEREG.R9:  .word 0
+TCB.SAVEREG.R10: .word 0
+TCB.SAVEREG.R11: .word 0
+TCB.SAVEREG.R12: .word 0
+TCB.SAVEREG.SP:  .word 0
+TCB.SAVEREG.LR:  .word 0
+*/
+
 TCB.SAVEREG.LR:  .word 0
 TCB.SAVEREG.SP:  .word 0
 TCB.SAVEREG.R12: .word 0
@@ -77,6 +96,7 @@ TCB.SAVEREG.R3:  .word 0
 TCB.SAVEREG.R2:  .word 0
 TCB.SAVEREG.R1:  .word 0
 TCB.SAVEREG.R0:  .word 0
+
 
 TCB.TCBSIZE:	.word 0	/* Size marker of TCB */
 

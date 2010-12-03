@@ -23,15 +23,31 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
+#include <avr32/io.h>
 #inlucde "pm.h"
 
-void pmCpuMaskSet(int mask)
+void pmPbaMaskSet(unsigned int mask)
 {
-
+	volatile avr32_pm_t * pm;
+	pm->pbamask = mask;
 }
 
 
-int pmCpuMaskGet(void)
+int pmPbaMaskGet(void)
 {
+	volatile avr32_pm_t * pm;
+	return pm->pbamask;
+}
 
+void pmPbbMaskSet(unsigned int mask)
+{
+	volatile avr32_pm_t * pm;
+	pm->pbbmask = mask;
+}
+
+
+int pmPbaMaskGet(void)
+{
+	volatile avr32_pm_t * pm;
+	return pm->pbbmask;
 }

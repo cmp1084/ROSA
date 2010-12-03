@@ -23,7 +23,9 @@
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
 
-void spiEnable(...)
+#include "spi.h"
+
+void spi0Enable(...)
 {
-	pmSpiEnable();
+	pmPbaMaskSet((1 << PM_PBAMASK_SPI0_OFFSET) | pmPbaMaskGet());
 }
