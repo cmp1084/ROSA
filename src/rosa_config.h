@@ -135,11 +135,29 @@
 
 /***********************************************************
  * Task default priority configures
+ *
+ * Comment:
+ * Low value give low priority
+ * High value give high priority
  **********************************************************/
+
 #define IDLEPRIORITY 0
 #define DEFAULTLOWPRIO 1
 #define TASKINITIALPRIORITY 1
 
 #define DEFAULTRELEASETIME 0
+
+/*********************************************************
+ * SPI configurations
+ *********************************************************/
+#define CONFIG_MISO AVR32_SPI1_MISO_0_0_PIN
+#define CONFIG_MOSI AVR32_SPI1_MOSI_0_0_PIN
+#define CONFIG_SCK AVR32_SPI1_SCK_0_0_PIN
+#define CONFIG_CS AVR32_SPI1_NPCS_0_0_PIN
+
+#define CONFIG_MISO_FUNCTION AVR32_SPI1_MISO_0_0_FUNCTION
+#define CONFIG_MOSI_FUNCTION AVR32_SPI1_MOSI_0_0_FUNCTION
+#define CONFIG_SCK_FUNCTION AVR32_SPI1_SCK_0_0_FUNCTION
+#define CONFIG_CS_FUNCTION AVR32_SPI1_NPCS_0_0_FUNCTION
 
 #endif /* _ROSA_CONFIG_H_ */

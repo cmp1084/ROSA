@@ -29,6 +29,7 @@
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_tim.h"
 
+#if(CONFIG_TIMER)
 /***********************************************************
  * timerInterruptHandler
  *
@@ -53,7 +54,7 @@ void handler_timerISR(void)
 		ROSA_yieldFromISR();
 	}
 }
-
+#endif //#if(CONFIG_TIMER)
 
 /***********************************************************
  * timerPeriodSet
@@ -78,3 +79,4 @@ unsigned int timerPeriodGet(void)
 {
 	return timerRC * timerPrescale / FOSC0;
 }
+

@@ -144,6 +144,7 @@ void ROSA_init(void)
  * 	Create the TCB with correct values.
  *
  **********************************************************/
+//~ __attribute__((__acall__)) not implemented gcc 4.3.3 :(
 void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void * tcbFunction, unsigned int * tcbStack, const int tcbStackSize)
 {
 	int i;
@@ -155,16 +156,16 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	}
 
 	//Dont link this TCB anywhere yet.
-	//~ tcb->nexttcb = NULL;			//NOT USED ANY LONGER! TODO:
+	//~ tcb->nexttcb = NULL;			//NOT USED ANY LONGER! TODO: Remove
 
 	//Set the task function start and return address.
 	tcb->staddr = tcbFunction;
-	tcb->retaddr = (int)tcbFunction;
+	//tcb->retaddr = (int)tcbFunction;
 
 	//Set up the stack.
 	tcb->datasize = tcbStackSize;
 	tcb->dataarea = tcbStack + tcbStackSize;
-	tcb->saveusp = tcb->dataarea;
+	//tcb->saveusp = tcb->dataarea;
 
 	//Set the initial SR.
 	tcb->savesr = ROSA_INITIALSR;

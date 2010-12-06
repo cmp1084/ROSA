@@ -192,18 +192,18 @@ void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb)
 				usartWriteValue(usart, (int)dbgtcb);
 				//~ usartWriteLine(usart, "\nnexttcb:   ");
 				//~ usartWriteValue(usart, (int)dbgtcb->nexttcb);
-				usartWriteLine(usart, "\nstaddr:    ");
-				usartWriteValue(usart, (int)dbgtcb->staddr);
+				//~ usartWriteLine(usart, "\nstaddr:    ");
+				//~ usartWriteValue(usart, (int)dbgtcb->staddr);
 				usartWriteLine(usart, "\ndataarea:  ");
 				usartWriteValue(usart, (int)dbgtcb->dataarea);
 				usartWriteLine(usart, "\ndatasize:  ");
 				usartWriteValue(usart, (int)dbgtcb->datasize);
-				usartWriteLine(usart, "\nsaveusp:   ");
-				usartWriteValue(usart, (int)dbgtcb->saveusp);
+				//~ usartWriteLine(usart, "\nsaveusp:   ");
+				//~ usartWriteValue(usart, (int)dbgtcb->saveusp);
 				usartWriteLine(usart, "\nsavesr:    ");
 				usartWriteValue(usart, (int)dbgtcb->savesr);
-				usartWriteLine(usart, "\nretaddr:   ");
-				usartWriteValue(usart, (int)dbgtcb->retaddr);
+				//~ usartWriteLine(usart, "\nretaddr:   ");
+				//~ usartWriteValue(usart, (int)dbgtcb->retaddr);
 				usartWriteLine(usart, "\n");
 			}
 			//Write all registers at DEBUGLEVEL3

@@ -44,7 +44,7 @@
 	.global ROSA_taskDestroy
 	.global _SSPGet		//TODO: Remove
 	.global _USPGet
-	.global _ROSA_start	//Should only be accessed from ROSA_start()
+	.global _ROSA_start	//Should only be accessed from ROSA_start() in rosa_ker.c
 /*********************************************************
 * ROSA_start kernel code
 *
@@ -59,13 +59,15 @@ _ROSA_start:
 	ld.w r12,r12[0]
 
 	//Set up start USP
-	ld.w r0,r12[TCB.SAVEUSP]
+	//~ ld.w r0,r12[TCB.SAVEUSP]
+	ld.w r0,r12[TCB.SAVEREG.SP]
 	st.w --sp,r0
 	ldmts sp,sp
 	ld.w r0,sp++
 
 	//Load start lr, execution will jump here later
-	ld.w lr,r12[TCB.STADDR]
+	ld.w lr,r12[TCB.SAVEREG.PC]
+	//~ ld.w lr,r12[TCB.STADDR]
 
 	//Set up start SR, enter user mode
 	ld.w r0,r12[TCB.SAVESR]
@@ -99,14 +101,20 @@ _ROSA_start:
 contextInit:
 	pushm r11
 	//Initialize lr in the savereg area
-	ld.w r11,r12[TCB.STADDR]
+	ld.w r11,r12[TCB.STADDR]			//TODO: Remove the need for STADDR, use SAVEREG.PC directly in ker.c However, STADDR might make debugging a little easier for reqognising functions (well, id makes it easy enough)
+	st.w r12[TCB.SAVEREG.PC],r11
 	st.w r12[TCB.SAVEREG.LR],r11
+
+	//Initialize the USP
+	ld.w r11,r12[TCB.DATAAREA]
+	st.w r12[TCB.SAVEREG.SP],r11
 
 	//Initialize regs to zero
 	//~ mov r11,0x0
 	//~ st.w r12[TCB.SAVEREG.R0],r11
 	//~ ...
 	//~ st.w r12[TCB.SAVEREG.R12],r11
+
 	popm r11
 	mov pc,lr
 
@@ -149,11 +157,58 @@ contextInit:
 .equ SF_LR_TASK, 0x00 //The link back to the next user task instruction is located here.
 
 
+
+//contextSave:
+//	pushm r12
+//
+//	//Fetch the current executing task
+//	lda.w r12,EXECTASK
+//	ld.w r12,r12[0x0]
+
+//	//Save work registers to TCB
+//	st.w r12[TCB.SAVEREG.R0],r0
+//	//~ st.w r12[TCB.SAVEREG.R1],r1
+//	ld.w r0,sp++					//Use r0 to save r12
+//	st.w r12[TCB.SAVEREG.R12],r0
+
+//	//Save task SR to TCB
+//	ld.w r0,sp[SF_SR]
+//	st.w r12[TCB.SAVESR],r0
+//
+//	//Save task registers r1-r11 to TCB
+//	//~ mov r0,TCB.SAVEREG.R1
+//	//~ add r0,r12
+//	sub r12,-TCB.SAVEREG.R1
+//	stmts r0,r1-r11
+//
+//	//Get the address of the USP
+//	mov r0,sp
+//	st.w --sp,r0
+//	stmts sp,sp
+//	ld.w r1,sp++					//USP in r1
+//
+//	//Save RETADDR to TCB
+//	ld.w r0,r1[SF_LR_TASK]			//Get lr from user stack, we want to return to task, not to contextSwitch
+//	st.w r12[TCB.RETADDR],r0		//correction of stack is done later
+//
+//	//Save LR_task
+//	st.w r12[TCB.SAVEREG.LR],r0
+//
+//	//Correct the USP for the ROSA_yield() call.
+//	//This is done since we do not want to return to ROSA_yield(),
+//	//where the stack frame is currently at, but to the executing task.
+//	sub r1,-0x04
+//
+//	//Save USP
+//	st.w r12[TCB.SAVEUSP],r1
+//
+//	mov pc,lr
 /*********************************************************
 * contextSave
 *
 * Comment:
-* Task switch routine. This routine save task context.
+* Task switch routine. Executed only in supervisor mode.
+* This routine save task context.
 * Context of the TCB referenced by EXECTASK will be saved.
 *
 *********************************************************/
@@ -164,43 +219,35 @@ contextSave:
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Save work registers to TCB
-	st.w r12[TCB.SAVER0],r0
-	st.w r12[TCB.SAVER1],r1
-	ld.w r0,sp++					//Use r0 to save r12
-	st.w r12[TCB.SAVEREG.R12],r0
+	//Save task registers r0-sp to TCB
+	sub r12,-TCB.SAVEREG.SP
+	stmts r12,r0-sp					//R12 is not correct saved at this point (EXECTASK is saved as R12!)
+
+	//Fetch the current executing task (again!) //TODO: can we sub r11,r12,-TCB.SAVEREG.SP or similar to avoid this? We can use lr
+	lda.w r12,EXECTASK
+	ld.w r12,r12[0x0]
+
+	popm r11
+	st.w r12[TCB.SAVEREG.R12],r11	//Use R11 to save the correct R12
+
+	//save LR from user stack
+	ld.w r11,r12[TCB.SAVEREG.SP]
+
+	//save LR	//This LR is pointing to the instruction after the ROSA_yield() call in the task
+	ld.w r10,r11[0x0]
+	st.w r12[TCB.SAVEREG.LR],r10
+	st.w r12[TCB.SAVEREG.PC],r10	//In this case, where a manual yield have been done, PC is the same as LR
+
+	//Correct the user stack pointer
+	sub r11,-4
+	st.w r12[TCB.SAVEREG.SP],r11
 
 	//Save task SR to TCB
-	ld.w r0,sp[SF_SR]
-	st.w r12[TCB.SAVESR],r0
-
-	//Save task registers r0-r11 to TCB
-	mov r0,TCB.SAVEREG.R11
-	add r0,r12
-	stmts r0,r0-r11
-
-	//Get the address of the USP
-	mov r0,sp
-	st.w --sp,r0
-	stmts sp,sp
-	ld.w r1,sp++					//USP in r1
-
-	//Save RETADDR to TCB
-	ld.w r0,r1[SF_LR_TASK]			//Get lr from user stack, we want to return to task, not to contextSwitch
-	st.w r12[TCB.RETADDR],r0		//correction of stack is done later
-
-	//Save LR_task
-	st.w r12[TCB.SAVEREG.LR],r0
-
-	//Correct the USP for the ROSA_yield() call.
-	//This is done since we do not want to return to ROSA_yield(),
-	//where the stack frame is currently at, but to the executing task.
-	sub r1,-0x04
-
-	//Save USP
-	st.w r12[TCB.SAVEUSP],r1
+	ld.w r11,sp[SF_SR]
+	st.w r12[TCB.SAVESR],r11
 
 	mov pc,lr
+
 
 /*********************************************************
 * contextRestore
@@ -211,39 +258,58 @@ contextSave:
 *
 *********************************************************/
 contextRestore:
-	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Restore USP
-	ld.w r1,r12[TCB.SAVEUSP]
-	st.w --sp,r1
-	ldmts sp,sp
-	ld.w r1,sp++				//Dummy read to correct the stack
+	//restore SR
+	ld.w r11,r12[TCB.SAVESR]
+	st.w sp[SF_SR],r11
 
-	//Restore LR = retaddr
-	ld.w lr,r12[TCB.SAVEREG.LR]
+	//Restore PC
+	ld.w r11,r12[TCB.SAVEREG.PC]
+	st.w sp[SF_PC],r11
+	//restore registers
+	sub r12,-TCB.SAVEREG.LR
+	ldmts r12,r0-lr
 
-	//Restore RETADDR
-	ld.w r0,r12[TCB.RETADDR]
-	st.w sp[SF_PC],r0
+	rets
 
-	//Restore registers
-	mov r0,TCB.SAVEREG.R11
-	add r0,r12
-	ldmts r0,r0-r11
+//contextRestore:
+//	//Fetch the current executing task
+//	lda.w r12,EXECTASK
+//	ld.w r12,r12[0x0]
+
+//	//Restore USP
+//	ld.w r0,r12[TCB.SAVEUSP]
+//	st.w --sp,r0
+//	ldmts sp,sp
+//	ld.w r0,sp++				//Dummy read to correct the stack
+
+//	//Restore LR = retaddr
+//	ld.w lr,r12[TCB.SAVEREG.LR]
+
+//	//Restore RETADDR
+//	ld.w r0,r12[TCB.RETADDR]
+//	st.w sp[SF_PC],r0
+
+//	//Restore registers
+//	//~ mov r0,TCB.SAVEREG.R1
+//	//~ add r0,r12
+//	sub r12,-TCB.SAVEREG.R1
+//	ldmts r0,r1-r11
 
 	//Restore SR
-	ld.w r0,r12[TCB.SAVESR]
-	st.w sp[SF_SR],r0			//Put SR on the stack for later fetch
+//	ld.w r0,r12[TCB.SAVESR]
+//	st.w sp[SF_SR],r0			//Put SR on the stack for later fetch
 
 	//Restore work registers
-	ld.w r0,r12[TCB.SAVER0]
-	ld.w r1,r12[TCB.SAVER1]
-	ld.w r12,r12[TCB.SAVEREG.R12]
+//	//~ ld.w r0,r12[TCB.SAVER0]
+//	//~ ld.w r1,r12[TCB.SAVER1]
+//	ld.w r0,r12[TCB.SAVEREG.R0]
+//	ld.w r12,r12[TCB.SAVEREG.R12]
 
-	//We are done, exit from supervisor mode
-	rets										//TODO: rets will take care of the interrupEnable stuff!!!!
+//	//We are done, exit from supervisor mode
+//	rets										//TODO: rets will take care of the interrupEnable stuff!!!!
 
 /*********************************************************
 * ROSA_, the users interface to the kernel
@@ -267,11 +333,13 @@ contextRestore:
 *********************************************************/
 ROSA_yield:
 	pushm lr
-	call interruptDisable
 	lda.w lr,_yield
 	//Enter supervisor mode
 	scall
+	//~ popm pc
+	//If interruptDisable is done earlier, remember to manually turn it on here
 _yield:
+	call interruptDisable
 	call contextSave
 	call scheduler
 	call contextRestore
@@ -287,7 +355,7 @@ _yield:
 * system.
 *********************************************************/
 ROSA_taskDestroy:
-	call interruptDisable
+	call interruptDisableIf
 	lda.w lr,_ROSA_taskDestroy
 	//Enter supervisor mode
 	scall

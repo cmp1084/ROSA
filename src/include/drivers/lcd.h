@@ -2,8 +2,8 @@
 
                  ,//////,   ,////    ,///' /////,
                 ///' ./// ///'///  ///,    ,, //
-               ///////,  ///,///   '/// ///''//,
-             ,///' '///,'/////',/////'  /////'\\,
+               ///////,  ///,///   '/// //;''//,
+             ,///' '///,'/////',/////'  /////'/;,
 
     Copyright 2010 Marcus Jansson <mjansson256@yahoo.se>
 
@@ -22,32 +22,3 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
-
-#include <avr32/io.h>
-#include "drivers/pm.h"
-
-void pmPbaMaskSet(unsigned int mask)
-{
-	volatile avr32_pm_t * pm = &AVR32_PM;
-	pm->pbamask = mask;
-}
-
-
-unsigned int pmPbaMaskGet(void)
-{
-	volatile avr32_pm_t * pm = &AVR32_PM;
-	return pm->pbamask;
-}
-
-void pmPbbMaskSet(unsigned int mask)
-{
-	volatile avr32_pm_t * pm = &AVR32_PM;
-	pm->pbbmask = mask;
-}
-
-
-unsigned int pmPbbMaskGet(void)
-{
-	volatile avr32_pm_t * pm = &AVR32_PM;
-	return pm->pbbmask;
-}

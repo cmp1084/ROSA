@@ -38,8 +38,10 @@ File creation date: 20101109 10:15:24
  * TCB block
  *
  * Comment:
- * 	This struct contain all the necessary information to
- * 	do a context switch.
+ * This struct contain all the necessary information to
+ * do a context switch.
+ *
+ * Keep in sync with rosa_off.i
  *
  **********************************************************/
 typedef struct Tcbrecord_t {
@@ -48,13 +50,15 @@ typedef struct Tcbrecord_t {
 	void (*staddr)(void);                   //Start address
 	unsigned int * dataarea;                //The stack data area
 	unsigned int datasize;                  //The stack size
-	unsigned int * saveusp;                 //The current stack position
-	unsigned int SAVER0;                    //Temporary work register
-	unsigned int SAVER1;                    //Temporary work register
-	unsigned int savesr;                    //The current status register
-	unsigned int retaddr;                   //The return address
+	//~ unsigned int * saveusp;                 //The current stack position
+	//~ unsigned int SAVER0;                    //Temporary work register
+	//~ unsigned int SAVER1;                    //Temporary work register
+
+	//~ unsigned int retaddr;                   //The return address
 	unsigned int prio;                      //The task priority
 	unsigned int waitUntil;                 //The sysTick on which the task should go from waiting state to ready state
+	unsigned int savesr;                    //The current status register
+
 	unsigned int savereg[16];               //The CPU registers
 } Tcb;
 

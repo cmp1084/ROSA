@@ -38,6 +38,7 @@
 #include "drivers/delay.h"
 #include "drivers/usart.h"
 #include "drivers/button.h"
+#include "drivers/spi.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -69,20 +70,27 @@ sem * sem_usart;
 //~ static Tcb t2_tcb;
 
 
+__attribute__((__naked__))
 void opttask1(void)
 {
 	ROSA_wait(250);
+	//~ delay_ms(125/4);
 	while(1) {
 		ledToggle(LED0_GPIO);
 		ROSA_wait(501);
+		//~ delay_ms(251/4);
+		ROSA_yield();
 	}
 }
 
+__attribute__((__naked__))
 void opttask2(void)
 {
 	while(1) {
 		ledToggle(LED1_GPIO);
 		ROSA_wait(500);
+		//~ delay_ms(250/4);
+		ROSA_yield();
 	}
 }
 
@@ -91,7 +99,7 @@ void opttask2(void)
  * LED0 lights up
  * LED1 goes dark
  ************************************************************/
-void task1(void)
+__attribute__((__naked__)) void task1(void)
 {
 	ROSA_wait(50);
 	while(1) {
@@ -232,6 +240,7 @@ int main(void)
 {
 	//Initialize the ROSA kernel
 	ROSA_init();
+	spiEnable(&AVR32_SPI1);
 	//~ usartWriteLine(USART0, "\e[2JROSA starting...\n"); //TODO
 	usartWriteLine(USART0, "\nROSA starting...\n");
 

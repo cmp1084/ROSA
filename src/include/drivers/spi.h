@@ -22,3 +22,16 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+
+#ifndef __ROSA_SPI_H_
+#define __ROSA_SPI_H_
+
+#include <avr32/io.h>
+#include "gpio.h"
+#include "pm.h"
+#include "rosa_config.h"
+
+
+void spiEnable(volatile avr32_spi_t * spi);
+
+#endif /* __ROSA_SPI_H_ */

@@ -28,6 +28,54 @@
 #include "drivers/gpio.h"
 
 /***********************************************************
+ * gpioperipheralEnable
+ *
+ * Parameters;
+ * Input:
+ * int pin - the pin number which periperial should be enabled for
+ * int function - the peripheral function. GPIO, A, B or C
+ *
+ * Comment:
+ * Initialize a GPIO pin to given peripheral.
+ *
+ **********************************************************/
+void gpioPeripheralEnable(int pin, int function)
+{
+	volatile avr32_gpio_port_t * gpioport;
+	int gpiopin;
+
+	gpioport = &AVR32_GPIO.port[pin >> 5];
+	gpiopin = pin & (GPIO_PIN_MAX - 1);
+
+	switch(function) {
+		case GPIO:
+			gpioport->oderc = gpiopin;	//Clear the output drive register (clearing ovr shouldnt be necessary)
+			gpioport->gpers = gpiopin;	//Switch to GPIO functionality
+			return;
+			break;
+		case A:
+			gpioport->pmr0c = gpiopin;	//Set peripheral multiplexed functionality
+			gpioport->pmr1c = gpiopin;
+			break;
+		case B:
+			gpioport->pmr0s = gpiopin;
+			gpioport->pmr0c = gpiopin;
+			break;
+		case C:
+			gpioport->pmr0c = gpiopin;
+			gpioport->pmr0s = gpiopin;
+			break;
+		case D:
+			gpioport->pmr0s = gpiopin;
+			gpioport->pmr0s = gpiopin;
+			break;
+		default:
+			while(1);	//error
+		}
+		gpioport->gperc = gpiopin;		//Switch to peripheral
+}
+
+/***********************************************************
  * gpioInit
  *
  * Comment:

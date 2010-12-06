@@ -52,11 +52,18 @@ SOURCE =  $(KERNELDIR)/rosa_int.c
 SOURCE += $(KERNELDIR)/rosa_tim.c
 SOURCE += $(KERNELDIR)/rosa_ker.c
 SOURCE += $(KERNELDIR)/rosa_scheduler.c
+
+##############################################################
+#The driver sources
+##############################################################
 SOURCE += $(DRIVERSDIR)/gpio.c
 SOURCE += $(DRIVERSDIR)/led.c
 SOURCE += $(DRIVERSDIR)/button.c
 SOURCE += $(DRIVERSDIR)/usart.c
 SOURCE += $(DRIVERSDIR)/delay.c
+SOURCE += $(DRIVERSDIR)/pm.c
+SOURCE += $(DRIVERSDIR)/spi.c
+SOURCE += $(DRIVERSDIR)/lcd.c
 
 ##############################################################
 #Put your additional kernel source files here
@@ -131,14 +138,14 @@ PROGRAMMER = avr32program
 ##############################################################
 #Various compile flags etc
 ##############################################################
-LDSCRIPT = $(STARTUPDIR)/linkscript/link_uc3a0512.lds
+LDSCRIPT = $(STARTUPDIR)/linkscript/uc3a0512.lds
 DEBUG = -ggdb
-OPT = s
+OPT = 1
 AFLAGS = -x assembler-with-cpp
 #~ CFLAGS = $(DEBUG) -DO$(OPT) -Wall -Wa,-R -mrelax -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 #~ LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
 
-CFLAGS  = -c
+CFLAGS = -c
 CFLAGS += -mpart=$(PART) -DBOARD=$(BOARD)
 CFLAGS += $(INCDIRS)
 CFLAGS += $(DEBUG) -DO$(OPT)
@@ -156,7 +163,7 @@ CFLAGS += -mno-use-rodata-section
 #~ CFLAGS += -Wa,--pic
 #~ CFLAGS += -Wl,--pic
 
-LDFLAGS = --gc-sections --relax --data-sections -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
+LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
 
 OBJ = $(ASMSOURCE:%.S=%.o) $(SOURCE:%.c=%.o) $(SYSTEMSOURCE:%.c=%.o) $(APPSOURCE:%.c=%.o)
 
@@ -202,7 +209,6 @@ $(DRIVERSDIR)/delay.o: $(DRIVERSDIR)/delay.c
 
 $(BINARY):
 	$(OBJCOPY) -O binary $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
-
 
 elf:
 	@$(TEST) -d $(ELFDIR) || $(MKDIR) -p $(ELFDIR)

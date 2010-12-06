@@ -30,8 +30,12 @@
 //The maxiumim nr of pins on a GPIO port
 #define GPIO_PIN_MAX 0x20
 
-#define OUTPUT 0	//GPIO pin is output
-#define INPUT 1		//GPIO pin is input
+//PeripherialEnable function
+enum { GPIO = -1, A = 0, B, C, D };
+enum { OUTPUT, INPUT };
+
+//~ #define OUTPUT 0	//GPIO pin is output
+//~ #define INPUT 1		//GPIO pin is input
 /***********************************************************
  * GPIO API
  *
@@ -39,6 +43,8 @@
  * 	Various functions for GPIO control
  *
  **********************************************************/
+void gpioPeripheralEnable(int pin, int function);
+
 //Initialize a specific GPIO pin
 void gpioInit(int pinnr, int type);
 

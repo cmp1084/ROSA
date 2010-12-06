@@ -26,11 +26,11 @@
 #ifndef _ROSA_PM_H_
 #define _ROSA_PM_H_
 
-#include <avr32/pm.h>
+#include <avr32/io.h>
 
 enum {
 	PM_CPUMASK_OCD_OFFSET = 1
-}
+};
 
 enum {
 	PM_PBAMASK_INTC_OFFSET = 0,
@@ -45,7 +45,7 @@ enum {
 	PM_PBAMASK_USART1_OFFSET,
 	PM_PBAMASK_PWM_OFFSET,
 	PM_PBAMASK_SSC_OFFSET
-}
+};
 
 enum {
 	PM_PBBMASK_HMATRIX_OFFSET = 0,
@@ -54,7 +54,7 @@ enum {
 	PM_PBBMASK_MACB_OFFSET,
 	PM_PBBMASK_SMC_OFFSET,
 	PM_PBBMASK_SDRAMC_OFFSET,
-}
+};
 
 
 //~ void pmCpuMaskSet(unsigned int mask);

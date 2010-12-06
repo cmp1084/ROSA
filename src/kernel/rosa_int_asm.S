@@ -33,6 +33,7 @@
 
 #include <avr32/io.h>
 #include "kernel/rosa_off.i"
+#include "rosa_config.h"
 
 	//General constants
 	.equ TRUE,0x01
@@ -180,6 +181,7 @@ _handle_Supervisor_Call:
  *  in this case: timerISR().
  *
  **********************************************************/
+
 	//TC0 interrupt
 _int0:
 	mov r12,lo(AVR32_INTC_ADDRESS)
@@ -188,10 +190,13 @@ _int0:
 	andl r12,LINE0							//TC0 irq is at line 0
 	cp.w r12,LINE0							//Is line 0 sending interrupt signal?
 	brne _int0_exit							//No, exit
+#if(CONFIG_TIMER)
 	lda.w r12,handler_timerISR						//Pointer to the timer ISR
 	mov pc,r12								//Yes, go to the ISR.
+#endif
 _int0_exit:
 	rete
+
 
 	.section .text, "ax", @progbits
 /***********************************************************
@@ -356,7 +361,6 @@ isInterruptEnabled:
 	eorl r12,TRUE
 	mov pc,lr
 
-
 /*********************************************************
 * contextSaveFromISR
 *
@@ -412,13 +416,14 @@ isInterruptEnabled:
 .equ SFINT0_R9, 0x06*0x04+SFINT0OFFSET
 .equ SFINT0_R8, 0x07*0x04+SFINT0OFFSET
 
-contextSaveFromISR:
+contextSaveFromISR:						//TODO: WARNING: BROKEN!!! -O0 is BROKEN
 	//Fetch the current executing task
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
 	//Save work registers
-	st.w r12[TCB.SAVER0],r0
+	//~ st.w r12[TCB.SAVER0],r0
+	st.w r12[TCB.SAVEREG.R0],r0
 	ld.w r0,sp[SFINT0_R12]
 	st.w r12[TCB.SAVEREG.R12],r0
 
@@ -508,7 +513,8 @@ contextRestoreFromISR:
 	st.w sp[SFINT0_R7_TASK],r0				//Save r7_user to the stack, in order to not have the r7_user destroyed.
 
 	//Restore work registers
-	ld.w r0,r12[TCB.SAVER0]
+	//~ ld.w r0,r12[TCB.SAVER0]
+	ld.w r0,r12[TCB.SAVEREG.R0]
 
 	//Return back to the ISR handler
 	mov pc,lr
@@ -556,39 +562,32 @@ contextSaveFromISR:
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Save work registers
-	st.w r12[TCB.SAVER0],r0
-	ld.w r0,sp[SFINT0_R12]
-	st.w r12[TCB.SAVEREG.R12],r0
-
-	//Save SR
-	ld.w r0,sp[SFINT0_SR]
-	st.w r12[TCB.SAVESR],r0
-
 	//Read register from the stack
 	ld.w r8,sp[SFINT0_R8]
 	ld.w r9,sp[SFINT0_R9]
 	ld.w r10,sp[SFINT0_R10]
 	ld.w r11,sp[SFINT0_R11]
 
-	//Save registers
-	mov r0,TCB.SAVEREG.R11
-	add r0,r12
-	stmts r0,r0-r11
-	//Save RETADDR
-	ld.w r0,sp[SFINT0_PC]
-	st.w r12[TCB.RETADDR],r0
+	sub r12,-TCB.SAVEREG.SP
+	stmts r12,r0-sp
+
+	sub r12,TCB.SAVEREG.SP
+
+	//Save r12 correct, as "wrong" r12 was saved by stmts
+	ld.w r11,sp[SFINT0_R12]
+	st.w r12[TCB.SAVEREG.R12],r11
 
 	//Save LR
-	ld.w r0,sp[SFINT0_LR]			//This points back to the task
-	st.w r12[TCB.SAVEREG.LR],r0
+	ld.w r11,sp[SFINT0_LR]			//This points back to the task LR
+	st.w r12[TCB.SAVEREG.LR],r11
 
-	//Save USP
-	mov r0,sp
-	st.w --sp,r0
-	stmts sp,sp
-	ld.w r0,sp++
-	st.w r12[TCB.SAVEUSP],r0
+	//Save PC, which is the return/resume address
+	ld.w r11,sp[SFINT0_PC]
+	st.w r12[TCB.SAVEREG.PC],r11
+
+	//Save SR
+	ld.w r11,sp[SFINT0_SR]
+	st.w r12[TCB.SAVESR],r11
 
 	mov pc,lr
 
@@ -598,40 +597,117 @@ contextRestoreFromISR:
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
-	//Restore USP
-	ld.w r0,r12[TCB.SAVEUSP]
-	st.w --sp,r0
-	ldmts sp,sp
-	ld.w r0,sp++							//USP is in r0
+	//Restore SR
+	ld.w r11,r12[TCB.SAVESR]
+	st.w sp[SFINT0_SR],r11					//Put the new SR on the stack
+
+	//Restore PC
+	ld.w r11,r12[TCB.SAVEREG.PC]
+	st.w sp[SFINT0_PC],r11					//Restore return address on stack
 
 	//Restore LR
-	ld.w r0,r12[TCB.SAVEREG.LR]
-	st.w sp[SFINT0_LR],r0					//Restore lr on the stack
-
-	//Restore RETADDR
-	ld.w r0,r12[TCB.RETADDR]
-	st.w sp[SFINT0_PC],r0					//Restore return address on stack
+	ld.w r11,r12[TCB.SAVEREG.LR]
+	st.w sp[SFINT0_LR],r11					//Restore lr on the stack
 
 	//Restore registers
-	mov r0,TCB.SAVEREG.R11
-	add r0,r12
-	ldmts r0,r0-r11
+	sub r12,-TCB.SAVEREG.SP
+	ldmts r12,r0-sp							//TODO: will this work? maybe r0-lr works better
 
-	//Restore SR
-	ld.w r0,r12[TCB.SAVESR]
-	st.w sp[SFINT0_SR],r0					//Put the new SR on the stack
-
-	//Restore of R8-R12
-	ld.w r0,r12[TCB.SAVEREG.R12]
-	st.w sp[SFINT0_R12],r0
-	st.w sp[SFINT0_R11],r11
-	st.w sp[SFINT0_R10],r10
-	st.w sp[SFINT0_R9],r9
-	st.w sp[SFINT0_R8],r8
-
-	//Restore work registers
-	ld.w r0,r12[TCB.SAVER0]
+	//Restore of R8-R12 via SSP system stack
+	stdsp sp[SFINT0_R12],r12
+	stdsp sp[SFINT0_R11],r11
+	stdsp sp[SFINT0_R10],r10
+	stdsp sp[SFINT0_R9],r9
+	stdsp sp[SFINT0_R8],r8
 
 	//Return back to the ISR handler
 	mov pc,lr
-#endif
+
+
+//~ contextSaveFromISR:
+	//Fetch the current executing task
+//	lda.w r12,EXECTASK
+//	ld.w r12,r12[0x0]
+
+	//Save work registers
+	//~ st.w r12[TCB.SAVER0],r0
+//	st.w r12[TCB.SAVEREG.R0],r0
+//	ld.w r0,sp[SFINT0_R12]
+//	st.w r12[TCB.SAVEREG.R12],r0
+
+	//Save SR
+//	ld.w r0,sp[SFINT0_SR]
+//	st.w r12[TCB.SAVESR],r0
+
+	//Read register from the stack
+//	ld.w r8,sp[SFINT0_R8]
+//	ld.w r9,sp[SFINT0_R9]
+//	ld.w r10,sp[SFINT0_R10]
+//	ld.w r11,sp[SFINT0_R11]
+
+	//Save registers
+//	mov r0,TCB.SAVEREG.R11
+//	add r0,r12
+//	stmts r0,r0-r11
+	//Save RETADDR
+//	ld.w r0,sp[SFINT0_PC]
+//	st.w r12[TCB.RETADDR],r0
+
+	//Save LR
+//	ld.w r0,sp[SFINT0_LR]			//This points back to the task
+//	st.w r12[TCB.SAVEREG.LR],r0
+
+	//Save USP
+//	mov r0,sp
+//	st.w --sp,r0
+//	stmts sp,sp
+//	ld.w r0,sp++
+//	st.w r12[TCB.SAVEUSP],r0
+
+//	mov pc,lr
+
+
+//~ contextRestoreFromISR:
+	//~ //Fetch the current executing task
+	//~ lda.w r12,EXECTASK
+	//~ ld.w r12,r12[0x0]
+//~
+	//~ //Restore USP
+	//~ ld.w r0,r12[TCB.SAVEUSP]
+	//~ st.w --sp,r0
+	//~ ldmts sp,sp
+	//~ ld.w r0,sp++							//USP is in r0
+//~
+	//~ //Restore LR
+	//~ ld.w r0,r12[TCB.SAVEREG.LR]
+	//~ st.w sp[SFINT0_LR],r0					//Restore lr on the stack
+//~
+	//~ //Restore RETADDR
+	//~ ld.w r0,r12[TCB.RETADDR]
+	//~ st.w sp[SFINT0_PC],r0					//Restore return address on stack
+//~
+	//~ //Restore registers
+	//~ mov r0,TCB.SAVEREG.R11
+	//~ add r0,r12
+	//~ ldmts r0,r0-r11
+//~
+	//~ //Restore SR
+	//~ ld.w r0,r12[TCB.SAVESR]
+	//~ st.w sp[SFINT0_SR],r0					//Put the new SR on the stack
+//~
+	//~ //Restore of R8-R12
+	//~ ld.w r0,r12[TCB.SAVEREG.R12]
+	//~ st.w sp[SFINT0_R12],r0
+	//~ st.w sp[SFINT0_R11],r11
+	//~ st.w sp[SFINT0_R10],r10
+	//~ st.w sp[SFINT0_R9],r9
+	//~ st.w sp[SFINT0_R8],r8
+//~
+	//~ //Restore work registers
+	//~ //ld.w r0,r12[TCB.SAVER0]
+	//~ ld.w r0,r12[TCB.SAVEREG.R0]
+//~
+	//~ //Return back to the ISR handler
+	//~ mov pc,lr
+
+#endif /* #if(O0) */

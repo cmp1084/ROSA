@@ -41,9 +41,12 @@ void contextRestoreFromISR(void);
 //E.g. have ROSA_yield() decide if we are yielding from ISR or from user mode.
 void ROSA_yieldFromISR(void)
 {
+#if(CONFIG_TIMER)
+	//Interrupts should be disabled at this point, it will be unless someone enabled them in the ISR handler
 	contextSaveFromISR();     //Save the task context
 	scheduler();              //Find next task to execute
 	contextRestoreFromISR();  //...and switch over to it.
+#endif
 }
 
 
