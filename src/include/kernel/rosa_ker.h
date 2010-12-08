@@ -41,7 +41,6 @@ extern Tcb * EXECTASK;
 /***********************************************************
  * Kernel low level context switch functions
  ***********************************************************/
-extern void ROSA_contextInit(Tcb * tcbTask);
 extern void ROSA_yield(void);
 extern int ROSA_taskDestroy(void);
 
@@ -66,7 +65,7 @@ __attribute__((__interrupt__)) extern void timerISR(void);
 
 //Initialize the kernel
 void ROSA_init(void);
-void ROSA_tcbCreate(Tcb * tcbTask, const char tcbName[CONFIG_NAMESIZE], const void *tcbFunction, unsigned int * tcbStack, const int tcbStackSize);
+void ROSA_tcbCreate(Tcb * tcbTask, const char tcbName[CONFIG_NAMESIZE], const void *tcbFunction, void * param, unsigned int * tcbStack, const int tcbStackSize);
 
 //Install a new task TCB into ROSA
 //~ extern void ROSA_tcbInstall(Tcb *task); TODO: Remove

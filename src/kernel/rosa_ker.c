@@ -42,17 +42,16 @@
 #include "drivers/pot.h"
 #include "drivers/usart.h"
 
+//~ extern void ROSA_contextInit(Tcb * tcbTask, void * param);
+/***********************************************************
+ * Kernel low level context switch functions
+ ***********************************************************/
 extern void _ROSA_start(void);
-
-//~ /***********************************************************
- //~ * TCBLIST
- //~ *
- //~ * Comment:
- //~ * 	Global variables that contain the list of TCB's that
- //~ * 	have been installed into the kernel with ROSA_tcbInstall()
- //~ **********************************************************/
-//~ TCBLIST IS NOT USED ANY LONGER!!!
-//~ Tcb * TCBLIST; //
+extern void contextInit(Tcb * tcbTask, void * param);
+extern void contextRestore(void);
+extern void contextSave(void);
+extern void contextSaveFromISR(void);
+extern void contextRestoreFromISR(void);
 
 /***********************************************************
  * EXECTASK
@@ -110,7 +109,7 @@ void ROSA_init(void)
 	//~ TCBLIST = NULL;
 	EXECTASK = NULL;
 	schedulerInit();
-	ROSA_taskCreate("idle", idle, IDLEPRIORITY, 0x40);
+	ROSA_taskCreate("idle", idle, NULL, IDLEPRIORITY, 0x40);
 	//Do initialization of I/O drivers
 #if(CONFIG_LED)
 	ledInit();									//LEDs
@@ -145,7 +144,7 @@ void ROSA_init(void)
  *
  **********************************************************/
 //~ __attribute__((__acall__)) not implemented gcc 4.3.3 :(
-void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void * tcbFunction, unsigned int * tcbStack, const int tcbStackSize)
+void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void * tcbFunction, void * param, unsigned int * tcbStack, const int tcbStackSize)
 {
 	int i;
 
@@ -178,7 +177,7 @@ void ROSA_tcbCreate(Tcb * tcb, const char tcbName[CONFIG_NAMESIZE], const void *
 	//prioSet(tcb, DEFAULTLOWPRIO); TODO: Someone else does this (ROSA_taskCreate as of today)
 
 	//Initialize context.
-	contextInit(tcb);
+	contextInit(tcb, param);
 }
 
 //~  TODO: remove

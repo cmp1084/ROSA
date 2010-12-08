@@ -39,6 +39,7 @@
 #include "drivers/usart.h"
 #include "drivers/button.h"
 #include "drivers/spi.h"
+#include "drivers/at45db642.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -71,12 +72,13 @@ sem * sem_usart;
 
 
 __attribute__((__naked__))
-void opttask1(void)
+void opttask1(void * param)
 {
+	int led = (int) param;
 	ROSA_wait(250);
 	//~ delay_ms(125/4);
 	while(1) {
-		ledToggle(LED0_GPIO);
+		ledToggle(led);
 		ROSA_wait(501);
 		//~ delay_ms(251/4);
 		ROSA_yield();
@@ -84,10 +86,11 @@ void opttask1(void)
 }
 
 __attribute__((__naked__))
-void opttask2(void)
+void opttask2(void * param)
 {
+	int led = (int)param;
 	while(1) {
-		ledToggle(LED1_GPIO);
+		ledToggle(led);
 		ROSA_wait(500);
 		//~ delay_ms(250/4);
 		ROSA_yield();
@@ -99,7 +102,8 @@ void opttask2(void)
  * LED0 lights up
  * LED1 goes dark
  ************************************************************/
-__attribute__((__naked__)) void task1(void)
+__attribute__((__naked__))
+void task1(void)
 {
 	ROSA_wait(50);
 	while(1) {
@@ -130,12 +134,12 @@ void task3(void)
 		ledToggle(LED2_GPIO);
 
 		if(isButton(PUSH_BUTTON_0)) {
-			ROSA_taskCreate("---K", stat2, 2, 0x40);
+			ROSA_taskCreate("---K", stat2, NULL, 2, 0x40);
 			ledToggle(LED3_GPIO);
 		}
 		if(isButton(PUSH_BUTTON_1)) {
-			ROSA_taskCreate("---C", stat2, 2, 0x40);
-			ROSA_taskCreate("dynD", stat3, 1, 0x40);
+			ROSA_taskCreate("---C", stat2, NULL, 2, 0x40);
+			ROSA_taskCreate("dynD", stat3, NULL, 1, 0x40);
 		}
 		ROSA_wait(52);
 	}
@@ -158,20 +162,20 @@ void printStatus(void)
 	}
 
 	//usartWriteLine(USART, "\f");
-	usartWriteLine(USART0, "\e[0;0H");
-	usartWriteLine(USART0, "SysTick: ");
+	usartWriteLine(USART0, (char *)"\e[0;0H");
+	usartWriteLine(USART0, (char *)"SysTick: ");
 	usartWriteValue(USART0, ROSA_sysTickGet());
 
-	usartWriteLine(USART0, "\n# tasks: ");
+	usartWriteLine(USART0, (char *)"\n# tasks: ");
 	usartWriteValue(USART0, ROSA_dynTaskNrGet());
 
 	usp = _USPGet();
-	usartWriteLine(USART0, "\nSSP: ");
+	usartWriteLine(USART0, (char *)"\nSSP: ");
 	usartWriteValue(USART0, _SSPGet());
-	usartWriteLine(USART0, "\nUSP: ");
+	usartWriteLine(USART0, (char *)"\nUSP: ");
 	usartWriteValue(USART0, usp);
 
-	usartWriteLine(USART0, "\n");
+	usartWriteLine(USART0, (char *)"\n");
 	//Give the USART back
 	ROSA_semGive(sem_usart);
 
@@ -182,7 +186,7 @@ void printStatus(void)
 void stat(void)
 {
 	while(1) {
-		ROSA_taskCreate("prin", printStatus, 1, 0x40);
+		ROSA_taskCreate("prin", printStatus, NULL, 1, 0x40);
 		ROSA_wait(OUTPUTTIME);
 	}
 }
@@ -233,6 +237,23 @@ void stat3(void)
 	}
 }
 
+
+int bar(int led)
+{
+	volatile int a;
+	return led + 2*a;
+}
+
+void foo(void * param)
+{
+	int led = (int)param;
+	int i;
+	i = bar(led);
+	ledOn(led);
+}
+
+
+
 /*************************************************************
  * Main function
  ************************************************************/
@@ -240,9 +261,13 @@ int main(void)
 {
 	//Initialize the ROSA kernel
 	ROSA_init();
-	spiEnable(&AVR32_SPI1);
+	usartWriteLine(USART0, (char *)"\nROSA starting...\n");
+
+	at45test();
+
+	//~ lcdTest();
 	//~ usartWriteLine(USART0, "\e[2JROSA starting...\n"); //TODO
-	usartWriteLine(USART0, "\nROSA starting...\n");
+
 
 	//Create tasks and install them into the ROSA kernel
 	//The old way is no longer needed
@@ -253,14 +278,14 @@ int main(void)
 	//~ ...
 	//The new way to create tasks.
 	//I left the old API since this way of creating tasks are much sweeter.
-	//ROSA_taskCreate(char * id, void * taskFunc, int prio, int stackSize);
+	//ROSA_taskCreate(char * id, void * taskFunc, void * param, int prio, int stackSize);
 	//~ ROSA_taskCreate("tsk1", task1, 1, 0x40);
 	//~ ROSA_taskCreate("tsk2", task2, 2, 0x40);
-	ROSA_taskCreate("tsk3", task3, 3, 0x40);
-	ROSA_taskCreate("stat", stat, 6, 0x40);
+	ROSA_taskCreate("tsk3", task3, NULL, 3, 0x40);
+	ROSA_taskCreate("stat", stat, NULL, 6, 0x40);
 
-	ROSA_taskCreate("tsk1", opttask1, 1, 0x40);
-	ROSA_taskCreate("tsk2", opttask2, 1, 0x40);
+	ROSA_taskCreate("tsk1", opttask1, (void *)LED3_GPIO, 1, 0x40);
+	ROSA_taskCreate("tsk2", opttask2, (void *)LED4_GPIO, 1, 0x40);
 
 	//~ sem_test2 = malloc(sizeof(sem));
 	//Create semaphores

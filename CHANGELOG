@@ -26,6 +26,15 @@
 ROSA Changelog
 ----------------
 
+Version 0.6.0
+20101208
+Added parameters to the tasks!
+Added spi
+Added EVK1100 AT45DB642 data flash support
+Optimized assembler task switch routines.
+Changed the usartx_options struct initializations.
+
+
 Version 0.5.1
 20101128
 Made some static functions and variables. Added addToScheduler() etc functions in rosa_scheduler.c.

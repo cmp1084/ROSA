@@ -51,24 +51,13 @@
  **********************************************************/
 .offset  0
 TCB.STARTMARK:
-/* TCB.NEXTTCB:    .word 0 NOT NEEDED ANY LONGER */     /* Pointer to next Tcb in chain        */
 TCB.ID:         .word 0     /* Task identifier, 4 ASCII characters */
 TCB.STADDR:     .word 0     /* Startaddress of taskcode            */
 TCB.DATAAREA:   .word 0     /* Startaddress of dataarea (stack)    */
 TCB.DATASIZE:   .word 0     /* Size of dataarea, used in initialization */
-//TCB.SAVEUSP:    .word 0     /* User stackpointer.                  */
-
-/*
-TCB.SAVER0:     .word 0     / * Special register used in kernel.    * /
-TCB.SAVER1:     .word 0     / * Special register used in kernel.    * /
-*/
-
-
-//TCB.RETADDR:    .word 0     /* Return address, i.e. the resume     */
                             /* address of the task                 */
 TCB.PRIO:       .word 0     /* Priority */
 TCB.WAITUNTIL:  .word 0     /* Wait until this sysTick before moving into ready state */
-
 TCB.SAVESR:     .word 0     /* Status register.                    */
 TCB.SAVEREG:				/* The 14 registers interesting for context switch */
 TCB.SAVEREG.PC:  .word 0
@@ -87,8 +76,6 @@ TCB.SAVEREG.R3:  .word 0
 TCB.SAVEREG.R2:  .word 0
 TCB.SAVEREG.R1:  .word 0
 TCB.SAVEREG.R0:  .word 0
-
-
 TCB.TCBSIZE:	.word 0	/* Size marker of TCB */
 
 #endif /* _ROSA_OFF_H_ */

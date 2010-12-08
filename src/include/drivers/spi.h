@@ -27,11 +27,32 @@
 #define __ROSA_SPI_H_
 
 #include <avr32/io.h>
-#include "gpio.h"
-#include "pm.h"
+#include "drivers/gpio.h"
+#include "drivers/pm.h"
 #include "rosa_config.h"
+#include "kernel/rosa_def.h"
+
+enum {
+		SPI_TIMEOUT,
+		SPI_ERROR,
+		SPI_OK
+};
+
+enum {
+		CS0 = 0,
+		CS1,
+		CS2,
+		CS3
+};
+
+void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_csfunction);
+void spiLLBSet(volatile avr32_spi_t * spi, const int onoff);
+void spiChipSelect(volatile avr32_spi_t * spi, const int cs);
+int spiChipDeselect(volatile avr32_spi_t * spi);
+int spiReadByte(volatile avr32_spi_t * spi, int * byte);
+int spiWriteByte(volatile avr32_spi_t * spi, const int byte);
+int spiWriteLastByte(volatile avr32_spi_t * spi, const int byte);
 
 
-void spiEnable(volatile avr32_spi_t * spi);
 
 #endif /* __ROSA_SPI_H_ */

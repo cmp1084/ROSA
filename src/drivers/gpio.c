@@ -45,7 +45,7 @@ void gpioPeripheralEnable(int pin, int function)
 	int gpiopin;
 
 	gpioport = &AVR32_GPIO.port[pin >> 5];
-	gpiopin = pin & (GPIO_PIN_MAX - 1);
+	gpiopin = 1 << (pin & (GPIO_PIN_MAX - 1));
 
 	switch(function) {
 		case GPIO:
@@ -59,15 +59,15 @@ void gpioPeripheralEnable(int pin, int function)
 			break;
 		case B:
 			gpioport->pmr0s = gpiopin;
-			gpioport->pmr0c = gpiopin;
+			gpioport->pmr1c = gpiopin;
 			break;
 		case C:
 			gpioport->pmr0c = gpiopin;
-			gpioport->pmr0s = gpiopin;
+			gpioport->pmr1s = gpiopin;
 			break;
 		case D:
 			gpioport->pmr0s = gpiopin;
-			gpioport->pmr0s = gpiopin;
+			gpioport->pmr1s = gpiopin;
 			break;
 		default:
 			while(1);	//error

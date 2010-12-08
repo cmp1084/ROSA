@@ -22,3 +22,12 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+#ifndef _ROSA_LCD_H_
+#define _ROSA_LCD_H_
+
+#include "drivers/spi.h"
+#include "kernel/rosa_def.h"
+
+void lcdTest(void);
+
+#endif /* _ROSA_LCD_H_ */

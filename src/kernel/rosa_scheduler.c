@@ -74,8 +74,8 @@ static int readycmp(const void * key1, const void * key2)
 
 void schedulerInit(void)
 {
-	waitingHeap = malloc(sizeof(Heap));
-	readyHeap = malloc(sizeof(Heap));
+	waitingHeap = (Heap *)malloc(sizeof(Heap));
+	readyHeap = (Heap *)malloc(sizeof(Heap));
 	if(!waitingHeap && !readyHeap) {
 		while(1); //Error
 	}

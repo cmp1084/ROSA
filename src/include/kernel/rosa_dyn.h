@@ -37,10 +37,10 @@ File creation date: 20101108 15:41:45
 #include "kernel/rosa_scheduler.h"
 
 //Create a dynamic task and install it into the ROSA kernel.
-Tcb * ROSA_taskAdd(Tcb * TCB, const char * id, const 	void * taskFunction, int * stack, const int stackSize);
+//~ Tcb * ROSA_taskAdd(Tcb * TCB, const char * id, const 	void * taskFunction, int * stack, const int stackSize);
 
 //Create a dynamic task and install it into the ROSA kernel. Alternative function, shorter parameter list.
-Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio, const int stackSize);
+Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, void * param, const int prio, const int stackSize);
 
 //Bookkeeping function, returns the number of dynamic tasks in the system. TODO:
 int ROSA_dynTaskNrGet(void);

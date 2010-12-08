@@ -22,3 +22,21 @@
     You should have received a copy of the GNU General Public License
     along with ROSA.  If not, see <http://www.gnu.org/licenses/>.
 *****************************************************************************/
+
+#include "drivers/lcd.h"
+#include "drivers/led.h"
+
+void lcdTest(void)
+{
+	volatile avr32_spi_t * spi = &AVR32_SPI1;
+	int i, j;
+
+	spiEnable(spi, CONFIG_CS2_PIN, CONFIG_CS2_FUNCTION);
+	for(i = 1; i < 10; ++i) {
+		spiWriteByte(spi, i);
+		spiReadByte(spi, &j);
+		if(i != j) {
+			ledToggle(LED3_GPIO);
+		}
+	}
+}

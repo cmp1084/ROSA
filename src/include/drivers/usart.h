@@ -71,7 +71,27 @@ typedef struct
 	unsigned int tx_pin;
 } usart_options_t;
 
-//USART options.
+//~ //USART options.
+//~ static usart_options_t usart0_options = {
+	//~ USART0_BAUDRATE,     //baudrate
+	//~ USART0_CHARLEN,      //charlenght
+	//~ USART_NO_PARITY,     //parity type
+	//~ USART_1_STOPBIT,     //stopbits
+	//~ USART_NORMAL_CHMODE, //channelmode
+	//~ USART0_RX_PIN,       //rx_pin
+	//~ USART0_TX_PIN,       //tx_pin
+//~ };
+//~
+//~ static usart_options_t usart1_options = {
+	//~ USART0_BAUDRATE,     //baudrate
+	//~ USART0_CHARLEN,      //charlenght
+	//~ USART_NO_PARITY,     //parity type
+	//~ USART_1_STOPBIT,     //stopbits
+	//~ USART_NORMAL_CHMODE, //channelmode
+	//~ USART0_RX_PIN,       //rx_pin
+	//~ USART0_TX_PIN,       //tx_pin
+//~ };
+
 static const usart_options_t usart0_options = {
 	.baudrate    = USART0_BAUDRATE,
 	.charlength  = USART0_CHARLEN,
@@ -81,7 +101,7 @@ static const usart_options_t usart0_options = {
 	.rx_pin      = USART0_RX_PIN,
 	.tx_pin      = USART0_TX_PIN
 };
-
+//~ //~
 static const usart_options_t usart1_options = {
 	.baudrate    = USART1_BAUDRATE,
 	.charlength  = USART1_CHARLEN,

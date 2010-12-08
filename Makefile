@@ -64,6 +64,7 @@ SOURCE += $(DRIVERSDIR)/delay.c
 SOURCE += $(DRIVERSDIR)/pm.c
 SOURCE += $(DRIVERSDIR)/spi.c
 SOURCE += $(DRIVERSDIR)/lcd.c
+SOURCE += $(DRIVERSDIR)/at45db642.c
 
 ##############################################################
 #Put your additional kernel source files here
@@ -140,7 +141,7 @@ PROGRAMMER = avr32program
 ##############################################################
 LDSCRIPT = $(STARTUPDIR)/linkscript/uc3a0512.lds
 DEBUG = -ggdb
-OPT = 1
+OPT = s
 AFLAGS = -x assembler-with-cpp
 #~ CFLAGS = $(DEBUG) -DO$(OPT) -Wall -Wa,-R -mrelax -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 #~ LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
@@ -175,7 +176,7 @@ BUILDDIR = .
 ##############################################################
 #Makefile rules
 ##############################################################
-all: $(OBJ) elf $(BINARY) ok size crlf
+all: semiclean $(OBJ) elf $(BINARY) ok size crlf
 
 print:
 	@echo $(OBJ)
@@ -243,6 +244,9 @@ dump:
 
 clean:
 	rm -f $(OBJ) $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
+
+semiclean:
+	rm -f bin/rosa.bin rosa.elf src/drivers/spi.o src/drivers/at45db642.o
 
 test: src/system/list.c src/include/system/list.h src/test/listtest.c
 	gcc -ggdb -Isrc/include src/system/list.c src/test/listtest.c -otest

@@ -73,7 +73,7 @@ void _dynTaskNrDec(void) { _dynTaskNr--; }
  * Ref. ROSA_taskAdd(Tcb * tcb, ...)
  *
  **********************************************************/
-Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio, const int stackSize)
+Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, void * param, const int prio, const int stackSize)
 {
 	Tcb * tcb;
 	void * stack;
@@ -92,7 +92,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 	}
 
 	//Create and install the dynamic tcb
-	ROSA_tcbCreate(tcb, id, taskFunction, stack, stackSize);
+	ROSA_tcbCreate(tcb, id, taskFunction, param, stack, stackSize);
 	//ROSA_tcbInstall(tcb);
 
 	//Set the task priority
@@ -108,7 +108,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
 }
 
 /***********************************************************
- * ROSA_taskAdd
+ *  DONT USE THIS WICKEDLY UGLY FUNCTION - ROSA_taskAdd bleah
  *
  * Comment:
  * Add a dynamic task.
@@ -116,11 +116,11 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, const int prio
  * However, the API lacked some features.
  *
  **********************************************************/
-Tcb * ROSA_taskAdd(Tcb * tcbDONTCARE, const char * id, const void * task, int * stackDONTCARE, const int stackSize)
-{
-	int prio = DEFAULTLOWPRIO;
-	return ROSA_taskCreate(id, task, prio, stackSize);
-}
+//~ Tcb * ROSA_taskAdd(Tcb * tcbDONTCARE, const char * id, const void * task, int * stackDONTCARE, const int stackSize)
+//~ {
+	//~ int prio = DEFAULTLOWPRIO;
+	//~ return ROSA_taskCreate(id, task, prio, stackSize);
+//~ }
 
 /***********************************************************
  * ROSA_taskDestroy

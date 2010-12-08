@@ -1,2 +1,8 @@
+20101208
+Fix avr32-g++ compilation.
+
+20101206
+Reconsider placement of kernel/rosa_def.h
+
 20101027
 Nothing to do

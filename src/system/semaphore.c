@@ -58,7 +58,7 @@ int ROSA_semCreate(sem ** semaphore)
 		return SEMERROR;
 	}
 
-	*semaphore = malloc(sizeof(sem));
+	*semaphore = (sem *)malloc(sizeof(sem));
 	if(!*semaphore) {
 		interruptEnableIf(interruptOnOff);  //Enable interrupts if they was _enabled_ previously. Otherwise, keep them disabled.
 		return SEMERROR;

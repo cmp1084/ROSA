@@ -33,17 +33,9 @@
 /***********************************************************
  * Global variables
  ***********************************************************/
-extern Tcb * TCBLIST;
+//~ extern Tcb * TCBLIST;
 extern Tcb * EXECTASK;
 
 
-/***********************************************************
- * Kernel low level context switch functions
- ***********************************************************/
-extern void contextInit(Tcb * tcbTask);
-extern void contextRestore(void);
-extern void contextSave(void);
-extern void contextSaveFromISR(void);
-extern void contextRestoreFromISR(void);
 
 #endif /* rosa_EXT_H_ */

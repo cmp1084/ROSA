@@ -76,7 +76,7 @@ _ROSA_start:
 	//Load start registers
 	//~ ld.w r0,r12[TCB.SAVEREG.R0]
 	//~ ...
-	//~ ld.w r12,r12[TCB.SAVEREG.R12]
+	ld.w r12,r12[TCB.SAVEREG.R12]
 
 #if(CONFIG_TIMER)
 	pushm lr
@@ -97,9 +97,14 @@ _ROSA_start:
  *
  * Parameters:
  * In: r12 = Tcb * tcb, pointer to the TCB block
+ *     r11 = void * param, the task parameters
  ********************************************************/
 contextInit:
 	pushm r11
+
+	//Put parameters in r12
+	st.w r12[TCB.SAVEREG.R12],r11
+
 	//Initialize lr in the savereg area
 	ld.w r11,r12[TCB.STADDR]			//TODO: Remove the need for STADDR, use SAVEREG.PC directly in ker.c However, STADDR might make debugging a little easier for reqognising functions (well, id makes it easy enough)
 	st.w r12[TCB.SAVEREG.PC],r11
@@ -258,6 +263,7 @@ contextSave:
 *
 *********************************************************/
 contextRestore:
+	//Load the new EXECTASK
 	lda.w r12,EXECTASK
 	ld.w r12,r12[0x0]
 
@@ -268,7 +274,8 @@ contextRestore:
 	//Restore PC
 	ld.w r11,r12[TCB.SAVEREG.PC]
 	st.w sp[SF_PC],r11
-	//restore registers
+
+	//Restore registers
 	sub r12,-TCB.SAVEREG.LR
 	ldmts r12,r0-lr
 

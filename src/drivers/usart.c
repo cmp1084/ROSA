@@ -159,7 +159,7 @@ void usartWriteValue(volatile avr32_usart_t * usart, const unsigned int i)
 	shift = 0x1c;	//32 bits - 4 bits (which is the nybble)
 	nyb = mask << shift; //Here is the nybble
 
-	usartWriteLine(usart, "0x");
+	usartWriteLine(usart, (char *)"0x");
 	while(nyb) {
 		val = (i & nyb) >> shift;
 		usartWriteChar(usart, val <= 9 ? val + '0' : val + 'a' - 0x0a);
@@ -167,83 +167,6 @@ void usartWriteValue(volatile avr32_usart_t * usart, const unsigned int i)
 		shift -= 0x04;
 	}
 }
-
-//Output TCB for debugging purpose, the dbgLevel give the amount of output
-//Input: usart - the USART unit to use.
-void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb)
-{
-	int i;
-	int	dbgLevel = DEBUGLEVEL;
-	switch(dbgLevel) {
-	 	case DEBUGLEVEL0:	//No debug output
-			break;
-		default:
-			//Write the TCB id
-			if(dbgLevel >= DEBUGLEVEL1) {
-				usartWriteLine(usart, "\nId:     ");
-				for(i = 0; i < 4; i++) {
-					usartWriteChar(usart, dbgtcb->id[i]);
-				}
-				usartWriteLine(usart, "\n");
-			}
-			//Write all TCB addresses etc. at DEBUGLEVEL2 and DEBUGLEVEL3
-			if(dbgLevel >= DEBUGLEVEL2) {
-				usartWriteLine(usart, "Tcb:       ");
-				usartWriteValue(usart, (int)dbgtcb);
-				//~ usartWriteLine(usart, "\nnexttcb:   ");
-				//~ usartWriteValue(usart, (int)dbgtcb->nexttcb);
-				//~ usartWriteLine(usart, "\nstaddr:    ");
-				//~ usartWriteValue(usart, (int)dbgtcb->staddr);
-				usartWriteLine(usart, "\ndataarea:  ");
-				usartWriteValue(usart, (int)dbgtcb->dataarea);
-				usartWriteLine(usart, "\ndatasize:  ");
-				usartWriteValue(usart, (int)dbgtcb->datasize);
-				//~ usartWriteLine(usart, "\nsaveusp:   ");
-				//~ usartWriteValue(usart, (int)dbgtcb->saveusp);
-				usartWriteLine(usart, "\nsavesr:    ");
-				usartWriteValue(usart, (int)dbgtcb->savesr);
-				//~ usartWriteLine(usart, "\nretaddr:   ");
-				//~ usartWriteValue(usart, (int)dbgtcb->retaddr);
-				usartWriteLine(usart, "\n");
-			}
-			//Write all registers at DEBUGLEVEL3
-			if(dbgLevel >= DEBUGLEVEL3) {
-				usartWriteLine(usart, "\nLR:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[14]);
-				usartWriteLine(usart, "\nSR:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[13]);
-				usartWriteLine(usart, "\nR12:  ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[12]);
-				usartWriteLine(usart, "\nR11:  ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[11]);
-				usartWriteLine(usart, "\nR10:  ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[10]);
-				usartWriteLine(usart, "\nR9:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[9]);
-				usartWriteLine(usart, "\nR8:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[8]);
-				usartWriteLine(usart, "\nR7:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[7]);
-				usartWriteLine(usart, "\nR6:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[6]);
-				usartWriteLine(usart, "\nR5:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[5]);
-				usartWriteLine(usart, "\nR4:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[4]);
-				usartWriteLine(usart, "\nR3:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[3]);
-				usartWriteLine(usart, "\nR2:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[2]);
-				usartWriteLine(usart, "\nR1:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[1]);
-				usartWriteLine(usart, "\nR0:   ");
-				usartWriteValue(usart, (int)dbgtcb->savereg[0]);
-				usartWriteLine(usart, "\n");
-			}
-			break;
-		}
-}
-
 
 //Get a char from the USART
 //
