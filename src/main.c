@@ -40,6 +40,7 @@
 #include "drivers/button.h"
 #include "drivers/spi.h"
 #include "drivers/at45db642.h"
+#include "drivers/lcd.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -128,10 +129,11 @@ void task2(void)
 /*************************************************************
  * Task3
  *************************************************************/
-void task3(void)
+void task3(void * param)
 {
+	int led = (int)param;
 	while(1) {
-		ledToggle(LED2_GPIO);
+		ledToggle(led);
 
 		if(isButton(PUSH_BUTTON_0)) {
 			ROSA_taskCreate("---K", stat2, NULL, 2, 0x40);
@@ -261,12 +263,11 @@ int main(void)
 {
 	//Initialize the ROSA kernel
 	ROSA_init();
-	usartWriteLine(USART0, (char *)"\nROSA starting...\n");
+	//~ usartWriteLine(USART0, (char *)"\nROSA starting...\n");
 
-	at45test();
-
-	//~ lcdTest();
-	//~ usartWriteLine(USART0, "\e[2JROSA starting...\n"); //TODO
+	dip204Init();
+	dip204_Welcome();
+	usartWriteLine(USART0, "\e[2Jhttp://emCode.se\nROSA starting...\n"); //TODO
 
 
 	//Create tasks and install them into the ROSA kernel
@@ -281,7 +282,7 @@ int main(void)
 	//ROSA_taskCreate(char * id, void * taskFunc, void * param, int prio, int stackSize);
 	//~ ROSA_taskCreate("tsk1", task1, 1, 0x40);
 	//~ ROSA_taskCreate("tsk2", task2, 2, 0x40);
-	ROSA_taskCreate("tsk3", task3, NULL, 3, 0x40);
+	ROSA_taskCreate("tsk3", task3, (void *)AVR32_PIN_PB27, 3, 0x40);
 	ROSA_taskCreate("stat", stat, NULL, 6, 0x40);
 
 	ROSA_taskCreate("tsk1", opttask1, (void *)LED3_GPIO, 1, 0x40);

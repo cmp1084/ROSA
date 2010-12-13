@@ -101,7 +101,7 @@ void at45BufWrite(void)
 {
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
 	int i;
-	char writeThisData[] = "HCS";
+	char writeThisData[] = "emCode";
 
 	spiChipSelect(spi, CS0);
 
@@ -131,7 +131,7 @@ void at45BufWrite(void)
 void at45BufRead(void)
 {
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
-	int ch;
+	unsigned int ch;
 	int dontCare = 0xff;
 
 	spiChipSelect(spi, CS0);
@@ -164,7 +164,7 @@ int at45ReadDeviceID(volatile avr32_spi_t * spi)
 	#define NR_OF_ID_BYTES 3
 	int i;
 	int dontCare = 0xff;
-	int byte;
+	unsigned int byte;
 	int id = 0;
 
 	spiChipSelect(spi, CS0);
@@ -184,7 +184,8 @@ int at45ReadDeviceID(volatile avr32_spi_t * spi)
 
 int at45ReadStatus(volatile avr32_spi_t * spi)
 {
-	int status, dontCare = 0;
+	unsigned int status;
+	int dontCare = 0;
 	spiWriteByte(spi, dontCare);
 	spiReadByte(spi, &status);
 	return status;
@@ -219,7 +220,7 @@ void at45test(void)
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
 	int id;
 
-	spiEnable(spi, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
+	spiEnable(spi, AT45DB_CS, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
 
 	if(at45WaitUntilReady(spi) == SPI_TIMEOUT) {
 		usartWriteLine(USART0, (char *)"at45WautUntilReady timeout\n");	//TODO: remove

@@ -42,7 +42,9 @@
 #include "drivers/pot.h"
 #include "drivers/usart.h"
 
-//~ extern void ROSA_contextInit(Tcb * tcbTask, void * param);
+//Define the initial value of the satus register
+#define ROSA_INITIALSR 0x1c0000
+
 /***********************************************************
  * Kernel low level context switch functions
  ***********************************************************/

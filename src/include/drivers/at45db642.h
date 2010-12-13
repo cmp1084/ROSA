@@ -31,6 +31,7 @@
 #include "drivers/usart.h"
 #include "rosa_config.h"
 
+#define AT45DB_CS AVR32_SPI1_NPCS_0_0_PIN
 void at45BufWrite(void);
 void at45BufRead(void);
 

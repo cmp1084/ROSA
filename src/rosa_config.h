@@ -167,6 +167,6 @@
 #define CONFIG_CS3_FUNCTION AVR32_SPI1_NPCS_3_FUNCTION
 
 //SPI timeout defaults to 10000 (see drivers/spi.c) if not configured here
-#define CONFIG_SPI_TIMEOUTVALUE 1000
+#define CONFIG_SPI_TIMEOUTVALUE 10000
 
 #endif /* _ROSA_CONFIG_H_ */

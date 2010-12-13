@@ -45,11 +45,11 @@ enum {
 		CS3
 };
 
-void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_csfunction);
+void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_csfunction);
 void spiLLBSet(volatile avr32_spi_t * spi, const int onoff);
 void spiChipSelect(volatile avr32_spi_t * spi, const int cs);
 int spiChipDeselect(volatile avr32_spi_t * spi);
-int spiReadByte(volatile avr32_spi_t * spi, int * byte);
+int spiReadByte(volatile avr32_spi_t * spi, unsigned int * byte);
 int spiWriteByte(volatile avr32_spi_t * spi, const int byte);
 int spiWriteLastByte(volatile avr32_spi_t * spi, const int byte);
 

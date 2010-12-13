@@ -346,10 +346,10 @@ ROSA_yield:
 	//~ popm pc
 	//If interruptDisable is done earlier, remember to manually turn it on here
 _yield:
-	call interruptDisable
-	call contextSave
-	call scheduler
-	call contextRestore
+	rcall interruptDisable
+	rcall contextSave
+	rcall scheduler
+	rcall contextRestore
 	//Execution will not return to here!
 
 /*********************************************************
@@ -362,17 +362,17 @@ _yield:
 * system.
 *********************************************************/
 ROSA_taskDestroy:
-	call interruptDisableIf
+	rcall interruptDisableIf
 	lda.w lr,_ROSA_taskDestroy
 	//Enter supervisor mode
 	scall
 _ROSA_taskDestroy:
 	//call interruptDisable
 	//Remove the current task
-	call _taskDestroy
+	rcall _taskDestroy
 	//Reschedule.
-	call scheduler
-	call contextRestore	//Will enable interrupt!!! TODO: Warning
+	rcall scheduler
+	rcall contextRestore	//Will enable interrupt!!! TODO: Warning
 	//Execution will not return to here!
 
 //Return the SSP in r12	TODO: remove

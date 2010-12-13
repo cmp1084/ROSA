@@ -32,7 +32,7 @@
 #define SPI_TIMEOUTVALUE 10000
 #endif
 
-void spiEnable(volatile avr32_spi_t * spi, const int cs_pin, const int cs_function)
+void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function)
 {
 	//Errata:
 	//41.2.3
@@ -58,17 +58,38 @@ void spiEnable(volatile avr32_spi_t * spi, const int cs_pin, const int cs_functi
 	          (1 << AVR32_SPI_MODFDIS_OFFSET) | \
 	          (0x0f << AVR32_SPI_PCS_OFFSET);
 
-	//Enable SPI
-	spi->cr = 1 << AVR32_SPI_SPIEN_OFFSET;
-
 	//Set polarity
 	//Set phase
 	//Set baudrate (0 is forbidden)
 	//Set CSAAT, chip select active after transfer
-	spi->csr0 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	             (0x1 << AVR32_SPI_CSR0_SCBR_OFFSET) | \
-	             (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);;
+	//TODO: Fix
+	switch(cs) {
+		case 0:
+			spi->csr0 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
+	                     (0xc << AVR32_SPI_CSR0_SCBR_OFFSET) | \
+						 (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);
+			break;
+		case 1:
+			spi->csr1 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
+	                     (0xc << AVR32_SPI_CSR1_SCBR_OFFSET) | \
+						 (1 << AVR32_SPI_CSR1_CSAAT_OFFSET);
+			break;
+		case 2:
+			spi->csr2 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
+	                     (0xc << AVR32_SPI_CSR2_SCBR_OFFSET) | \
+						 (1 << AVR32_SPI_CSR2_CSAAT_OFFSET);
+			break;
+		case 3:
+			spi->csr3 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
+	                     (0xc << AVR32_SPI_CSR3_SCBR_OFFSET) | \
+						 (1 << AVR32_SPI_CSR3_CSAAT_OFFSET);
+			break;
+		default:
+			while(1);	//error
+	}
 
+	//Enable SPI
+	spi->cr = 1 << AVR32_SPI_SPIEN_OFFSET;
 }
 
 void spiLLBSet(volatile avr32_spi_t * spi, const int onoff)
@@ -86,7 +107,7 @@ void spiLLBSet(volatile avr32_spi_t * spi, const int onoff)
 //input cs - Chip Select, legal values: CS0, CS1, CS2, CS3 (0, 1, 2, 3)
 void spiChipSelect(volatile avr32_spi_t * spi, const int cs)
 {
-	spiChipDeselect(spi);
+	spi->mr |= AVR32_SPI_MR_PCS_MASK;
 	spi->mr &= ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
 }
 
@@ -109,7 +130,7 @@ int spiWriteByte(volatile avr32_spi_t * spi, const int byte)
 	int timeout = SPI_TIMEOUTVALUE;
 
 	//Is the transmit data register empty?
-	while(!(spi->sr & AVR32_SPI_TDRE_MASK)) {
+	while(!(spi->sr & AVR32_SPI_SR_TDRE_MASK)) {
 		if(!timeout--) {
 			return SPI_TIMEOUT;
 		}
@@ -126,7 +147,7 @@ int spiWriteLastByte(volatile avr32_spi_t * spi, const int byte)
 	return spiWriteByte(spi, byte);
 }
 
-int spiReadByte(volatile avr32_spi_t * spi, int * byte)
+int spiReadByte(volatile avr32_spi_t * spi, unsigned int * byte)
 {
 	int timeout = SPI_TIMEOUTVALUE;
 
@@ -135,6 +156,6 @@ int spiReadByte(volatile avr32_spi_t * spi, int * byte)
 			return SPI_TIMEOUT;
 		}
 	}
-	*byte = spi->rdr; // & 0x000000ff;	//TODO: Constant
+	*byte = spi->rdr & 0x000000ff;	//TODO: Constant
 	return SPI_OK;
 }

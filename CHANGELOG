@@ -26,6 +26,10 @@
 ROSA Changelog
 ----------------
 
+Version 0.6.1
+20101213
+Added DIP204 LCD display routines.
+
 Version 0.6.0
 20101208
 Added parameters to the tasks!

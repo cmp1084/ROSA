@@ -86,7 +86,7 @@ SECTIONS
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = 0x80000000); . = 0x80000000;
   .interp         : { *(.interp) } >FLASH AT>FLASH :FLASH
-  .reset : {  *(.reset) } >FLASH AT>FLASH :FLASH
+  .reset          : {  *(.reset) } >FLASH AT>FLASH :FLASH
   .hash           : { *(.hash) } >FLASH AT>FLASH :FLASH
   .dynsym         : { *(.dynsym) } >FLASH AT>FLASH :FLASH
   .dynstr         : { *(.dynstr) } >FLASH AT>FLASH :FLASH
@@ -105,10 +105,10 @@ SECTIONS
   .rela.data.rel.ro   : { *(.rel.data.rel.ro*) } >FLASH AT>FLASH :FLASH
   .rel.data       : { *(.rel.data .rel.data.* .rel.gnu.linkonce.d.*) } >FLASH AT>FLASH :FLASH
   .rela.data      : { *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*) } >FLASH AT>FLASH :FLASH
-  .rel.tdata	  : { *(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.*) } >FLASH AT>FLASH :FLASH
-  .rela.tdata	  : { *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*) } >FLASH AT>FLASH :FLASH
-  .rel.tbss	  : { *(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.*) } >FLASH AT>FLASH :FLASH
-  .rela.tbss	  : { *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*) } >FLASH AT>FLASH :FLASH
+  .rel.tdata      : { *(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.*) } >FLASH AT>FLASH :FLASH
+  .rela.tdata     : { *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*) } >FLASH AT>FLASH :FLASH
+  .rel.tbss       : { *(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.*) } >FLASH AT>FLASH :FLASH
+  .rela.tbss      : { *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*) } >FLASH AT>FLASH :FLASH
   .rel.ctors      : { *(.rel.ctors) } >FLASH AT>FLASH :FLASH
   .rela.ctors     : { *(.rela.ctors) } >FLASH AT>FLASH :FLASH
   .rel.dtors      : { *(.rel.dtors) } >FLASH AT>FLASH :FLASH

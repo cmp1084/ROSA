@@ -34,7 +34,7 @@
 /***********************************************************
  * Global variables
  ***********************************************************/
-extern Tcb * TCBLIST;
+//~ extern Tcb * TCBLIST;
 extern Tcb * EXECTASK;
 
 
@@ -56,12 +56,6 @@ extern int ROSA_taskDestroy(void);
  *	No comments available.
  *
  **********************************************************/
-
-//Define the initial value of the satus register
-#define ROSA_INITIALSR 0x1c0000
-
-//Timer interrupt service routine
-__attribute__((__interrupt__)) extern void timerISR(void);
 
 //Initialize the kernel
 void ROSA_init(void);

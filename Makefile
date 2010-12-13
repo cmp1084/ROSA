@@ -141,7 +141,7 @@ PROGRAMMER = avr32program
 ##############################################################
 LDSCRIPT = $(STARTUPDIR)/linkscript/uc3a0512.lds
 DEBUG = -ggdb
-OPT = s
+OPT = 1
 AFLAGS = -x assembler-with-cpp
 #~ CFLAGS = $(DEBUG) -DO$(OPT) -Wall -Wa,-R -mrelax -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 #~ LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)
@@ -176,7 +176,8 @@ BUILDDIR = .
 ##############################################################
 #Makefile rules
 ##############################################################
-all: semiclean $(OBJ) elf $(BINARY) ok size crlf
+.PHONY: all
+all: $(OBJ) $(ELFDIR)/$(ELF) $(BINARY) ok size crlf
 
 print:
 	@echo $(OBJ)
@@ -189,8 +190,10 @@ crlf:
 
 #Never optimiz the delay_ms function in src/drivers/delay.c
 $(DRIVERSDIR)/delay.o: $(DRIVERSDIR)/delay.c
+	$(TEXTPRECOMPILE) with -O0
 	@$(TEST) -d $(BUILDDIR)/$(@D) || $(MKDIR) $(BUILDDIR)/$(@D)
 	@$(CC) $(CFLAGS) -O0 $< -o$(BUILDDIR)/$@
+	$(TEXTPOSTCOMPILE)
 
 %.o: %.S
 	$(TEXTPRECOMPILE)
@@ -208,46 +211,60 @@ $(DRIVERSDIR)/delay.o: $(DRIVERSDIR)/delay.c
 	@$(CC) $(CFLAGS) -O$(OPT) $< -o$(BUILDDIR)/$@
 	$(TEXTPOSTCOMPILE)
 
-$(BINARY):
+$(BINARY): ./rosa.elf
 	$(OBJCOPY) -O binary $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
 
-elf:
+./rosa.elf: $(OBJ)
 	@$(TEST) -d $(ELFDIR) || $(MKDIR) -p $(ELFDIR)
 	@echo -n "...  Linking $(ELF)"
 	@$(CC) $(LDFLAGS) $(OBJ:%=$(BUILDDIR)/%) -o $(ELFDIR)/$(ELF)
 	$(TEXTPOSTCOMPILE)
 
+.PHONY: program
 program: $(BINDIR)/$(BINARY)
 	#erase sectors [-e], program internal flash [-f] at offset [-O] 0x80000000 using the xtal as clock [-cxtal], verify [-v], reset [-R] and run [-r]
 	$(PROGRAMMER) program -O0x80000000 -finternal@0x80000000 -e -v -cxtal -Rr $(BINDIR)/$(BINARY)
 
+.PHONY: reset
 reset:
 	$(PROGRAMMER) reset
 
+.PHONY: run
 run:
 	$(PROGRAMMER) run
 
+.PHONY: cpuinfo
 cpuinfo:
 	$(PROGRAMMER) cpuinfo
 
-size:
+.PHONY: size
+size: $(BINARY)
 	@$(SIZE) --target=binary $(BINDIR)/$(BINARY)
 
+.PHONY: gdb
 gdb:
 	avr32gdbproxy -k -a localhost:4711 -cUSB -e$(JTAGTOOL)
 
+.PHONY: kill
 kill:
 	killall avr32gdbproxy
 
+.PHONY: killall
+	killall avr32gdbproxy
+
+.PHONY: dump
 dump:
 	$(OBJDUMP) -S -x $(ELFDIR)/$(ELF)|$(LESS)
 
+.PHONY: clean
 clean:
 	rm -f $(OBJ) $(ELFDIR)/$(ELF) $(BINDIR)/$(BINARY)
 
+.PHONY: semiclean
 semiclean:
 	rm -f bin/rosa.bin rosa.elf src/drivers/spi.o src/drivers/at45db642.o
 
+.PHONY: test
 test: src/system/list.c src/include/system/list.h src/test/listtest.c
 	gcc -ggdb -Isrc/include src/system/list.c src/test/listtest.c -otest
 

@@ -25,9 +25,10 @@
 #ifndef _ROSA_LCD_H_
 #define _ROSA_LCD_H_
 
+#include <avr32/io.h>
 #include "drivers/spi.h"
 #include "kernel/rosa_def.h"
 
-void lcdTest(void);
-
+void dip204Init(void);
+void dip204_Welcome(void);
 #endif /* _ROSA_LCD_H_ */
