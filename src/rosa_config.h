@@ -148,7 +148,7 @@
 #define DEFAULTRELEASETIME 0
 
 /*********************************************************
- * SPI configurations
+ * SPI configurations (beware, these are moved to at45db.c, dip204 etc
  *********************************************************/
 #define CONFIG_MISO_PIN AVR32_SPI1_MISO_0_0_PIN
 #define CONFIG_MOSI_PIN AVR32_SPI1_MOSI_0_0_PIN

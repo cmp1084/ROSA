@@ -33,13 +33,6 @@ File creation date: 20101108 15:41:45
 #include "kernel/rosa_dyn.h"
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_scheduler.h"
-
-
-//Only used during debug
-//Driver includes
-//~ #include "drivers/led.h" TODO: REMOVE
-
-
 #include "rosa_config.h"
 
 extern void contextRestore(void);           //rosa_ker_asm.S
@@ -93,6 +86,7 @@ Tcb * ROSA_taskCreate(const char * id, const void * taskFunction, void * param, 
 
 	//Create and install the dynamic tcb
 	ROSA_tcbCreate(tcb, id, taskFunction, param, stack, stackSize);
+
 	//ROSA_tcbInstall(tcb);
 
 	//Set the task priority
@@ -153,35 +147,3 @@ void _taskDestroy(void)
 	//Bookkeeping
 	_dynTaskNrDec();	//TODO: Remove
 }
-
-/*  The old way to kill tasks:
-
-	//Are we removing the first element?
-	if(EXECTASK == TCBLIST) {
-		TCBLIST = TCBLIST->nexttcb;	//Link out the first element
-	}
-	else {
-		tcb = TCBLIST;
-		do {
-			tcbtmp = tcb;
-			tcb = tcb->nexttcb;
-			if(tcb == TCBLIST) {
-				while(1);	//Error, could not find EXECTASK in the TCBLIST (we wrapped the search)
-			}
-		} while(tcb != EXECTASK);
-
-		//Link out the tcb
-		tcbtmp->nexttcb = tcb->nexttcb;
-	}
-
-	//Find the stack
-	stack = tcb->dataarea - tcb->datasize;
-
-	//Free all resources	//TODO: go through semaphore list and free resources.
-	free(stack);
-	free(tcb);
-
-	//Bookkeeping
-	_dynTaskNrDec();
-*/
-

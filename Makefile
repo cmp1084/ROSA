@@ -63,7 +63,7 @@ SOURCE += $(DRIVERSDIR)/usart.c
 SOURCE += $(DRIVERSDIR)/delay.c
 SOURCE += $(DRIVERSDIR)/pm.c
 SOURCE += $(DRIVERSDIR)/spi.c
-SOURCE += $(DRIVERSDIR)/lcd.c
+SOURCE += $(DRIVERSDIR)/dip204.c
 SOURCE += $(DRIVERSDIR)/at45db642.c
 
 ##############################################################
@@ -141,7 +141,7 @@ PROGRAMMER = avr32program
 ##############################################################
 LDSCRIPT = $(STARTUPDIR)/linkscript/uc3a0512.lds
 DEBUG = -ggdb
-OPT = 1
+OPT = 3
 AFLAGS = -x assembler-with-cpp
 #~ CFLAGS = $(DEBUG) -DO$(OPT) -Wall -Wa,-R -mrelax -c -muse-rodata-section -msoft-float -mpart=$(PART) -DBOARD=$(BOARD) -fdata-sections -ffunction-sections $(INCDIRS) -nostartfiles
 #~ LDFLAGS = --gc-sections --relax --direct-data -nostartfiles -mpart=$(PART) -T$(LDSCRIPT)

@@ -29,8 +29,6 @@
 #include "kernel/rosa_int.h"
 #include "kernel/rosa_tim.h"
 
-//Timer interrupt service routine
-//~ __attribute__((__interrupt__)) extern void timerISR(void);
 #if(CONFIG_TIMER)
 /***********************************************************
  * timerInterruptHandler
@@ -56,7 +54,7 @@ void handler_timerISR(void)
 		ROSA_yieldFromISR();
 	}
 }
-#endif //#if(CONFIG_TIMER)
+#endif /* #if(CONFIG_TIMER) */
 
 /***********************************************************
  * timerPeriodSet

@@ -32,7 +32,93 @@
 #define SPI_TIMEOUTVALUE 10000
 #endif
 
-void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function)
+int spiCalcBaudDivisor(int cs, unsigned int spck, unsigned int mck);
+
+//Caution, this give pessimistic baudrate.
+int spiCalcBaudDivisor(int cs, unsigned int spck, unsigned int mck)
+{
+	int scbr;
+	return scbr = (mck + spck / 2) / spck;
+	//(0 is forbidden, 1 is fishy(?), anything else <256 is ok)
+	//~ switch(scbr) {
+		//~ case 0:
+			//~ while(1);
+			//~ break;
+		//~ default:
+			//~ return scbr;
+			//~ break;
+	//~ }
+}
+
+void spiSetSpck(volatile avr32_spi_t * spi, const int cs, const int spck)
+{
+	//This need to be fixed.
+	int scbr;
+	void * csrx;
+	scbr = spiCalcBaudDivisor(cs, spck, FOSC0);
+	scbr <<= AVR32_SPI_CSR0_SCBR_OFFSET;
+
+	//Calculate the correct CSRx to write the spck to
+	csrx = (void *)&(spi->csr0);
+	csrx += 4 * cs;
+	*(int *)csrx |= scbr;
+
+	//~ switch(cs) {
+		//~ case 0:
+			//~ spi->csr0 |= scbr;
+			//~ break;
+		//~ case 1:
+			//~ spi->csr1 |= scbr;
+			//~ break;
+		//~ case 2:
+			//~ spi->csr2 |= scbr;
+			//~ break;
+		//~ case 3:
+			//~ spi->csr3 |= scbr;
+			//~ break;
+		//~ }
+}
+
+void spiSetMode(volatile avr32_spi_t * spi, const int cs)
+{
+	int modeValue;
+	void * csrx;
+
+	//Set polarity
+	//Set phase
+	//Set SPI clock speed
+	//~ spiSetSpck(spi, cs, spck);
+
+	//Set CSAAT, chip select active after transfer
+	modeValue = (1 << AVR32_SPI_NCPHA_OFFSET) | \
+	            (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);
+
+	//Calculate the CSRx to use and write the modeValue
+	csrx = (void *)&(spi->csr0);
+	csrx += 4 * cs;
+	*(int *)csrx |= modeValue;
+
+	//~ *(int *)((void *)&(spi->csr0) + 4 * cs) |= modeValue;
+
+	//~ switch(cs) {
+		//~ case 0:
+			//~ spi->csr0 |= modeValue;
+			//~ break;
+		//~ case 1:
+			//~ spi->csr1 |= modeValue;
+			//~ break;
+		//~ case 2:
+			//~ spi->csr2 |= modeValue;
+			//~ break;
+		//~ case 3:
+			//~ spi->csr3 |= modeValue;
+			//~ break;
+		//~ default:
+			//~ while(1);	//error, what were you thinking?!
+	//~ }
+}
+
+void spiSetup(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function)
 {
 	//Errata:
 	//41.2.3
@@ -42,7 +128,7 @@ void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const
 	//Enable SPI1 clocking
 	pmPbaMaskSet((1 << PM_PBAMASK_SPI1_OFFSET) | pmPbaMaskGet());
 
-	//Enable SPI1 peripheral pins
+	//Enable SPI1 peripheral pins	//TODO: Fix, send CONFIG_MISO_ etc in some struct like avr32 framework does, it is actually the prettier solution :(
 	gpioPeripheralEnable(CONFIG_MISO_PIN, CONFIG_MISO_FUNCTION);
 	gpioPeripheralEnable(CONFIG_MOSI_PIN, CONFIG_MOSI_FUNCTION);
 	gpioPeripheralEnable(CONFIG_SCK_PIN, CONFIG_SCK_FUNCTION);
@@ -58,39 +144,15 @@ void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const
 	          (1 << AVR32_SPI_MODFDIS_OFFSET) | \
 	          (0x0f << AVR32_SPI_PCS_OFFSET);
 
-	//Set polarity
-	//Set phase
-	//Set baudrate (0 is forbidden)
-	//Set CSAAT, chip select active after transfer
-	//TODO: Fix
-	switch(cs) {
-		case 0:
-			spi->csr0 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	                     (0xc << AVR32_SPI_CSR0_SCBR_OFFSET) | \
-						 (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);
-			break;
-		case 1:
-			spi->csr1 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	                     (0xc << AVR32_SPI_CSR1_SCBR_OFFSET) | \
-						 (1 << AVR32_SPI_CSR1_CSAAT_OFFSET);
-			break;
-		case 2:
-			spi->csr2 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	                     (0xc << AVR32_SPI_CSR2_SCBR_OFFSET) | \
-						 (1 << AVR32_SPI_CSR2_CSAAT_OFFSET);
-			break;
-		case 3:
-			spi->csr3 |= (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	                     (0xc << AVR32_SPI_CSR3_SCBR_OFFSET) | \
-						 (1 << AVR32_SPI_CSR3_CSAAT_OFFSET);
-			break;
-		default:
-			while(1);	//error
-	}
+	//spiSetMode(spi, cs, spck); done separately
+}
 
+void spiEnable(volatile avr32_spi_t * spi)
+{
 	//Enable SPI
 	spi->cr = 1 << AVR32_SPI_SPIEN_OFFSET;
 }
+
 
 void spiLLBSet(volatile avr32_spi_t * spi, const int onoff)
 {
@@ -107,8 +169,10 @@ void spiLLBSet(volatile avr32_spi_t * spi, const int onoff)
 //input cs - Chip Select, legal values: CS0, CS1, CS2, CS3 (0, 1, 2, 3)
 void spiChipSelect(volatile avr32_spi_t * spi, const int cs)
 {
-	spi->mr |= AVR32_SPI_MR_PCS_MASK;
-	spi->mr &= ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
+	spi->mr |= AVR32_SPI_MR_PCS_MASK & ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
+	//This saves 12 bytes compared to the below.
+	//~ spi->mr |= AVR32_SPI_MR_PCS_MASK;
+	//~ spi->mr &= ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
 }
 
 int spiChipDeselect(volatile avr32_spi_t * spi)

@@ -24,6 +24,20 @@
 *****************************************************************************/
 #include "drivers/at45db642.h"
 
+#define AT45DB_SPI (&AVR32_SPI1)
+enum {
+
+	AT45DB_CS = 0,
+	AT45DB_CS_FUNCTION = AVR32_SPI1_NPCS_0_0_FUNCTION,
+	AT45DB_CS_PIN = AVR32_SPI1_NPCS_0_0_PIN,
+	AT45DB_MOSI_PIN = AVR32_SPI1_MOSI_0_0_PIN,
+	AT45DB_MOSI_FUNCTION = AVR32_SPI1_MOSI_0_0_FUNCTION,
+	AT45DB_MISO_PIN = AVR32_SPI1_MISO_0_0_PIN,
+	AT45DB_MISO_FUNCTION = AVR32_SPI1_MISO_0_0_FUNCTION,
+	AT45DB_SPCK_PIN = AVR32_SPI1_SCK_0_0_PIN,
+	AT45DB_SPCK_FUNCTION = AVR32_SPI1_SCK_0_0_FUNCTION
+};
+
 enum {
 	AT45DB642_SR_PAGESIZE = (1 << 0),
 	AT45DB642_SR_PROTECT  = (1 << 1),
@@ -31,6 +45,9 @@ enum {
 	AT45DB642_SR_RDY      = (1 << 7)
 };
 
+/**
+ * AT45DB commands
+ */
 enum {
 	//Read commands
 	AT45DB_MAIN_MEMORY_PAGE_READ_CMD = 0x2d,
@@ -220,7 +237,11 @@ void at45test(void)
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
 	int id;
 
-	spiEnable(spi, AT45DB_CS, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
+	//~ spiEnable(spi, AT45DB_CS, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
+	spiSetup(spi, AT45DB_CS, AT45DB_CS_PIN, AT45DB_CS_FUNCTION);
+	spiSetMode(AT45DB_SPI, AT45DB_CS);
+	spiSetSpck(AT45DB_SPI, AT45DB_CS, 1000000);
+	spiEnable(AT45DB_SPI);
 
 	if(at45WaitUntilReady(spi) == SPI_TIMEOUT) {
 		usartWriteLine(USART0, (char *)"at45WautUntilReady timeout\n");	//TODO: remove

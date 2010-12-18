@@ -40,7 +40,7 @@
 #include "drivers/button.h"
 #include "drivers/spi.h"
 #include "drivers/at45db642.h"
-#include "drivers/lcd.h"
+#include "drivers/dip204.h"
 
 //Include configuration
 #include "rosa_config.h"

@@ -32,12 +32,30 @@
 #include "rosa_config.h"
 #include "kernel/rosa_def.h"
 
+/**
+ * In order to start the SPI the following functions should be called
+ * (in this order):
+ *
+ * cs -          the chip select, 0, 1, 2 or 3
+ * cs_pin -      the pin which the cs uses
+ * cs_function - the multiplexed peripherial that correspond to the cs_pin
+ * spck -        the SPI clock rate, expressed in Hz.
+ *
+ * spiSetup(spi, cs, cs_pin, cs_function);
+ * spiSetMode(spi, cs);
+ * spiSetSpck(spi, cs, spck);
+ * spiEnable();
+ *
+ */
+
+//!SPI Status codes
 enum {
 		SPI_TIMEOUT,
 		SPI_ERROR,
 		SPI_OK
 };
 
+//!SPI Chip select
 enum {
 		CS0 = 0,
 		CS1,
@@ -45,7 +63,11 @@ enum {
 		CS3
 };
 
-void spiEnable(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_csfunction);
+void spiSetup(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function);
+void spiSetMode(volatile avr32_spi_t * spi, const int cs);
+void spiSetSpck(volatile avr32_spi_t * spi, const int cs, const int spck);
+void spiEnable(volatile avr32_spi_t * spi);
+
 void spiLLBSet(volatile avr32_spi_t * spi, const int onoff);
 void spiChipSelect(volatile avr32_spi_t * spi, const int cs);
 int spiChipDeselect(volatile avr32_spi_t * spi);

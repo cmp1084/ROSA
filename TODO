@@ -1,3 +1,21 @@
+20101216
+Global temporary variable:
+Instead of utilizing stack for temporary vaiables, use a global 'tmp'.
+The backdraw is we need to protect it with semaphores for general RTOS use.
+But still this might be a good idea for initialization etc.
+
+SD-card
+Fix SD-card initialization
+Fix SD-card read
+Fix SD-card write
+Fix SD-card fat filesystem
+
+20101213
+Move src/drivers/delay.c to src/system
+Rename rosa_int.c to rosa_interrupt.c
+Rename rosa_tim.c to rosa_timer.c
+etc.
+
 20101208
 Fix avr32-g++ compilation.
 

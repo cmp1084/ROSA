@@ -67,5 +67,6 @@ void ROSA_tcbCreate(Tcb * tcbTask, const char tcbName[CONFIG_NAMESIZE], const vo
 //Start running the ROSA kernel
 //This start running the created and installed tasks.
 extern void ROSA_start(void);
+void panic(const char *msg);
 
 #endif /* _ROSA_KER_H_ */

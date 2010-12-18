@@ -63,16 +63,6 @@ extern void contextRestoreFromISR(void);
  **********************************************************/
 Tcb * EXECTASK;
 
-//task priority, increments to higher priority for every task installed into the kernel
-//This is not really a good way to set priorities. :/
-//But since ROSA_tcbCreate() and ROSA_tcbInstall lack prio in the parameter list this simple solution was tested.
-//See ROSA_taskCreate() for alternative how it can be done.
-//~ static int incrementalPrio = TASKINITIALPRIORITY;
-//~ int incrementPrio(void)			//TODO: Not in use
-//~ {
-	//~ return incrementalPrio++;
-//~ }
-
 /***********************************************************
  * ROSA_prioSet
  *
@@ -82,7 +72,6 @@ Tcb * EXECTASK;
  *
  **********************************************************/
 void prioSet(Tcb * tcb, int newPrio) { tcb->prio = newPrio; }
-
 
 /*************************************************************
  * The idle task
@@ -94,7 +83,7 @@ void prioSet(Tcb * tcb, int newPrio) { tcb->prio = newPrio; }
 void idle(void)
 {
 	while(1) {
-		ledToggle(LED7_GPIO);
+		ledToggle(LED7_GPIO);	//TODO: remove
 	}
 }
 
@@ -233,4 +222,12 @@ void ROSA_start(void)
 	//~ heapExtract(readyHeap, (void **)&EXECTASK);
 	_ROSA_start();
 	//Execution never continue here
+}
+
+__attribute__((noreturn))
+void panic(const char * msg)
+{
+	usartWriteLine(USART0, "Panic: ");
+	usartWriteLine(USART0, msg);
+	while(1);
 }
