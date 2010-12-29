@@ -27,6 +27,7 @@
 //Standard library includes
 #include <avr32/io.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 //Kernel includes
 #include "kernel/rosa_ker.h"
@@ -41,6 +42,10 @@
 #include "drivers/spi.h"
 #include "drivers/at45db642.h"
 #include "drivers/dip204.h"
+#include "drivers/sdhc.h"
+
+//FAT driver includes
+#include "ff.h"
 
 //Include configuration
 #include "rosa_config.h"
@@ -81,8 +86,6 @@ void opttask1(void * param)
 	while(1) {
 		ledToggle(led);
 		ROSA_wait(501);
-		//~ delay_ms(251/4);
-		ROSA_yield();
 	}
 }
 
@@ -93,8 +96,6 @@ void opttask2(void * param)
 	while(1) {
 		ledToggle(led);
 		ROSA_wait(500);
-		//~ delay_ms(250/4);
-		ROSA_yield();
 	}
 }
 
@@ -254,36 +255,98 @@ void foo(void * param)
 	ledOn(led);
 }
 
+//~ extern unsigned char filesectbuf;
+void printfilesectbuf(void)
+{
+	int i = 0;
+	usartWriteValue(USART0, i);
+	usartWriteChar(USART0, ' ');
 
+	while(i < 32) {
+		usartWriteValue(USART0, filesectbuf[i]);
+		i++;
+		if((i % 8 == 0)) {
+			usartWriteLine(USART0, "\n");
+			usartWriteValue(USART0, i);
+			usartWriteChar(USART0, ' ');
+		}
+		else {
+			usartWriteChar(USART0, ' ');
+		}
+	}
+}
+
+void sdtest(void)
+{
+	int i;
+	sdhcinit();
+	for(i = 0; i < 1; ++i) {
+		usartWriteLine(USART0, "\nSector: ");
+		usartWriteValue(USART0, i);
+		usartWriteLine(USART0, "\n---------------------\n");
+		readsec(i);
+		printfilesectbuf();
+	}
+}
+
+void die(int code)
+{
+	usartWriteLine(USART0, "\nDie: ");
+	usartWriteValue(USART0, code);
+	while(1);
+}
 
 /*************************************************************
  * Main function
  ************************************************************/
 int main(void)
 {
+	FRESULT rc;
+	FATFS fatfs;	//Filesystem object
+	FIL file;		//File object
+	DIR dir;		//Directory object
+	FILINFO fno;	//File information object
+	BYTE buff[128];
+	UINT br;
+	int i;
+
 	//Initialize the ROSA kernel
 	ROSA_init();
 	//~ usartWriteLine(USART0, (char *)"\nROSA starting...\n");
 
-	dip204Init();
-	dip204_Welcome();
-	usartWriteLine(USART0, "\e[2Jhttp://emCode.se\nROSA starting...\n"); //TODO
+	dip204_init();
+	dip204_welcome();
+	//usartWriteLine(USART0, "\e[2Jhttp://emCode.se\nROSA starting...\n"); //TODO
+	usartWriteLine(USART0, " e  [ 2J http://emCode.se\nROSA starting...\n"); //TODO
+	//sdtest();
 
+	f_mount(0, &fatfs);                 //Register workarea
+	//usartWriteLine(USART0, "\nOpen testfile, test.txt\n");
+	rc = f_open(&file, "banner.txt", FA_READ);
+	if(rc) die(rc);
 
-	//Create tasks and install them into the ROSA kernel
-	//The old way is no longer needed
-	//~ ROSA_tcbCreate(&t1_tcb, "tsk1", task1, t1_stack, T1_STACK_SIZE);
-	//~ ROSA_tcbInstall(&t1_tcb);
-	//~ ROSA_tcbCreate(&t2_tcb, "tsk2", task2, t2_stack, T2_STACK_SIZE);
-	//~ ROSA_tcbInstall(&t2_tcb);
-	//~ ...
+	while(1) {
+		rc = f_read(&file, buff, sizeof(buff), &br); //Read a chunk of the file
+
+		if(rc || !br) break; //Err or EOF
+		for(i = 0; i < br; i++) {
+			usartWriteChar(USART0, buff[i]);
+			if(buff[i] == '\n') {
+				usartWriteChar(USART0, '\r');
+			}
+		}
+	}
+
+	rc = f_close(&file);
+	if(rc) die(rc);
+
 	//The new way to create tasks.
-	//I left the old API since this way of creating tasks are much sweeter.
+	//I left the old API since this way of creating tasks is much sweeter.
 	//ROSA_taskCreate(char * id, void * taskFunc, void * param, int prio, int stackSize);
 	//~ ROSA_taskCreate("tsk1", task1, 1, 0x40);
 	//~ ROSA_taskCreate("tsk2", task2, 2, 0x40);
 	ROSA_taskCreate("tsk3", task3, (void *)AVR32_PIN_PB27, 3, 0x40);
-	ROSA_taskCreate("stat", stat, NULL, 6, 0x40);
+	//ROSA_taskCreate("stat", stat, NULL, 6, 0x40);
 
 	ROSA_taskCreate("tsk1", opttask1, (void *)LED3_GPIO, 1, 0x40);
 	ROSA_taskCreate("tsk2", opttask2, (void *)LED4_GPIO, 1, 0x40);

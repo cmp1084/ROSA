@@ -74,7 +74,7 @@ Table 2. Various kinds of operations according to RS and R/W bits.
 */
 
 #define DIP204_SPI (&AVR32_SPI1)
-#define DIP204_CS 2
+#define DIP204_CS CS2
 #define DIP204_CS_PIN AVR32_SPI1_NPCS_2_0_PIN
 #define DIP204_CS_FUNCTION AVR32_SPI1_NPCS_2_0_FUNCTION
 #define DIP204_BACKLIGHT AVR32_PIN_PB18
@@ -175,16 +175,39 @@ void dip204_set_cursor_position(unsigned char column, unsigned char line)
   dip204_unselect();
 }
 
-void dip204Init(void)
+void dip204_init(void)
 {
 	// delay for power on
-	delay_ms(100);
+	delay_ms(0x64);
 
 	//SPI init
 	//~ spiEnable(DIP204_SPI, DIP204_CS, DIP204_CS_PIN, DIP204_CS_FUNCTION);
-	spiSetup(DIP204_SPI, DIP204_CS, DIP204_CS_PIN, DIP204_CS_FUNCTION);
-	spiSetMode(DIP204_SPI, DIP204_CS);
-	spiSetSpck(DIP204_SPI, DIP204_CS, 100000); //cycle time min 1 us max 20 us
+
+	const spi_cfg_t spiConfigStruct = {
+		//MR
+		1,     //mstr
+		0,     //fdiv
+		1,     //modfdis
+		DIP204_CS,     //cs
+
+		//CSRx
+		0,     //cpol
+		1,     //ncpha
+		1,     //csaat
+		8,     //bits
+
+		1000000 //spck, //cycle time min 1 us max 20 us for dip204
+	};
+
+	const spi_pin_cfg_t spiPinConfigStruct = {
+		DIP204_CS_PIN,
+		DIP204_CS_FUNCTION
+	};
+
+
+	spiSetup(DIP204_SPI, &spiConfigStruct, &spiPinConfigStruct);	//DIP204_CS, DIP204_CS_PIN, DIP204_CS_FUNCTION);
+	spiSetMode(DIP204_SPI, &spiConfigStruct);
+	//~ spiSetSpck(DIP204_SPI, &spiConfigStruct);
 	spiEnable(DIP204_SPI);
 
 	// select the LCD chip
@@ -248,10 +271,10 @@ void dip204_write_string(const char * string)
 	dip204_unselect();
 }
 
-void dip204_Welcome(void)
+void dip204_welcome(void)
 {
 	dip204_set_cursor_position(1,2);
 	dip204_write_string(" -=> emCode.se <=-");
 	dip204_set_cursor_position(1,3);
-	dip204_write_string("ROSA RTOS for AVR32");
+	dip204_write_string("MAJA RTOS for AVR32");
 }

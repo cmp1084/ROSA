@@ -32,13 +32,12 @@
 #define SPI_TIMEOUTVALUE 10000
 #endif
 
-int spiCalcBaudDivisor(int cs, unsigned int spck, unsigned int mck);
 
-//Caution, this give pessimistic baudrate.
-int spiCalcBaudDivisor(int cs, unsigned int spck, unsigned int mck)
+int spiCalcBaudrateDivisor(const spi_cfg_t * spiConfigStruct, unsigned int mck);
+int spiCalcBaudrateDivisor(const spi_cfg_t * spiConfigStruct, unsigned int mck)
 {
 	int scbr;
-	return scbr = (mck + spck / 2) / spck;
+	return scbr = (mck + spiConfigStruct->spck / 2) / spiConfigStruct->spck;
 	//(0 is forbidden, 1 is fishy(?), anything else <256 is ok)
 	//~ switch(scbr) {
 		//~ case 0:
@@ -50,75 +49,31 @@ int spiCalcBaudDivisor(int cs, unsigned int spck, unsigned int mck)
 	//~ }
 }
 
-void spiSetSpck(volatile avr32_spi_t * spi, const int cs, const int spck)
+//~ void spiSetSpck(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct)
+//~ {
+	//~ //This need to be fixed.
+	//~ int scbr;
+	//~ void * csrx;
+	//~ scbr = spiCalcBaudrateDivisor(spiConfigStruct, FOSC0);	//TODO: Fix Fcpu when using PLL
+	//~ scbr <<= AVR32_SPI_CSR0_SCBR_OFFSET;
+//~
+	//~ //Calculate the correct CSRx address to write the spck value to
+	//~ csrx = (void *)&(spi->csr0);
+	//~ csrx += 4 * spiConfigStruct->cs;
+	//~ *(int *)csrx = scbr;
+//~ }
+
+void spiReset(volatile avr32_spi_t * spi)
 {
-	//This need to be fixed.
-	int scbr;
-	void * csrx;
-	scbr = spiCalcBaudDivisor(cs, spck, FOSC0);
-	scbr <<= AVR32_SPI_CSR0_SCBR_OFFSET;
-
-	//Calculate the correct CSRx to write the spck to
-	csrx = (void *)&(spi->csr0);
-	csrx += 4 * cs;
-	*(int *)csrx |= scbr;
-
-	//~ switch(cs) {
-		//~ case 0:
-			//~ spi->csr0 |= scbr;
-			//~ break;
-		//~ case 1:
-			//~ spi->csr1 |= scbr;
-			//~ break;
-		//~ case 2:
-			//~ spi->csr2 |= scbr;
-			//~ break;
-		//~ case 3:
-			//~ spi->csr3 |= scbr;
-			//~ break;
-		//~ }
+	//SW reset SPI
+	//~ spi->cr = 1 << AVR32_SPI_CR_SWRST_OFFSET;	//This doesnt get optimized enough
+	//The code below saves 2 bytes.
+	int cr;
+	asm volatile("sbr  %0,%1" : "=r" (cr)      : "i" (AVR32_SPI_CR_SWRST_OFFSET));
+	asm volatile("st.w %0,%1" : "=m" (spi->cr) : "r" (cr) : "memory"  );
 }
 
-void spiSetMode(volatile avr32_spi_t * spi, const int cs)
-{
-	int modeValue;
-	void * csrx;
-
-	//Set polarity
-	//Set phase
-	//Set SPI clock speed
-	//~ spiSetSpck(spi, cs, spck);
-
-	//Set CSAAT, chip select active after transfer
-	modeValue = (1 << AVR32_SPI_NCPHA_OFFSET) | \
-	            (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);
-
-	//Calculate the CSRx to use and write the modeValue
-	csrx = (void *)&(spi->csr0);
-	csrx += 4 * cs;
-	*(int *)csrx |= modeValue;
-
-	//~ *(int *)((void *)&(spi->csr0) + 4 * cs) |= modeValue;
-
-	//~ switch(cs) {
-		//~ case 0:
-			//~ spi->csr0 |= modeValue;
-			//~ break;
-		//~ case 1:
-			//~ spi->csr1 |= modeValue;
-			//~ break;
-		//~ case 2:
-			//~ spi->csr2 |= modeValue;
-			//~ break;
-		//~ case 3:
-			//~ spi->csr3 |= modeValue;
-			//~ break;
-		//~ default:
-			//~ while(1);	//error, what were you thinking?!
-	//~ }
-}
-
-void spiSetup(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function)
+void spiSetup(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct, const spi_pin_cfg_t * spiPinConfigStruct)
 {
 	//Errata:
 	//41.2.3
@@ -126,25 +81,59 @@ void spiSetup(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const 
 	//Bad serial clock on 2nd chip select SCBR = 1, CPOL = 1, NCPHA = 0
 
 	//Enable SPI1 clocking
-	pmPbaMaskSet((1 << PM_PBAMASK_SPI1_OFFSET) | pmPbaMaskGet());
+	pmPbaMaskSet((1 << PM_PBAMASK_SPI1_OFFSET ) | pmPbaMaskGet());
 
-	//Enable SPI1 peripheral pins	//TODO: Fix, send CONFIG_MISO_ etc in some struct like avr32 framework does, it is actually the prettier solution :(
-	gpioPeripheralEnable(CONFIG_MISO_PIN, CONFIG_MISO_FUNCTION);
-	gpioPeripheralEnable(CONFIG_MOSI_PIN, CONFIG_MOSI_FUNCTION);
-	gpioPeripheralEnable(CONFIG_SCK_PIN, CONFIG_SCK_FUNCTION);
-	gpioPeripheralEnable(cs_pin, cs_function);
+	//Enable SPI peripheral pins
+#if(CONFIG_SPI0)
+	gpioPeripheralEnable(CONFIG_SPI0_MISO_PIN, CONFIG_SPI0_MISO_FUNCTION);
+	gpioPeripheralEnable(CONFIG_SPI0_MOSI_PIN, CONFIG_SPI0_MOSI_FUNCTION);
+	gpioPeripheralEnable(CONFIG_SPI0_SCK_PIN, CONFIG_SPI0_SCK_FUNCTION);
+#endif
 
-	//SW reset SPI
-	spi->cr = 1 << AVR32_SPI_SWRST;
+#if(CONFIG_SPI1)
+	gpioPeripheralEnable(CONFIG_SPI1_MISO_PIN, CONFIG_SPI1_MISO_FUNCTION);
+	gpioPeripheralEnable(CONFIG_SPI1_MOSI_PIN, CONFIG_SPI1_MOSI_FUNCTION);
+	gpioPeripheralEnable(CONFIG_SPI1_SCK_PIN, CONFIG_SPI1_SCK_FUNCTION);
+#endif
+
+	//Enable the chip select pin
+	gpioPeripheralEnable(spiPinConfigStruct->cs_pin, spiPinConfigStruct->cs_function);
+}
+
+#define AVR32_SPI_CSRX_CSAAT_OFFSET AVR32_SPI_CSR0_CSAAT_OFFSET
+void spiSetMode(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct)
+{
+	int csrxValue;
+	void * csrx;
+	int scbr;
 
 	//Set master mode
 	//Disable mode fault detection
 	//Deselect chip
-	spi->mr = (1 << AVR32_SPI_MSTR_OFFSET) |    \
-	          (1 << AVR32_SPI_MODFDIS_OFFSET) | \
+	spi->mr = (spiConfigStruct->mstr << AVR32_SPI_MSTR_OFFSET) |    \
+	          (spiConfigStruct->modfdis << AVR32_SPI_MODFDIS_OFFSET) | \
 	          (0x0f << AVR32_SPI_PCS_OFFSET);
 
-	//spiSetMode(spi, cs, spck); done separately
+	//Calculate baudrate divisor for SPCK speed
+	scbr = spiCalcBaudrateDivisor(spiConfigStruct, FOSC0);	//TODO: Fix Fcpu when using PLL
+
+	//Set polarity
+	//Set phase
+	//Set CSAAT, chip select active after transfer
+	csrxValue = (spiConfigStruct->cpol << AVR32_SPI_CPOL_OFFSET) | \
+	            (spiConfigStruct->ncpha << AVR32_SPI_NCPHA_OFFSET) | \
+	            (spiConfigStruct->csaat << AVR32_SPI_CSRX_CSAAT_OFFSET) | \
+	            ((spiConfigStruct->bits - 8) << AVR32_SPI_BITS_OFFSET) | \
+	            (scbr << AVR32_SPI_CSR0_SCBR_OFFSET);
+
+	//~ csrxValue = (1 << AVR32_SPI_NCPHA_OFFSET) | (1 << AVR32_SPI_CSR0_CSAAT_OFFSET);
+
+	//Calculate the CSRx to use and write the modeValue
+	csrx = (void *)&(spi->csr0);
+	csrx += 4 * spiConfigStruct->cs;
+	*(int *)csrx = csrxValue;
+
+	//~ *(int *)((void *)&(spi->csr0) + 4 * spiConfigStruct->cs) = csrxValue;    //sweet
 }
 
 void spiEnable(volatile avr32_spi_t * spi)
@@ -169,8 +158,15 @@ void spiLLBSet(volatile avr32_spi_t * spi, const int onoff)
 //input cs - Chip Select, legal values: CS0, CS1, CS2, CS3 (0, 1, 2, 3)
 void spiChipSelect(volatile avr32_spi_t * spi, const int cs)
 {
-	spi->mr |= AVR32_SPI_MR_PCS_MASK & ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
-	//This saves 12 bytes compared to the below.
+	int mr;
+	mr = spi->mr;
+	mr |= AVR32_SPI_MR_PCS_MASK;
+	mr &= ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
+	spi->mr = mr;
+
+	//Unfortunately this line doesnt compile cleanly every time.
+	//~ spi->mr |= AVR32_SPI_MR_PCS_MASK & ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
+	//The code above save 12 bytes compared to the code below. :/
 	//~ spi->mr |= AVR32_SPI_MR_PCS_MASK;
 	//~ spi->mr &= ~(1 << (AVR32_SPI_MR_PCS_OFFSET + cs));
 }
@@ -222,4 +218,10 @@ int spiReadByte(volatile avr32_spi_t * spi, unsigned int * byte)
 	}
 	*byte = spi->rdr & 0x000000ff;	//TODO: Constant
 	return SPI_OK;
+}
+
+__attribute__((always_inline))
+int spiReadSR(volatile avr32_spi_t * spi)
+{
+	return spi->sr;
 }

@@ -41,6 +41,7 @@
 #include "drivers/led.h"
 #include "drivers/pot.h"
 #include "drivers/usart.h"
+#include "drivers/spi.h"
 
 //Define the initial value of the satus register
 #define ROSA_INITIALSR 0x1c0000
@@ -125,6 +126,9 @@ void ROSA_init(void)
 	interruptInit();
 	timerInit(PERIODTIME_MS);
 #endif
+	spiReset(&AVR32_SPI0);
+	spiReset(&AVR32_SPI1);
+
 }
 
 /***********************************************************

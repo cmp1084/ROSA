@@ -115,11 +115,11 @@ static const usart_options_t usart1_options = {
 
 void usartReset(volatile avr32_usart_t *usart);
 int usartSetBaudrate(volatile avr32_usart_t *usart, unsigned int baudrate, unsigned long pba_hz);
-int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz);
+int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, const long pba_hz);
 void usartGetLine(volatile avr32_usart_t * usart, char * buf);
 char usartGetChar(volatile avr32_usart_t * usart);
-void usartWriteLine(volatile avr32_usart_t * usart, char * string);
-void usartWriteChar(volatile avr32_usart_t * usart, char ch);
+void usartWriteLine(volatile avr32_usart_t * usart, const char * string);
+void usartWriteChar(volatile avr32_usart_t * usart, const char ch);
 void usartWriteTcb(volatile avr32_usart_t * usart, Tcb * dbgtcb);
 void usartWriteValue(volatile avr32_usart_t * usart, const unsigned int i);
 

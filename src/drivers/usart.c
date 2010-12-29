@@ -85,7 +85,7 @@ int usartSetBaudrate(volatile avr32_usart_t *usart, unsigned int baudrate, unsig
 	return USART_SUCCESS;
 }
 
-int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pba_hz)
+int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, const long pba_hz)
 {
 	volatile avr32_gpio_port_t * gpio;
 	gpio = (avr32_gpio_port_t *) &AVR32_GPIO;	//Gives annoying warning, but is correct for our purpose.
@@ -130,14 +130,14 @@ int usartInit(volatile avr32_usart_t *usart, const usart_options_t *opt, long pb
 	return USART_SUCCESS;
 }
 
-void usartWriteChar(volatile avr32_usart_t * usart, char ch)
+void usartWriteChar(volatile avr32_usart_t * usart, const char ch)
 {
 	int timeout = 0x400;
 	while((timeout-- != 0) && ((usart->csr & AVR32_USART_CSR_TXRDY_MASK) == 0));
 	usart->thr = ch & AVR32_USART_THR_TXCHR_MASK;
 }
 
-void usartWriteLine(volatile avr32_usart_t * usart, char * string)
+void usartWriteLine(volatile avr32_usart_t * usart, const char * string)
 {
 	while(*string != '\0') {
 		switch(*string) {

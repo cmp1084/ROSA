@@ -63,9 +63,32 @@ enum {
 		CS3
 };
 
-void spiSetup(volatile avr32_spi_t * spi, const int cs, const int cs_pin, const int cs_function);
-void spiSetMode(volatile avr32_spi_t * spi, const int cs);
-void spiSetSpck(volatile avr32_spi_t * spi, const int cs, const int spck);
+
+typedef struct {
+	//MR bits
+	int mstr;    //spi mode                             { MASTER = 1, SLAVE = 0 }
+	int fdiv;    //mck/2 divisor                        { YES = 1, NO = 0 }
+	int modfdis; //mode fault detect                    { YES = 1, NO = 0 }
+	int cs;      //Chip select (peripheria 	l chip select) { CS0, CS1, CS2, CS3 }
+
+	//CSRx bits
+	int cpol;   //polarity
+	int ncpha;  //phase
+	int csaat;  //chip select active after transfer
+	int bits;   //databits { 8, 9, 10, 11, 12, 13, 14, 15, 16 }
+	int spck;   //Spi clock rate [Hz]
+} spi_cfg_t;
+
+typedef struct {
+	//GPIO pin settings
+	int cs_pin;
+	int cs_function;
+} spi_pin_cfg_t;
+
+void spiReset(volatile avr32_spi_t * spi);
+void spiSetup(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct, const spi_pin_cfg_t * spiPinConfigStruct);
+void spiSetMode(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct);
+//~ void spiSetSpck(volatile avr32_spi_t * spi, const spi_cfg_t * spiConfigStruct);
 void spiEnable(volatile avr32_spi_t * spi);
 
 void spiLLBSet(volatile avr32_spi_t * spi, const int onoff);
@@ -74,7 +97,7 @@ int spiChipDeselect(volatile avr32_spi_t * spi);
 int spiReadByte(volatile avr32_spi_t * spi, unsigned int * byte);
 int spiWriteByte(volatile avr32_spi_t * spi, const int byte);
 int spiWriteLastByte(volatile avr32_spi_t * spi, const int byte);
-
+int spiReadSR(volatile avr32_spi_t * spi);
 
 
 #endif /* __ROSA_SPI_H_ */

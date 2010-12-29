@@ -114,6 +114,7 @@ enum {
 	AT45DB_MANUFACTURER_AND_DEVICE_ID_READ_CMD = 0x9F,
 };
 
+
 void at45BufWrite(void)
 {
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
@@ -232,16 +233,41 @@ int at45WaitUntilReady(volatile avr32_spi_t * spi)
 	return SPI_OK;
 }
 
+void at45db_init(void)
+{
+	//volatile avr32_spi_t * spi = &AVR32_SPI1;
+	//~ int id;
+
+	//~ spiEnable(spi, AT45DB_CS, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
+	const spi_cfg_t spiConfigStruct = {
+		1,     //mstr
+		0,     //fdiv
+		1,     //modfdis
+		0,     //cs
+
+		0,     //cpol
+		0,     //ncpha
+		1,     //csaat
+		8,     //bits
+
+		12000000 //spck, //cycle time min 1 us max 20 us for dip204
+	};
+
+	const spi_pin_cfg_t spiPinConfigStruct = {
+		AT45DB_CS_PIN,
+		AT45DB_CS_FUNCTION
+	};
+
+	spiSetup(AT45DB_SPI, &spiConfigStruct, &spiPinConfigStruct); //AT45DB_CS, AT45DB_CS_PIN, AT45DB_CS_FUNCTION);
+	spiSetMode(AT45DB_SPI, &spiConfigStruct);
+	//~ spiSetSpck(AT45DB_SPI, &spiConfigStruct);
+	spiEnable(AT45DB_SPI);
+}
+
 void at45test(void)
 {
 	volatile avr32_spi_t * spi = &AVR32_SPI1;
 	int id;
-
-	//~ spiEnable(spi, AT45DB_CS, CONFIG_CS0_PIN, CONFIG_CS0_FUNCTION);
-	spiSetup(spi, AT45DB_CS, AT45DB_CS_PIN, AT45DB_CS_FUNCTION);
-	spiSetMode(AT45DB_SPI, AT45DB_CS);
-	spiSetSpck(AT45DB_SPI, AT45DB_CS, 1000000);
-	spiEnable(AT45DB_SPI);
 
 	if(at45WaitUntilReady(spi) == SPI_TIMEOUT) {
 		usartWriteLine(USART0, (char *)"at45WautUntilReady timeout\n");	//TODO: remove

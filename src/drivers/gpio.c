@@ -45,27 +45,27 @@ void gpioPeripheralEnable(int pin, int function)
 	int gpiopin;
 
 	gpioport = &AVR32_GPIO.port[pin >> 5];
-	gpiopin = 1 << (pin & (GPIO_PIN_MAX - 1));
+	gpiopin = 1 << (pin & 0x1f);                //TODO: clean up 0x1f);
 
 	switch(function) {
-		case GPIO:
+		case FUNC_GPIO:
 			gpioport->oderc = gpiopin;	//Clear the output drive register (clearing ovr shouldnt be necessary)
 			gpioport->gpers = gpiopin;	//Switch to GPIO functionality
 			return;
 			break;
-		case A:
+		case FUNC_A:
 			gpioport->pmr0c = gpiopin;	//Set peripheral multiplexed functionality
 			gpioport->pmr1c = gpiopin;
 			break;
-		case B:
+		case FUNC_B:
 			gpioport->pmr0s = gpiopin;
 			gpioport->pmr1c = gpiopin;
 			break;
-		case C:
+		case FUNC_C:
 			gpioport->pmr0c = gpiopin;
 			gpioport->pmr1s = gpiopin;
 			break;
-		case D:
+		case FUNC_D:
 			gpioport->pmr0s = gpiopin;
 			gpioport->pmr1s = gpiopin;
 			break;
@@ -88,7 +88,7 @@ void gpioInit(int pinnr, int type)
 	int portnr, pin, pinpos;
 
 	portnr = pinnr >> 5;
-	pinpos = pinnr & (GPIO_PIN_MAX - 1);
+	pinpos = pinnr & 0x1f;
 	pin = 1 << pinpos;
 	gpioport = &AVR32_GPIO.port[portnr];
 
@@ -121,7 +121,7 @@ void gpioClear(int pinnr)
 	int portnr, pin, pinpos;
 
 	portnr = pinnr >> 5;
-	pinpos = pinnr & (GPIO_PIN_MAX - 1);
+	pinpos = pinnr & 0x1f;
 	pin = 1 << pinpos;
 	gpioport = &AVR32_GPIO.port[portnr];
 
@@ -141,7 +141,7 @@ void gpioSet(int pinnr)
 	int portnr, pin, pinpos;
 
 	portnr = pinnr >> 5;
-	pinpos = pinnr & (GPIO_PIN_MAX - 1);
+	pinpos = pinnr & 0x1f;
 	pin = 1 << pinpos;
 	gpioport = &AVR32_GPIO.port[portnr];
 
@@ -161,7 +161,7 @@ void gpioToggle(int pinnr)
 	int portnr, pin, pinpos;
 
 	portnr = pinnr >> 5;
-	pinpos = pinnr & (GPIO_PIN_MAX - 1);
+	pinpos = pinnr & 0x1f;
 	pin = 1 << pinpos;
 	gpioport = &AVR32_GPIO.port[portnr];
 
@@ -185,7 +185,7 @@ int gpioGet(int pinnr)
 	int portnr, pin, pinpos;
 
 	portnr = pinnr >> 5;
-	pinpos = pinnr & (GPIO_PIN_MAX - 1);
+	pinpos = pinnr & 0x1f;
 	pin = 1 << pinpos;
 	gpioport = &AVR32_GPIO.port[portnr];
 

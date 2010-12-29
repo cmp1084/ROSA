@@ -28,10 +28,10 @@
 #define __GPIO_H_
 
 //The maxiumim nr of pins on a GPIO port
-#define GPIO_PIN_MAX 0x20
+//~ #define GPIO_PIN_MAX 0x20	Todo: Remove
 
 //PeripherialEnable function
-enum { GPIO = -1, A = 0, B, C, D };
+enum { FUNC_GPIO = -1, FUNC_A = 0, FUNC_B, FUNC_C, FUNC_D };
 enum { OUTPUT, INPUT };
 
 //~ #define OUTPUT 0	//GPIO pin is output
